@@ -943,7 +943,7 @@ Product Designer - metacareers.com/jobs/1397212694826926"
                       {job.type}
                     </span>
                   )}
-                  {hasMasterResume && (
+                  {hasMasterResume && !!(job.notesText || '').trim() && (
                     <span className={`badge ${getMatchBadgeClass(matchScore)}`} style={{ fontSize: '0.65rem', display: 'inline-flex', alignItems: 'center', gap: '0.2rem' }}>
                       <Sparkles size={8} />
                       <span>Match: {matchScore}%</span>
@@ -1015,7 +1015,7 @@ Product Designer - metacareers.com/jobs/1397212694826926"
                       {job.type}
                     </span>
                   )}
-                  {hasMasterResume && (
+                  {hasMasterResume && !!(job.notesText || '').trim() && (
                     <span className={`badge ${getMatchBadgeClass(matchScore)}`} style={{ fontSize: '0.65rem' }}>
                       <Sparkles size={8} />
                       <span>Match: {matchScore}%</span>
@@ -1296,7 +1296,7 @@ Product Designer - metacareers.com/jobs/1397212694826926"
               </div>
 
               {/* ATS Match Overview */}
-              {hasMasterResume && (
+              {hasMasterResume && !!(activeJob.notesText || '').trim() && (
                 <div>
                   <label style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-muted)', display: 'block', textTransform: 'uppercase', marginBottom: '0.45rem' }}>
                     ATS Resume Match Quality
