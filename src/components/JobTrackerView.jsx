@@ -621,7 +621,12 @@ ${importText}`;
 
   // Import parsed list into the tracker
   const handleImportParsed = () => {
-    parsedJobs.forEach(job => {
+    const importableJobs = parsedJobs.filter(job => {
+      const linkStatus = checkLinkStatus(job.link);
+      return linkStatus !== 'generic_link' && linkStatus !== 'login_required';
+    });
+
+    importableJobs.forEach(job => {
       handleAddJob({
         ...job,
         status: 'Wishlist'
@@ -793,14 +798,22 @@ Product Designer - metacareers.com/jobs/1397212694826926"
             >
               {isParsing ? 'Parsing with AI...' : 'Parse pasted text'}
             </button>
-            {parsedJobs.length > 0 && (
-              <button 
-                className="btn btn-emerald"
-                onClick={handleImportParsed}
-              >
-                Import {parsedJobs.length} Jobs to Tracker
-              </button>
-            )}
+            {parsedJobs.length > 0 && (() => {
+              const importableCount = parsedJobs.filter(job => {
+                const linkStatus = checkLinkStatus(job.link);
+                return linkStatus !== 'generic_link' && linkStatus !== 'login_required';
+              }).length;
+
+              return (
+                <button 
+                  className="btn btn-emerald"
+                  onClick={handleImportParsed}
+                  disabled={importableCount === 0}
+                >
+                  Import {importableCount} Jobs to Tracker
+                </button>
+              );
+            })()}
           </div>
 
           {/* Parsed Jobs Preview */}
@@ -808,17 +821,43 @@ Product Designer - metacareers.com/jobs/1397212694826926"
             <div style={{ background: '#f8fafc', padding: '1rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
               <div style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '0.5rem', textTransform: 'uppercase' }}>Preview found roles:</div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '0.75rem' }}>
-                {parsedJobs.map((job, idx) => (
-                  <div key={idx} style={{ background: '#ffffff', padding: '0.65rem 0.85rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
-                    <strong style={{ fontSize: '0.9rem', color: 'var(--text-primary)' }}>{job.company}</strong>
-                    <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{job.role}</span>
-                    {job.link && (
-                      <span style={{ fontSize: '0.75rem', color: 'var(--accent-blue)', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
-                        {job.link}
-                      </span>
-                    )}
-                  </div>
-                ))}
+                {parsedJobs.map((job, idx) => {
+                  const linkStatus = checkLinkStatus(job.link);
+                  const isImportable = linkStatus !== 'generic_link' && linkStatus !== 'login_required';
+                  
+                  return (
+                    <div key={idx} style={{ 
+                      background: '#ffffff', 
+                      padding: '0.65rem 0.85rem', 
+                      borderRadius: 'var(--radius-sm)', 
+                      border: isImportable ? '1px solid var(--border-color)' : '1px dashed var(--accent-rose)', 
+                      display: 'flex', 
+                      flexDirection: 'column', 
+                      gap: '0.2rem',
+                      opacity: isImportable ? 1 : 0.7
+                    }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.5rem' }}>
+                        <strong style={{ fontSize: '0.9rem', color: 'var(--text-primary)' }}>{job.company}</strong>
+                        {!isImportable && (
+                          <span className="badge badge-rose" style={{ fontSize: '0.6rem', padding: '0.1rem 0.3rem', whiteSpace: 'nowrap', fontWeight: 600 }}>
+                            {linkStatus === 'login_required' ? '🔒 Excluded: Login Portal' : '⚠️ Excluded: General Careers'}
+                          </span>
+                        )}
+                        {isImportable && (
+                          <span className="badge badge-emerald" style={{ fontSize: '0.6rem', padding: '0.1rem 0.3rem', whiteSpace: 'nowrap', fontWeight: 600 }}>
+                            ✅ Importable
+                          </span>
+                        )}
+                      </div>
+                      <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{job.role}</span>
+                      {job.link && (
+                        <span style={{ fontSize: '0.75rem', color: isImportable ? 'var(--accent-blue)' : 'var(--text-muted)', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} title={job.link}>
+                          {job.link}
+                        </span>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
