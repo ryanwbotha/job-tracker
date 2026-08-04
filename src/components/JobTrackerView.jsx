@@ -189,16 +189,6 @@ export default function JobTrackerView({ setActiveView }) {
     if (!/^https?:\/\//i.test(cleanUrl)) {
       cleanUrl = `https://${cleanUrl}`;
     }
-    
-    let apiKey = localStorage.getItem('GEMINI_API_KEY');
-    if (!apiKey) {
-      apiKey = localStorage.getItem('ats_gemini_api_key') || '';
-    }
-    
-    if (!apiKey) {
-      alert("Please configure your Gemini API Key in the Settings page to use the Auto-Pull feature.");
-      return;
-    }
 
     setIsPullingDesc(true);
     try {
@@ -219,125 +209,92 @@ export default function JobTrackerView({ setActiveView }) {
         throw new Error("No content returned from the webpage proxy.");
       }
 
-      let cleanedText = rawHtml
-        .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-        .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '')
-        .replace(/<[^>]+>/g, ' ')
-        .replace(/\s+/g, ' ')
+      // Parse HTML inside browser DOM
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(rawHtml, 'text/html');
+
+      // Helper function to recursively traverse DOM nodes and compile formatted markdown text
+      const formatNode = (node) => {
+        let text = '';
+        if (node.nodeType === Node.TEXT_NODE) {
+          const val = node.nodeValue.replace(/\s+/g, ' ').trim();
+          if (val) text += val + ' ';
+        } else if (node.nodeType === Node.ELEMENT_NODE) {
+          const tagName = node.tagName.toLowerCase();
+          
+          // Ignore noise elements completely
+          if (['script', 'style', 'nav', 'header', 'footer', 'iframe', 'noscript', 'head', 'svg', 'button', 'input', 'select', 'textarea', 'form'].includes(tagName)) {
+            return '';
+          }
+          
+          let childText = '';
+          node.childNodes.forEach(child => {
+            childText += formatNode(child);
+          });
+          
+          childText = childText.trim();
+          if (!childText) return '';
+          
+          if (/^h[1-6]$/.test(tagName)) {
+            const level = tagName[1];
+            text += `\n\n${'#'.repeat(level)} ${childText}\n\n`;
+          } else if (tagName === 'p') {
+            text += `\n\n${childText}\n\n`;
+          } else if (tagName === 'li') {
+            text += `\n* ${childText}`;
+          } else if (tagName === 'ul' || tagName === 'ol') {
+            text += `\n${childText}\n`;
+          } else if (tagName === 'div' || tagName === 'section' || tagName === 'article') {
+            text += `\n${childText}\n`;
+          } else if (['strong', 'b'].includes(tagName)) {
+            text += ` **${childText}** `;
+          } else if (['em', 'i'].includes(tagName)) {
+            text += ` *${childText}* `;
+          } else {
+            text += childText + ' ';
+          }
+        }
+        return text;
+      };
+
+      let formattedText = formatNode(doc.body);
+      formattedText = formattedText
+        .replace(/\n{3,}/g, '\n\n') // replace 3+ newlines with 2 newlines
         .trim();
 
-      if (cleanedText.length > 30000) {
-        cleanedText = cleanedText.substring(0, 30000);
+      if (!formattedText || formattedText.length < 50) {
+        throw new Error("This link does not appear to contain a specific job description or could not be parsed.");
       }
 
-      const prompt = `You are a helpful assistant. First, evaluate whether the webpage text below contains a specific, individual job listing posting (with a job title, role description, qualifications, and/or responsibilities).
-If it is a generic page, homepage, index/search listing of multiple jobs, or an error page, set "isJobPosting" to false and provide a helpful reason in "errorReason" explaining why it is not a specific job post.
-If it is a specific job listing, set "isJobPosting" to true, and extract the job description and metadata.
-
-Format the job description professionally with sections (About Us, Role, Requirements, Responsibilities, Benefits, etc.) using bullet points and markdown.
-
-Return a JSON response matching this structure exactly:
-{
-  "isJobPosting": true or false,
-  "errorReason": "<if not a job posting, explain why e.g. 'This is a general company landing page rather than a specific job posting.' otherwise empty string>",
-  "jobDescription": "<extracted clean markdown job description>",
-  "company": "<extracted company name or empty string if not found>",
-  "role": "<extracted role/title or empty string if not found>",
-  "location": "<extracted location or empty string if not found>",
-  "type": "<extracted job type e.g. Full-Time, Part-Time, Contract, or empty string if not found>"
-}
-
-Webpage text:
-${cleanedText}`;
-
-      let geminiRes = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey.trim()}`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            contents: [{
-              parts: [{ text: prompt }]
-            }],
-            generationConfig: {
-              responseMimeType: 'application/json'
-            }
-          })
-        }
-      );
-
-      if (!geminiRes.ok && (geminiRes.status === 429 || geminiRes.status === 403)) {
-        console.warn("Gemini 2.0 Flash quota exceeded. Falling back to Gemini 1.5 Flash...");
-        geminiRes = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey.trim()}`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              contents: [{
-                parts: [{ text: prompt }]
-              }],
-              generationConfig: {
-                responseMimeType: 'application/json'
-              }
-            })
-          }
-        );
-      }
-
-      if (!geminiRes.ok) {
-        const errorText = await geminiRes.text().catch(() => "");
-        let errorMessage = `Gemini API error (${geminiRes.status})`;
-        try {
-          const errorJson = JSON.parse(errorText);
-          if (errorJson.error?.message) {
-            errorMessage = errorJson.error.message;
-          }
-        } catch (e) {}
-        throw new Error(errorMessage);
-      }
-
-      const geminiText = await geminiRes.text();
-      if (!geminiText || !geminiText.trim()) {
-        throw new Error("Empty response from Gemini API.");
-      }
-
-      const geminiData = JSON.parse(geminiText);
-      const textResponse = geminiData.candidates?.[0]?.content?.parts?.[0]?.text;
-      if (!textResponse) {
-        throw new Error('Empty response from Gemini API.');
-      }
-
-      let cleanJson = textResponse.trim();
-      if (cleanJson.startsWith("```")) {
-        cleanJson = cleanJson.replace(/^```(?:json)?\n?/i, "").replace(/\n?```$/i, "").trim();
-      }
-
-      const parsedResult = JSON.parse(cleanJson);
+      // Check if title has keywords indicating it's not a job listing
+      const pageTitle = doc.title || '';
+      const isNotJobPost = /login|sign in|cookies|robot|captcha|404|not found|forbidden/i.test(pageTitle) || 
+                           (formattedText.toLowerCase().includes("enable cookies") && formattedText.length < 500);
       
-      if (parsedResult.isJobPosting === false) {
-        throw new Error(parsedResult.errorReason || "The link does not appear to contain a specific job posting.");
+      if (isNotJobPost) {
+        throw new Error("The link does not appear to contain a specific job posting (security check or login page detected).");
       }
+
+      // Save formatted text to Notes
+      const updates = { notesText: formattedText };
       
-      const updates = {};
-      if (parsedResult.jobDescription) {
-        updates.notesText = parsedResult.jobDescription;
-      }
-      
+      // Auto-extract metadata if fields are empty
       const currentJob = jobApplications.find(j => j.id === jobId);
       if (currentJob) {
-        if (parsedResult.company && !currentJob.company) updates.company = parsedResult.company;
-        if (parsedResult.role && !currentJob.role) updates.role = parsedResult.role;
-        if (parsedResult.location && !currentJob.location) updates.location = parsedResult.location;
-        if (parsedResult.type && !currentJob.type) updates.type = parsedResult.type;
+        // Try to guess Company / Role from page title if they are empty/open roles
+        if (!currentJob.company || currentJob.company.toLowerCase().includes('google') || currentJob.company === 'Open Company') {
+          const titleClean = pageTitle.split(/[|\-•]/)[0].trim();
+          if (titleClean && titleClean.length < 100) {
+            const matchCompany = pageTitle.match(/at\s+([^|\-•]+)/i) || pageTitle.match(/careers\s+at\s+([^|\-•]+)/i);
+            if (matchCompany && !currentJob.company) {
+              updates.company = matchCompany[1].trim();
+            }
+          }
+        }
       }
 
       updateResource(jobId, updates);
-      alert("Successfully pulled and updated job details and description!");
+      alert("Successfully pulled and formatted job description!");
     } catch (err) {
       console.error(err);
       alert(`Error pulling description: ${err.message}`);
