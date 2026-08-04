@@ -978,10 +978,10 @@ Product Designer - metacareers.com/jobs/1397212694826926"
                   />
                 </div>
 
-                {/* Company & Role Header */}
+                {/* Role & Company Header */}
                 <div>
-                  <h4 style={{ fontSize: '1.15rem', fontWeight: 800, fontFamily: 'var(--font-heading)', color: 'var(--text-primary)' }}>{job.company}</h4>
-                  <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600, marginTop: '0.15rem' }}>{job.role}</div>
+                  <h4 style={{ fontSize: '1.15rem', fontWeight: 800, fontFamily: 'var(--font-heading)', color: 'var(--text-primary)' }}>{job.role}</h4>
+                  <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600, marginTop: '0.15rem' }}>{job.company}</div>
                 </div>
 
                 {/* Location & Type & Match Score Badges */}
@@ -1064,8 +1064,8 @@ Product Designer - metacareers.com/jobs/1397212694826926"
                   }} />
 
                   <div>
-                    <strong style={{ fontSize: '1rem', color: 'var(--text-primary)' }}>{job.company}</strong>
-                    <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{job.role}</div>
+                    <strong style={{ fontSize: '1rem', color: 'var(--text-primary)' }}>{job.role}</strong>
+                    <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{job.company}</div>
                   </div>
                 </div>
 
