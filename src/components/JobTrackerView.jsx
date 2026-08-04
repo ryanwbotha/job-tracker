@@ -850,7 +850,7 @@ Product Designer - metacareers.com/jobs/1397212694826926"
                       opacity: isImportable ? 1 : 0.7
                     }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.5rem' }}>
-                        <strong style={{ fontSize: '0.9rem', color: 'var(--text-primary)' }}>{job.company}</strong>
+                        <strong style={{ fontSize: '0.9rem', color: 'var(--text-primary)' }}>{job.role}</strong>
                         {!isImportable && (
                           <span className="badge badge-rose" style={{ fontSize: '0.6rem', padding: '0.1rem 0.3rem', whiteSpace: 'nowrap', fontWeight: 600 }}>
                             {linkStatus === 'login_required' ? '🔒 Excluded: Login Portal' : '⚠️ Excluded: General Careers'}
@@ -862,7 +862,7 @@ Product Designer - metacareers.com/jobs/1397212694826926"
                           </span>
                         )}
                       </div>
-                      <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{job.role}</span>
+                      <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{job.company}</span>
                       {job.link && (
                         <span style={{ fontSize: '0.75rem', color: isImportable ? 'var(--accent-blue)' : 'var(--text-muted)', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} title={job.link}>
                           {job.link}
