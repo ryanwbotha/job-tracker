@@ -941,39 +941,8 @@ Product Designer - metacareers.com/jobs/1397212694826926"
             };            return (
               <div 
                 key={job.id} 
-                className="section-card" 
+                className={`section-card tracker-job-card ${isActiveJob ? 'active' : ''} ${isSelected ? 'selected' : ''}`}
                 onClick={() => setSelectedDescriptionJob(job)}
-                style={{ 
-                  display: 'flex', 
-                  flexDirection: 'column', 
-                  gap: '0.75rem',
-                  padding: '1.25rem',
-                  position: 'relative',
-                  border: isActiveJob 
-                    ? '2px solid var(--accent-blue)' 
-                    : isSelected 
-                      ? '1px solid var(--accent-blue)' 
-                      : '1px solid var(--border-color)',
-                  background: isActiveJob 
-                    ? 'rgba(37, 99, 235, 0.03)' 
-                    : isSelected 
-                      ? 'var(--bg-card-hover)' 
-                      : 'var(--bg-card)',
-                  transition: 'all 0.15s ease',
-                  cursor: 'pointer'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = 'var(--accent-blue)';
-                  e.currentTarget.style.boxShadow = 'var(--shadow-md)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = isActiveJob 
-                    ? 'var(--accent-blue)' 
-                    : isSelected 
-                      ? 'var(--accent-blue)' 
-                      : 'var(--border-color)';
-                  e.currentTarget.style.boxShadow = 'none';
-                }}
               >
                 {/* Selection Checkbox */}
                 <div style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center' }} onClick={(e) => e.stopPropagation()}>
@@ -1035,34 +1004,8 @@ Product Designer - metacareers.com/jobs/1397212694826926"
             return (
               <div 
                 key={job.id}
-                className="section-card"
+                className={`section-card tracker-job-row ${isActiveJob ? 'active' : ''} ${isSelected ? 'selected' : ''}`}
                 onClick={() => setSelectedDescriptionJob(job)}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  padding: '0.85rem 1.25rem',
-                  border: isActiveJob 
-                    ? '2px solid var(--accent-blue)' 
-                    : isSelected 
-                      ? '1px solid var(--accent-blue)' 
-                      : '1px solid var(--border-color)',
-                  background: isActiveJob 
-                    ? 'rgba(37, 99, 235, 0.03)' 
-                    : isSelected 
-                      ? 'var(--bg-card-hover)' 
-                      : 'var(--bg-card)',
-                  transition: 'all 0.15s ease',
-                  cursor: 'pointer',
-                  gap: '1rem',
-                  flexWrap: 'wrap'
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--accent-blue)'}
-                onMouseLeave={(e) => e.currentTarget.style.borderColor = isActiveJob 
-                  ? 'var(--accent-blue)' 
-                  : isSelected 
-                    ? 'var(--accent-blue)' 
-                    : 'var(--border-color)'}
               >
                 {/* Left Side: Checkbox, Status Dot, Company & Role */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', flex: 1, minWidth: '250px' }}>
