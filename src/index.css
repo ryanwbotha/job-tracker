@@ -746,10 +746,18 @@ a.linkedin-link:hover {
   box-shadow: var(--shadow-card);
   display: flex;
   flex-direction: column;
-  position: sticky;
-  top: 1.25rem;
-  max-height: calc(100vh - 120px);
+  position: fixed;
+  top: 100px;
+  right: 2rem;
+  bottom: 2rem;
+  z-index: 100;
+  overflow: hidden;
   animation: slideInRight 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.tracker-side-spacer {
+  width: 400px;
+  flex-shrink: 0;
 }
 
 @media (max-width: 1024px) {
@@ -758,10 +766,17 @@ a.linkedin-link:hover {
     align-items: stretch;
   }
   .tracker-side-pane {
+    position: fixed;
+    top: 60px;
+    right: 0;
+    bottom: 0;
+    left: 0;
     width: 100%;
-    position: static;
-    max-height: none;
-    margin-top: 1rem;
+    border-radius: 0;
+    z-index: 9999;
+  }
+  .tracker-side-spacer {
+    display: none;
   }
 }
 

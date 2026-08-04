@@ -1044,6 +1044,12 @@ Product Designer - metacareers.com/jobs/1397212694826926"
       )}
       </div>
 
+      {/* Responsive Side Drawer Spacer to shift listings */}
+      {selectedDescriptionJob && (
+        <div className="tracker-side-spacer" />
+      )}
+      </div>
+
       {/* Inline responsive Side Panel Drawer */}
       {selectedDescriptionJob && (() => {
         const activeJob = jobApplications.find(j => j.id === selectedDescriptionJob.id);
@@ -1598,7 +1604,6 @@ Product Designer - metacareers.com/jobs/1397212694826926"
           </div>
         );
       })()}
-      </div>
 
       {/* Manual Quick Add Form */}
       <div className="section-card">
