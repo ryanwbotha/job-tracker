@@ -521,7 +521,10 @@ export default function JobTrackerView({ setActiveView }) {
     setIsParsing(true);
     setParsedJobs([]);
 
-    const apiKey = localStorage.getItem('GEMINI_API_KEY');
+    let apiKey = localStorage.getItem('GEMINI_API_KEY');
+    if (!apiKey) {
+      apiKey = localStorage.getItem('ats_gemini_api_key') || '';
+    }
 
     if (!apiKey) {
       // Local fallback parser
@@ -531,39 +534,59 @@ export default function JobTrackerView({ setActiveView }) {
       return;
     }
 
-    try {
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [
-            {
-              parts: [
-                {
-                  text: `You are a structured job opportunity parser. Parse the following unstructured list of company names, roles, locations, links, and job details. 
-                  Extract all the open jobs listed. Make sure to capture the exact URL links for the jobs if they are in the list.
-                  
-                  Return a JSON array of objects with the exact structure below. Do NOT wrap output in markdown code blocks like \`\`\`json. Return ONLY raw JSON text.
-                  
-                  [
-                    {
-                      "company": "Company Name",
-                      "role": "Role Title",
-                      "location": "Location (e.g. New York, NY or Remote)",
-                      "type": "Onsite|Hybrid|Remote",
-                      "link": "URL link if available",
-                      "notes": "Salary info, job category, or description summary"
-                    }
-                  ]
+    const prompt = `You are a structured job opportunity parser. Parse the following unstructured list of company names, roles, locations, links, and job details. 
+Extract all the open jobs listed. Make sure to capture the exact URL links for the jobs if they are in the list.
 
-                  Here is the text to parse:
-                  ${importText}`
-                }
-              ]
+Return a JSON array of objects with this exact structure:
+[
+  {
+    "company": "Company Name",
+    "role": "Role/Title",
+    "location": "Location (e.g. New York, NY or Remote)",
+    "type": "Onsite|Hybrid|Remote",
+    "link": "URL link if available",
+    "notes": "Salary info, job category, or description summary"
+  }
+]
+
+Here is the text to parse:
+${importText}`;
+
+    try {
+      let response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey.trim()}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{
+              parts: [{ text: prompt }]
+            }],
+            generationConfig: {
+              responseMimeType: 'application/json'
             }
-          ]
-        })
-      });
+          })
+        }
+      );
+
+      if (!response.ok && (response.status === 429 || response.status === 403)) {
+        console.warn("Gemini 2.0 Flash quota exceeded. Falling back to Gemini 1.5 Flash for paste parsing...");
+        response = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey.trim()}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [{
+                parts: [{ text: prompt }]
+              }],
+              generationConfig: {
+                responseMimeType: 'application/json'
+              }
+            })
+          }
+        );
+      }
 
       if (!response.ok) {
         throw new Error(`API returned status ${response.status}`);
@@ -573,19 +596,19 @@ export default function JobTrackerView({ setActiveView }) {
       const textResponse = responseData.candidates?.[0]?.content?.parts?.[0]?.text;
       
       if (!textResponse) {
-        throw new Error('Gemini API returned empty response parts.');
+        throw new Error('Gemini API returned empty response.');
       }
 
       let cleanJson = textResponse.trim();
       if (cleanJson.startsWith('```')) {
-        cleanJson = cleanJson.replace(/^```json\s*/, '').replace(/```$/, '').trim();
+        cleanJson = cleanJson.replace(/^```(?:json)?\s*/i, '').replace(/```$/, '').trim();
       }
 
       const parsed = JSON.parse(cleanJson);
       if (Array.isArray(parsed)) {
         setParsedJobs(parsed);
       } else {
-        throw new Error('Parsed response is not a JSON array');
+        throw new Error('Parsed response is not a list.');
       }
     } catch (err) {
       console.error('Gemini API parse failed, falling back to local parser:', err);
