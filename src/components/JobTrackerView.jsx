@@ -16,7 +16,9 @@ import {
   Grid,
   List,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  CheckCircle2,
+  AlertTriangle
 } from 'lucide-react';
 import Linkedin from './LinkedinIcon';
 
@@ -73,6 +75,81 @@ function getMatchBadgeClass(score) {
   return 'badge-rose';
 }
 
+function getScoreColor(score) {
+  if (score >= 80) return 'var(--accent-emerald)';
+  if (score >= 50) return 'var(--accent-amber)';
+  return 'var(--accent-rose)';
+}
+
+function getLocalMatchBreakdown(resumeText, job) {
+  if (!resumeText || !job) {
+    return {
+      score: 0,
+      matchingWords: [],
+      missingWords: []
+    };
+  }
+
+  const resume = resumeText.toLowerCase();
+  const jobTitle = (job.role || '').toLowerCase();
+  const jobNotes = (job.notesText || '').toLowerCase();
+  const jobCompany = (job.company || '').toLowerCase();
+  
+  const cleanWords = (text) => {
+    const words = text.match(/\b[a-z0-9+#.-]{3,25}\b/g) || [];
+    const stopWords = new Set([
+      'the', 'and', 'for', 'you', 'this', 'that', 'with', 'from', 'have', 'are', 'your', 'will', 'our', 'their', 'about',
+      'some', 'than', 'them', 'then', 'into', 'only', 'over', 'other', 'been', 'were', 'also', 'more', 'work', 'team',
+      'role', 'job', 'application', 'status', 'with', 'from', 'when', 'who', 'how', 'why', 'what', 'which', 'where',
+      'has', 'had', 'have', 'having', 'should', 'could', 'would', 'must', 'will', 'shall'
+    ]);
+    return words.filter(w => !stopWords.has(w));
+  };
+  
+  const resumeWordSet = new Set(cleanWords(resume));
+  const jobWords = cleanWords(`${jobTitle} ${jobNotes} ${jobCompany}`);
+  const jobWordSet = new Set(jobWords);
+  
+  if (jobWordSet.size === 0) {
+    return {
+      score: 0,
+      matchingWords: [],
+      missingWords: []
+    };
+  }
+  
+  const matchingWords = [];
+  const missingWords = [];
+  
+  jobWordSet.forEach(word => {
+    if (resumeWordSet.has(word)) {
+      matchingWords.push(word);
+    } else {
+      missingWords.push(word);
+    }
+  });
+  
+  let matches = matchingWords.length;
+  let matchPercentage = Math.round((matches / jobWordSet.size) * 100);
+  
+  const titleWords = cleanWords(jobTitle);
+  let titleMatchCount = 0;
+  titleWords.forEach(word => {
+    if (resumeWordSet.has(word)) titleMatchCount++;
+  });
+  if (titleWords.length > 0 && titleMatchCount > 0) {
+    matchPercentage += Math.round((titleMatchCount / titleWords.length) * 15);
+  }
+  
+  const score = matches === 0 ? 0 : Math.min(98, Math.max(15, matchPercentage));
+  
+  return {
+    score,
+    matchingWords,
+    missingWords
+  };
+}
+
 export default function JobTrackerView({ setActiveView }) {
   const { allResources, addResource, deleteResource, updateResource, allContacts, addContact } = useTracker();
   
@@ -99,6 +176,7 @@ export default function JobTrackerView({ setActiveView }) {
 
   // Inline Contact Add state (indexed by job id)
   const [addingContactJobId, setAddingContactJobId] = useState(null);
+  const [activeBreakdownJob, setActiveBreakdownJob] = useState(null);
   const [newContactName, setNewContactName] = useState('');
   const [newContactLinkedin, setNewContactLinkedin] = useState('');
 
@@ -758,7 +836,12 @@ Product Designer - metacareers.com/jobs/1397212694826926"
                     </span>
                   )}
                   {hasMasterResume && (
-                    <span className={`badge ${getMatchBadgeClass(matchScore)}`} style={{ fontSize: '0.7rem', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }} title="ATS Match percentage based on your Master Resume">
+                    <span 
+                      onClick={() => setActiveBreakdownJob(job)}
+                      className={`badge ${getMatchBadgeClass(matchScore)}`} 
+                      style={{ fontSize: '0.7rem', display: 'inline-flex', alignItems: 'center', gap: '0.25rem', cursor: 'pointer' }} 
+                      title="Click to view keyword match breakdown"
+                    >
                       <Sparkles size={10} />
                       <span>Match: {matchScore}%</span>
                     </span>
@@ -1246,7 +1329,12 @@ Product Designer - metacareers.com/jobs/1397212694826926"
                     )}
 
                     {hasMasterResume && (
-                      <span className={`badge ${getMatchBadgeClass(matchScore)}`} style={{ fontSize: '0.65rem', padding: '0.15rem 0.45rem', display: 'inline-flex', alignItems: 'center', gap: '0.2rem' }} title="ATS Match percentage based on your Master Resume">
+                      <span 
+                        onClick={() => setActiveBreakdownJob(job)}
+                        className={`badge ${getMatchBadgeClass(matchScore)}`} 
+                        style={{ fontSize: '0.65rem', padding: '0.15rem 0.45rem', display: 'inline-flex', alignItems: 'center', gap: '0.2rem', cursor: 'pointer' }} 
+                        title="Click to view keyword match breakdown"
+                      >
                         <Sparkles size={8} />
                         <span>Match: {matchScore}%</span>
                       </span>
@@ -1708,6 +1796,111 @@ Product Designer - metacareers.com/jobs/1397212694826926"
         </form>
       </div>
 
+      {activeBreakdownJob && (() => {
+        const breakdown = getLocalMatchBreakdown(resumeText, activeBreakdownJob);
+        return (
+          <div className="modal-overlay" onClick={() => setActiveBreakdownJob(null)}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '600px', width: '90%' }}>
+              <div className="modal-header">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                  <Sparkles color="var(--accent-blue)" size={22} />
+                  <h2 style={{ fontSize: '1.2rem', fontWeight: 700 }}>Keyword Match Breakdown</h2>
+                </div>
+                <button className="modal-close-btn" onClick={() => setActiveBreakdownJob(null)}>
+                  <X size={18} />
+                </button>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', marginTop: '0.5rem' }}>
+                <div>
+                  <h3 style={{ fontSize: '1.1rem', fontWeight: 800 }}>{activeBreakdownJob.company}</h3>
+                  <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>{activeBreakdownJob.role}</div>
+                </div>
+
+                {/* Score summary */}
+                <div style={{
+                  background: '#f8fafc',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: 'var(--radius-md)',
+                  padding: '1rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between'
+                }}>
+                  <div>
+                    <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Local Keyword Match</div>
+                    <div style={{ fontSize: '1.1rem', fontWeight: 800, color: getScoreColor(breakdown.score) }}>
+                      {breakdown.score >= 80 
+                        ? 'Strong Match'
+                        : breakdown.score >= 50
+                        ? 'Good Keyword Overlap'
+                        : 'Low Keyword Overlap'}
+                    </div>
+                  </div>
+                  <div style={{
+                    fontSize: '2rem',
+                    fontWeight: 900,
+                    color: getScoreColor(breakdown.score)
+                  }}>
+                    {breakdown.score}%
+                  </div>
+                </div>
+
+                {/* Breakdown lists */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                  {/* Matching Words */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--accent-emerald)' }}>
+                      <CheckCircle2 size={18} />
+                      <strong style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--text-primary)' }}>Matched Words ({breakdown.matchingWords.length})</strong>
+                    </div>
+                    <p style={{ fontSize: '0.775rem', color: 'var(--text-secondary)' }}>
+                      Words from this job listing description/title found in your resume:
+                    </p>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem', background: '#fafdfb', border: '1px solid #e6f6ec', borderRadius: 'var(--radius-md)', padding: '0.75rem', maxHeight: '150px', overflowY: 'auto' }}>
+                      {breakdown.matchingWords.length > 0 ? (
+                        breakdown.matchingWords.map((word, i) => (
+                          <span key={i} className="badge badge-emerald" style={{ padding: '0.2rem 0.45rem', fontSize: '0.75rem', fontWeight: 600 }}>
+                            {word}
+                          </span>
+                        ))
+                      ) : (
+                        <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>No matching keywords.</span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Missing/Unmatched Words */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--accent-rose)' }}>
+                      <AlertTriangle size={18} />
+                      <strong style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--text-primary)' }}>Unmatched Words ({breakdown.missingWords.length})</strong>
+                    </div>
+                    <p style={{ fontSize: '0.775rem', color: 'var(--text-secondary)' }}>
+                      Words in this job listing description/title missing from your resume:
+                    </p>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem', background: '#fffbfa', border: '1px solid #fdeee9', borderRadius: 'var(--radius-md)', padding: '0.75rem', maxHeight: '150px', overflowY: 'auto' }}>
+                      {breakdown.missingWords.length > 0 ? (
+                        breakdown.missingWords.map((word, i) => (
+                          <span key={i} className="badge badge-rose" style={{ padding: '0.2rem 0.45rem', fontSize: '0.75rem', fontWeight: 600 }}>
+                            {word}
+                          </span>
+                        ))
+                      ) : (
+                        <span style={{ fontSize: '0.85rem', color: 'var(--accent-emerald)', fontWeight: 600 }}>All keywords match!</span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1.25rem', borderTop: '1px solid var(--border-color)', paddingTop: '0.75rem' }}>
+                <button className="btn btn-secondary" onClick={() => setActiveBreakdownJob(null)}>Close Breakdown</button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }

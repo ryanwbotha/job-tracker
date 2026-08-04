@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Sparkles, FileText, CheckCircle2, AlertTriangle, Lightbulb, Key, RefreshCw, Trash2, ArrowUpRight, Upload } from 'lucide-react';
+import { Sparkles, FileText, CheckCircle2, AlertTriangle, Lightbulb, Key, RefreshCw, Trash2, ArrowUpRight, Upload, X } from 'lucide-react';
 
 export default function AtsMatcher() {
   const [apiKey, setApiKey] = useState('');
@@ -10,6 +10,7 @@ export default function AtsMatcher() {
   const [error, setError] = useState(null);
   const [result, setResult] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [showBreakdownModal, setShowBreakdownModal] = useState(false);
 
   // Helper to dynamically load PDF.js and extract text from files in the browser
   const parsePdfBrowser = async (file) => {
@@ -471,24 +472,69 @@ ${jobDescription}`;
             flexWrap: 'wrap'
           }}>
             {/* Circular score visualizer */}
-            <div style={{
-              width: '80px',
-              height: '80px',
-              borderRadius: '50%',
-              border: `6px solid ${getScoreColor(result.match_percentage)}`,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '1.5rem',
-              fontWeight: 800,
-              color: getScoreColor(result.match_percentage),
-              background: '#f8fafc'
-            }}>
+            <div 
+              onClick={() => setShowBreakdownModal(true)}
+              style={{
+                width: '80px',
+                height: '80px',
+                borderRadius: '50%',
+                border: `6px solid ${getScoreColor(result.match_percentage)}`,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '1.5rem',
+                fontWeight: 800,
+                color: getScoreColor(result.match_percentage),
+                background: '#f8fafc',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+              }}
+              title="Click to view details breakdown"
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'scale(1.05)';
+                e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.05)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'scale(1)';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
+            >
               {result.match_percentage}%
             </div>
             
-            <div>
-              <h4 style={{ fontSize: '1.25rem', fontWeight: 800 }}>ATS Match Score: {result.match_percentage}%</h4>
+            <div 
+              onClick={() => setShowBreakdownModal(true)} 
+              style={{ 
+                cursor: 'pointer',
+                flex: 1,
+                minWidth: '200px',
+                transition: 'opacity 0.2s ease'
+              }}
+              title="Click to view details breakdown"
+              onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.85'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.opacity = '1'; }}
+            >
+              <h4 style={{ 
+                fontSize: '1.25rem', 
+                fontWeight: 800,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                flexWrap: 'wrap'
+              }}>
+                <span>ATS Match Score: {result.match_percentage}%</span>
+                <span style={{ 
+                  fontSize: '0.75rem', 
+                  color: 'var(--accent-blue)', 
+                  fontWeight: 600,
+                  background: 'rgba(59, 130, 246, 0.08)',
+                  padding: '0.15rem 0.45rem',
+                  borderRadius: '4px',
+                  border: '1px solid rgba(59, 130, 246, 0.15)'
+                }}>
+                  View Details Breakdown ↗
+                </span>
+              </h4>
               <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '0.2rem' }}>
                 {result.match_percentage >= 80 
                   ? 'Excellent fit! Your resume contains a high density of target keywords.'
@@ -575,6 +621,104 @@ ${jobDescription}`;
               </ul>
             </div>
           )}
+        </div>
+      )}
+
+      {showBreakdownModal && (
+        <div className="modal-overlay" onClick={() => setShowBreakdownModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '600px', width: '90%' }}>
+            <div className="modal-header">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                <Sparkles color="var(--accent-blue)" size={22} />
+                <h2 style={{ fontSize: '1.2rem', fontWeight: 700 }}>ATS Match Details Breakdown</h2>
+              </div>
+              <button className="modal-close-btn" onClick={() => setShowBreakdownModal(false)}>
+                <X size={18} />
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', marginTop: '0.5rem' }}>
+              {/* Score summary */}
+              <div style={{
+                background: '#f8fafc',
+                border: '1px solid var(--border-color)',
+                borderRadius: 'var(--radius-md)',
+                padding: '1rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between'
+              }}>
+                <div>
+                  <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Overall Match Quality</div>
+                  <div style={{ fontSize: '1.1rem', fontWeight: 800, color: getScoreColor(result.match_percentage) }}>
+                    {result.match_percentage >= 80 
+                      ? 'High Match (Good to Go!)'
+                      : result.match_percentage >= 50
+                      ? 'Moderate Match (Needs Tweaks)'
+                      : 'Low Match (Needs Focus)'}
+                  </div>
+                </div>
+                <div style={{
+                  fontSize: '2rem',
+                  fontWeight: 900,
+                  color: getScoreColor(result.match_percentage)
+                }}>
+                  {result.match_percentage}%
+                </div>
+              </div>
+
+              {/* Flex columns for matching and unmatched points */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                {/* Matching Points */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--accent-emerald)' }}>
+                    <CheckCircle2 size={18} />
+                    <strong style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--text-primary)' }}>Matched Points ({result.matching_skills?.length || 0})</strong>
+                  </div>
+                  <p style={{ fontSize: '0.775rem', color: 'var(--text-secondary)' }}>
+                    These skills or keywords are successfully aligned between your resume and the job description:
+                  </p>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem', background: '#fafdfb', border: '1px solid #e6f6ec', borderRadius: 'var(--radius-md)', padding: '0.75rem' }}>
+                    {result.matching_skills?.length > 0 ? (
+                      result.matching_skills.map((skill, i) => (
+                        <span key={i} className="badge badge-emerald" style={{ padding: '0.35rem 0.6rem', fontSize: '0.8rem', fontWeight: 600 }}>
+                          {skill}
+                        </span>
+                      ))
+                    ) : (
+                      <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>No matching keywords identified.</span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Unmatched / Missing Points */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--accent-rose)' }}>
+                    <AlertTriangle size={18} />
+                    <strong style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--text-primary)' }}>Unmatched Points ({result.missing_keywords?.length || 0})</strong>
+                  </div>
+                  <p style={{ fontSize: '0.775rem', color: 'var(--text-secondary)' }}>
+                    These are key requirements from the job description that were not found in your resume:
+                  </p>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem', background: '#fffbfa', border: '1px solid #fdeee9', borderRadius: 'var(--radius-md)', padding: '0.75rem' }}>
+                    {result.missing_keywords?.length > 0 ? (
+                      result.missing_keywords.map((kw, i) => (
+                        <span key={i} className="badge badge-rose" style={{ padding: '0.35rem 0.6rem', fontSize: '0.8rem', fontWeight: 600 }}>
+                          {kw}
+                        </span>
+                      ))
+                    ) : (
+                      <span style={{ fontSize: '0.85rem', color: 'var(--accent-emerald)', fontWeight: 600 }}>No missing target keywords found! Excellent density.</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1.25rem', borderTop: '1px solid var(--border-color)', paddingTop: '0.75rem' }}>
+              <button className="btn btn-secondary" onClick={() => setShowBreakdownModal(false)}>Close Breakdown</button>
+            </div>
+          </div>
         </div>
       )}
     </div>
