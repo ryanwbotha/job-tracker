@@ -723,6 +723,48 @@ a.linkedin-link:hover {
   animation: slideInRight 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* Split Pane Layout for Job Tracker Side Panel */
+.tracker-split-layout {
+  display: flex;
+  gap: 1.25rem;
+  align-items: flex-start;
+  position: relative;
+  width: 100%;
+}
+
+.tracker-main-pane {
+  flex: 1;
+  min-width: 0;
+}
+
+.tracker-side-pane {
+  width: 400px;
+  flex-shrink: 0;
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 1.25rem;
+  max-height: calc(100vh - 120px);
+  animation: slideInRight 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (max-width: 1024px) {
+  .tracker-split-layout {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .tracker-side-pane {
+    width: 100%;
+    position: static;
+    max-height: none;
+    margin-top: 1rem;
+  }
+}
+
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
