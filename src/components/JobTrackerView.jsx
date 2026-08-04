@@ -184,6 +184,11 @@ export default function JobTrackerView({ setActiveView }) {
 
   const pullJobDescription = async (jobId, jobUrl) => {
     if (!jobUrl) return;
+
+    let cleanUrl = jobUrl.trim();
+    if (!/^https?:\/\//i.test(cleanUrl)) {
+      cleanUrl = `https://${cleanUrl}`;
+    }
     
     let apiKey = localStorage.getItem('GEMINI_API_KEY');
     if (!apiKey) {
@@ -197,13 +202,18 @@ export default function JobTrackerView({ setActiveView }) {
 
     setIsPullingDesc(true);
     try {
-      const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(jobUrl)}`;
+      const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(cleanUrl)}`;
       const res = await fetch(proxyUrl);
       if (!res.ok) {
         throw new Error(`Failed to fetch webpage content via CORS proxy (${res.status})`);
       }
       
-      const resData = await res.json();
+      const resText = await res.text();
+      if (!resText || !resText.trim()) {
+        throw new Error("Empty response from CORS proxy.");
+      }
+      
+      const resData = JSON.parse(resText);
       const rawHtml = resData.contents;
       if (!rawHtml) {
         throw new Error("No content returned from the webpage proxy.");
@@ -256,17 +266,34 @@ ${cleanedText}`;
       );
 
       if (!geminiRes.ok) {
-        const errorData = await geminiRes.json().catch(() => ({}));
-        throw new Error(errorData.error?.message || `Gemini API error (${geminiRes.status})`);
+        const errorText = await geminiRes.text().catch(() => "");
+        let errorMessage = `Gemini API error (${geminiRes.status})`;
+        try {
+          const errorJson = JSON.parse(errorText);
+          if (errorJson.error?.message) {
+            errorMessage = errorJson.error.message;
+          }
+        } catch (e) {}
+        throw new Error(errorMessage);
       }
 
-      const geminiData = await geminiRes.json();
+      const geminiText = await geminiRes.text();
+      if (!geminiText || !geminiText.trim()) {
+        throw new Error("Empty response from Gemini API.");
+      }
+
+      const geminiData = JSON.parse(geminiText);
       const textResponse = geminiData.candidates?.[0]?.content?.parts?.[0]?.text;
       if (!textResponse) {
         throw new Error('Empty response from Gemini API.');
       }
 
-      const parsedResult = JSON.parse(textResponse);
+      let cleanJson = textResponse.trim();
+      if (cleanJson.startsWith("```")) {
+        cleanJson = cleanJson.replace(/^```(?:json)?\n?/i, "").replace(/\n?```$/i, "").trim();
+      }
+
+      const parsedResult = JSON.parse(cleanJson);
       
       const updates = {};
       if (parsedResult.jobDescription) {
