@@ -1754,9 +1754,10 @@ Product Designer - metacareers.com/jobs/1397212694826926"
             );
           })}
         </div>
-        </div>
+      )}
+      </div>
 
-        {/* Inline responsive Side Panel Drawer */}
+      {/* Inline responsive Side Panel Drawer */}
         {selectedDescriptionJob && (
           <div className="tracker-side-pane">
             {/* Header */}
