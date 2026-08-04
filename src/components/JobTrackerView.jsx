@@ -250,7 +250,7 @@ Return a JSON response matching this structure exactly:
 Webpage text:
 ${cleanedText}`;
 
-      const geminiRes = await fetch(
+      let geminiRes = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey.trim()}`,
         {
           method: 'POST',
@@ -267,6 +267,27 @@ ${cleanedText}`;
           })
         }
       );
+
+      if (!geminiRes.ok && (geminiRes.status === 429 || geminiRes.status === 403)) {
+        console.warn("Gemini 2.0 Flash quota exceeded. Falling back to Gemini 1.5 Flash...");
+        geminiRes = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey.trim()}`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              contents: [{
+                parts: [{ text: prompt }]
+              }],
+              generationConfig: {
+                responseMimeType: 'application/json'
+              }
+            })
+          }
+        );
+      }
 
       if (!geminiRes.ok) {
         const errorText = await geminiRes.text().catch(() => "");
