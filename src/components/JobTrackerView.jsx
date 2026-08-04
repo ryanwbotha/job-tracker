@@ -177,6 +177,7 @@ export default function JobTrackerView({ setActiveView }) {
   // Inline Contact Add state (indexed by job id)
   const [addingContactJobId, setAddingContactJobId] = useState(null);
   const [activeBreakdownJob, setActiveBreakdownJob] = useState(null);
+  const [selectedDescriptionJob, setSelectedDescriptionJob] = useState(null);
   const [newContactName, setNewContactName] = useState('');
   const [newContactLinkedin, setNewContactLinkedin] = useState('');
 
@@ -814,9 +815,13 @@ Product Designer - metacareers.com/jobs/1397212694826926"
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', paddingRight: '1.5rem' }}>
                     <h4 style={{ fontSize: '1.2rem', fontWeight: 800, fontFamily: 'var(--font-heading)' }}>{job.company}</h4>
                     {job.link && (
-                      <a href={job.link.startsWith('http') ? job.link : `https://${job.link}`} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', color: 'var(--text-muted)' }}>
+                      <button 
+                        onClick={() => setSelectedDescriptionJob(job)}
+                        style={{ background: 'none', border: 'none', padding: 0, display: 'flex', alignItems: 'center', color: 'var(--text-muted)', cursor: 'pointer' }}
+                        title="View Job Description"
+                      >
                         <ExternalLink size={14} className="btn-icon-hover" />
-                      </a>
+                      </button>
                     )}
                   </div>
                   <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', fontWeight: 600, marginTop: '0.15rem' }}>{job.role}</div>
@@ -1303,15 +1308,16 @@ Product Designer - metacareers.com/jobs/1397212694826926"
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                         <strong style={{ fontSize: '1.05rem', color: 'var(--text-primary)' }}>{job.company}</strong>
                         {job.link && (
-                          <a 
-                            href={job.link.startsWith('http') ? job.link : `https://${job.link}`} 
-                            target="_blank" 
-                            rel="noopener noreferrer" 
-                            onClick={(e) => e.stopPropagation()}
-                            style={{ color: 'var(--text-muted)', display: 'inline-flex', alignItems: 'center' }}
+                          <button 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedDescriptionJob(job);
+                            }}
+                            style={{ background: 'none', border: 'none', padding: 0, display: 'inline-flex', alignItems: 'center', color: 'var(--text-muted)', cursor: 'pointer' }}
+                            title="View Job Description"
                           >
                             <ExternalLink size={12} className="btn-icon-hover" />
-                          </a>
+                          </button>
                         )}
                       </div>
                       <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{job.role}</div>
@@ -1901,6 +1907,212 @@ Product Designer - metacareers.com/jobs/1397212694826926"
           </div>
         );
       })()}
+
+      {selectedDescriptionJob && (
+        <div className="drawer-backdrop" onClick={() => setSelectedDescriptionJob(null)}>
+          <div className="drawer-content" onClick={(e) => e.stopPropagation()}>
+            {/* Header */}
+            <div style={{
+              padding: '1.25rem',
+              borderBottom: '1px solid var(--border-color)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              background: '#f8fafc'
+            }}>
+              <div>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-primary)' }}>Job Details</h3>
+                <span className={`badge ${getStatusColorClass(selectedDescriptionJob.status || 'Wishlist')}`} style={{ marginTop: '0.25rem', display: 'inline-block' }}>
+                  {selectedDescriptionJob.status || 'Wishlist'}
+                </span>
+              </div>
+              <button 
+                onClick={() => setSelectedDescriptionJob(null)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: 'var(--text-muted)',
+                  cursor: 'pointer',
+                  padding: '0.4rem',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'background-color 0.2s'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#e2e8f0'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Content Scroll Area */}
+            <div style={{
+              flex: 1,
+              padding: '1.5rem',
+              overflowY: 'auto',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1.5rem'
+            }}>
+              {/* Job Header */}
+              <div>
+                <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '0.25rem' }}>{selectedDescriptionJob.company}</h2>
+                <div style={{ fontSize: '1.05rem', fontWeight: 600, color: 'var(--text-secondary)' }}>{selectedDescriptionJob.role}</div>
+              </div>
+
+              {/* Metadata Badges & External Link */}
+              <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.75rem',
+                padding: '1rem',
+                background: '#f8fafc',
+                borderRadius: 'var(--radius-md)',
+                border: '1px solid var(--border-color)'
+              }}>
+                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                  {selectedDescriptionJob.location && (
+                    <span className="badge badge-blue">
+                      <MapPin size={12} style={{ marginRight: '2px' }} />
+                      {selectedDescriptionJob.location}
+                    </span>
+                  )}
+                  {selectedDescriptionJob.type && (
+                    <span className="badge badge-emerald">
+                      {selectedDescriptionJob.type}
+                    </span>
+                  )}
+                </div>
+
+                {selectedDescriptionJob.link && (
+                  <a 
+                    href={selectedDescriptionJob.link.startsWith('http') ? selectedDescriptionJob.link : `https://${selectedDescriptionJob.link}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn btn-primary"
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '0.4rem',
+                      textDecoration: 'none',
+                      marginTop: '0.25rem',
+                      fontSize: '0.85rem',
+                      minHeight: '36px',
+                      color: '#ffffff'
+                    }}
+                  >
+                    <span>Go to Job Posting</span>
+                    <ExternalLink size={14} />
+                  </a>
+                )}
+              </div>
+
+              {/* Formatted Job Description / Notes Section */}
+              <div>
+                <h4 style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '0.65rem', letterSpacing: '0.05em' }}>
+                  Job Description & Notes
+                </h4>
+                {selectedDescriptionJob.notesText ? (
+                  <div style={{
+                    fontSize: '0.9rem',
+                    lineHeight: 1.6,
+                    color: '#334155',
+                    whiteSpace: 'pre-wrap',
+                    background: '#fcfcfc',
+                    border: '1px solid var(--border-color)',
+                    borderRadius: 'var(--radius-md)',
+                    padding: '1rem',
+                    fontFamily: 'var(--font-body)'
+                  }}>
+                    {selectedDescriptionJob.notesText}
+                  </div>
+                ) : (
+                  <div style={{
+                    fontSize: '0.85rem',
+                    color: 'var(--text-muted)',
+                    fontStyle: 'italic',
+                    padding: '1rem',
+                    border: '1px dashed var(--border-color)',
+                    borderRadius: 'var(--radius-md)',
+                    textAlign: 'center'
+                  }}>
+                    No job description or notes saved yet. Use the card edit button to add details!
+                  </div>
+                )}
+              </div>
+
+              {/* Auto ATS Match overview */}
+              {hasMasterResume && (() => {
+                const breakdown = getLocalMatchBreakdown(resumeText, selectedDescriptionJob);
+                return (
+                  <div>
+                    <h4 style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '0.65rem', letterSpacing: '0.05em' }}>
+                      ATS Resume Match Quality
+                    </h4>
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      padding: '1rem',
+                      border: '1px solid var(--border-color)',
+                      borderRadius: 'var(--radius-md)',
+                      background: '#ffffff'
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                        <div style={{
+                          width: '44px',
+                          height: '44px',
+                          borderRadius: '50%',
+                          border: `3px solid ${getScoreColor(breakdown.score)}`,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontWeight: 800,
+                          fontSize: '0.95rem',
+                          color: getScoreColor(breakdown.score)
+                        }}>
+                          {breakdown.score}%
+                        </div>
+                        <div>
+                          <div style={{ fontSize: '0.85rem', fontWeight: 700 }}>Keyword Overlap</div>
+                          <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                            {breakdown.matchingWords.length} matching / {breakdown.missingWords.length} missing
+                          </div>
+                        </div>
+                      </div>
+                      <button 
+                        className="btn btn-secondary btn-sm"
+                        onClick={() => {
+                          setSelectedDescriptionJob(null);
+                          setActiveBreakdownJob(selectedDescriptionJob);
+                        }}
+                      >
+                        Breakdown
+                      </button>
+                    </div>
+                  </div>
+                );
+              })()}
+            </div>
+            
+            {/* Footer */}
+            <div style={{
+              padding: '1rem 1.25rem',
+              borderTop: '1px solid var(--border-color)',
+              background: '#f8fafc',
+              display: 'flex',
+              justifyContent: 'flex-end'
+            }}>
+              <button className="btn btn-secondary" onClick={() => setSelectedDescriptionJob(null)}>
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
