@@ -211,7 +211,7 @@ export default function JobTrackerView({ setActiveView }) {
   const [newContactLinkedin, setNewContactLinkedin] = useState('');
   const [isPullingDesc, setIsPullingDesc] = useState(false);
 
-  const pullJobDescription = async (jobId, jobUrl) => {
+  const pullJobDescription = async (jobId, jobUrl, silent = false) => {
     if (!jobUrl) return;
 
     let cleanUrl = jobUrl.trim();
@@ -334,10 +334,14 @@ export default function JobTrackerView({ setActiveView }) {
       }
 
       updateResource(jobId, updates);
-      alert("Successfully pulled and formatted job description!");
+      if (!silent) {
+        alert("Successfully pulled and formatted job description!");
+      }
     } catch (err) {
       console.error(err);
-      alert(`Error pulling description: ${err.message}`);
+      if (!silent) {
+        alert(`Error pulling description: ${err.message}`);
+      }
     } finally {
       setIsPullingDesc(false);
     }
@@ -387,7 +391,7 @@ export default function JobTrackerView({ setActiveView }) {
 
   // Add individual job application
   const handleAddJob = (jobData) => {
-    addResource({
+    return addResource({
       name: `${jobData.company} - ${jobData.role}`,
       category: 'Job Application',
       notes: jobData.notes || '',
@@ -640,10 +644,14 @@ ${importText}`;
     });
 
     importableJobs.forEach(job => {
-      handleAddJob({
+      const newJob = handleAddJob({
         ...job,
         status: 'Wishlist'
       });
+
+      if (newJob && newJob.link && newJob.linkStatus === 'valid') {
+        pullJobDescription(newJob.id, newJob.link, true);
+      }
     });
     setParsedJobs([]);
     setImportText('');
