@@ -180,6 +180,116 @@ export default function JobTrackerView({ setActiveView }) {
   const [selectedDescriptionJob, setSelectedDescriptionJob] = useState(null);
   const [newContactName, setNewContactName] = useState('');
   const [newContactLinkedin, setNewContactLinkedin] = useState('');
+  const [isPullingDesc, setIsPullingDesc] = useState(false);
+
+  const pullJobDescription = async (jobId, jobUrl) => {
+    if (!jobUrl) return;
+    
+    let apiKey = localStorage.getItem('GEMINI_API_KEY');
+    if (!apiKey) {
+      apiKey = localStorage.getItem('ats_gemini_api_key') || '';
+    }
+    
+    if (!apiKey) {
+      alert("Please configure your Gemini API Key in the Settings page to use the Auto-Pull feature.");
+      return;
+    }
+
+    setIsPullingDesc(true);
+    try {
+      const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(jobUrl)}`;
+      const res = await fetch(proxyUrl);
+      if (!res.ok) {
+        throw new Error(`Failed to fetch webpage content via CORS proxy (${res.status})`);
+      }
+      
+      const resData = await res.json();
+      const rawHtml = resData.contents;
+      if (!rawHtml) {
+        throw new Error("No content returned from the webpage proxy.");
+      }
+
+      let cleanedText = rawHtml
+        .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+        .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '')
+        .replace(/<[^>]+>/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+
+      if (cleanedText.length > 30000) {
+        cleanedText = cleanedText.substring(0, 30000);
+      }
+
+      const prompt = `You are a helpful assistant. Extract the job description from the following job listing webpage text. 
+Format the job description professionally with sections (About Us, Role, Requirements, Responsibilities, Benefits, etc.) using bullet points and markdown.
+
+Also extract metadata: company name, role/title, location, and job type.
+
+Return a JSON response matching this structure exactly:
+{
+  "jobDescription": "<extracted clean markdown job description>",
+  "company": "<extracted company name or empty string if not found>",
+  "role": "<extracted role/title or empty string if not found>",
+  "location": "<extracted location or empty string if not found>",
+  "type": "<extracted job type e.g. Full-Time, Part-Time, Contract, or empty string if not found>"
+}
+
+Webpage text:
+${cleanedText}`;
+
+      const geminiRes = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey.trim()}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            contents: [{
+              parts: [{ text: prompt }]
+            }],
+            generationConfig: {
+              responseMimeType: 'application/json'
+            }
+          })
+        }
+      );
+
+      if (!geminiRes.ok) {
+        const errorData = await geminiRes.json().catch(() => ({}));
+        throw new Error(errorData.error?.message || `Gemini API error (${geminiRes.status})`);
+      }
+
+      const geminiData = await geminiRes.json();
+      const textResponse = geminiData.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (!textResponse) {
+        throw new Error('Empty response from Gemini API.');
+      }
+
+      const parsedResult = JSON.parse(textResponse);
+      
+      const updates = {};
+      if (parsedResult.jobDescription) {
+        updates.notesText = parsedResult.jobDescription;
+      }
+      
+      const currentJob = jobApplications.find(j => j.id === jobId);
+      if (currentJob) {
+        if (parsedResult.company && !currentJob.company) updates.company = parsedResult.company;
+        if (parsedResult.role && !currentJob.role) updates.role = parsedResult.role;
+        if (parsedResult.location && !currentJob.location) updates.location = parsedResult.location;
+        if (parsedResult.type && !currentJob.type) updates.type = parsedResult.type;
+      }
+
+      updateResource(jobId, updates);
+      alert("Successfully pulled and updated job details and description!");
+    } catch (err) {
+      console.error(err);
+      alert(`Error pulling description: ${err.message}`);
+    } finally {
+      setIsPullingDesc(false);
+    }
+  };
 
   // Filter resources to get only job applications
   const jobApplications = (allResources || [])
@@ -1156,6 +1266,26 @@ Product Designer - metacareers.com/jobs/1397212694826926"
                       value={activeJob.link || ''}
                       onChange={(e) => updateResource(activeJob.id, { link: e.target.value })}
                     />
+                    <button
+                      type="button"
+                      className="btn btn-secondary"
+                      onClick={() => pullJobDescription(activeJob.id, activeJob.link)}
+                      disabled={!activeJob.link || isPullingDesc}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        minHeight: '32px',
+                        padding: '0 0.5rem',
+                        fontSize: '0.725rem',
+                        gap: '0.25rem',
+                        fontWeight: 600
+                      }}
+                      title="Pull details and description from link"
+                    >
+                      <Sparkles size={12} color="var(--accent-blue)" />
+                      <span>{isPullingDesc ? 'Pulling...' : 'Auto-Pull'}</span>
+                    </button>
                     {activeJob.link && (
                       <a 
                         href={activeJob.link.startsWith('http') ? activeJob.link : `https://${activeJob.link}`}
