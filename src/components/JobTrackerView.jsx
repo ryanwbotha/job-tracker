@@ -534,6 +534,86 @@ export default function JobTrackerView({ setActiveView }) {
   // AI Paste Parser via Gemini API
   const handleParsePaste = async () => {
     if (!importText.trim()) return;
+
+    const inputTrim = importText.trim();
+    const isSingleUrl = /^https?:\/\/[^\s]+$/i.test(inputTrim) || 
+                        (!inputTrim.includes('\n') && /^([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}\/[^\s]*$/i.test(inputTrim));
+
+    if (isSingleUrl) {
+      setIsParsing(true);
+      setParsedJobs([]);
+      
+      let cleanUrl = inputTrim;
+      if (!/^https?:\/\//i.test(cleanUrl)) {
+        cleanUrl = `https://${cleanUrl}`;
+      }
+
+      try {
+        const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(cleanUrl)}`;
+        const res = await fetch(proxyUrl);
+        if (!res.ok) {
+          throw new Error(`Failed to fetch webpage content via CORS proxy (${res.status})`);
+        }
+        
+        const resText = await res.text();
+        if (!resText || !resText.trim()) {
+          throw new Error("Empty response from CORS proxy.");
+        }
+        
+        const resData = JSON.parse(resText);
+        const rawHtml = resData.contents;
+        if (!rawHtml) {
+          throw new Error("No content returned from the webpage proxy.");
+        }
+
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(rawHtml, 'text/html');
+
+        const pageTitle = doc.title || '';
+        let company = 'Open Company';
+        let role = 'Open Role';
+
+        if (pageTitle) {
+          const parts = pageTitle.split(/[|\-•]/);
+          role = parts[0].trim();
+          if (parts.length > 1) {
+            company = parts[1].trim();
+            company = company.replace(/careers/i, '').trim();
+          }
+          const matchCompany = pageTitle.match(/at\s+([^|\-•]+)/i);
+          if (matchCompany) {
+            company = matchCompany[1].trim();
+          }
+        }
+
+        const h1 = doc.querySelector('h1')?.textContent?.trim();
+        if (h1 && h1.length < 150) {
+          role = h1;
+        }
+
+        if (role.toLowerCase().includes('careers') || role.toLowerCase().includes('job opportunity') || role.toLowerCase().includes('details')) {
+          role = h1 || 'Open Role';
+        }
+
+        const parsedJob = {
+          company: company,
+          role: role,
+          link: cleanUrl,
+          location: '',
+          type: 'Full-Time',
+          notes: 'Scraped from direct link input'
+        };
+
+        setParsedJobs([parsedJob]);
+      } catch (err) {
+        console.error("Local URL parser failed:", err);
+        alert(`Could not parse job details from URL: ${err.message}`);
+      } finally {
+        setIsParsing(false);
+      }
+      return;
+    }
+
     setIsParsing(true);
     setParsedJobs([]);
 
