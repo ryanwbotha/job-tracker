@@ -262,17 +262,24 @@ export default function JobTrackerView({ setActiveView }) {
         .replace(/\n{3,}/g, '\n\n') // replace 3+ newlines with 2 newlines
         .trim();
 
+      const isPrivateProfile = cleanUrl.toLowerCase().includes('/profile/') || cleanUrl.toLowerCase().includes('/candidate/');
+      const pageTitle = doc.title || '';
+
       if (!formattedText || formattedText.length < 50) {
-        throw new Error("This link does not appear to contain a specific job description or could not be parsed.");
+        if (isPrivateProfile) {
+          throw new Error("Private candidate profile links (e.g. /profile/) require a signed-in session and cannot be crawled. Please copy the public job posting link (e.g. /jobs/) or paste the description text manually.");
+        }
+        throw new Error("This webpage uses client-side JavaScript rendering (SPA) or is empty, so its content cannot be read by the scraper. Please paste the description text manually.");
       }
 
-      // Check if title has keywords indicating it's not a job listing
-      const pageTitle = doc.title || '';
       const isNotJobPost = /login|sign in|cookies|robot|captcha|404|not found|forbidden/i.test(pageTitle) || 
                            (formattedText.toLowerCase().includes("enable cookies") && formattedText.length < 500);
       
       if (isNotJobPost) {
-        throw new Error("The link does not appear to contain a specific job posting (security check or login page detected).");
+        if (isPrivateProfile) {
+          throw new Error("Private candidate portal link detected. The scraper was redirected to a login screen. Please use the public listing URL (e.g. /jobs/) or paste the description text manually.");
+        }
+        throw new Error(`The link does not appear to contain a specific job description (login, cookie verification, or security block page detected: "${pageTitle}"). Please paste the description text manually.`);
       }
 
       // Save formatted text to Notes
