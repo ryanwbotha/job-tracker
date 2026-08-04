@@ -850,25 +850,6 @@ Product Designer - metacareers.com/jobs/1397212694826926"
         /* List View */
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
           {filteredJobs.map(job => {
-            const linkedContacts = (allContacts || []).filter(c => (job.linkedContactIds || []).includes(c.id));
-            const availableContacts = (allContacts || []).filter(c => !(job.linkedContactIds || []).includes(c.id));
-            const matchScore = calculateLocalMatch(resumeText, job);
-            
-            const steps = ['Wishlist', 'Applied', 'Interviewing', job.status === 'Rejected' ? 'Rejected' : 'Offer'];
-            const currentStepIndex = steps.indexOf(job.status || 'Wishlist') !== -1 ? steps.indexOf(job.status || 'Wishlist') : 0;
-            const isSelected = selectedJobs.includes(job.id);
-            const isExpanded = expandedJobs.includes(job.id);
-
-            const getLabelStyle = (idx, isActive) => {
-              const baseStyle = {
-                position: 'absolute',
-                top: '16px',
-                fontSize: '0.65rem',
-                fontWeight: isActive ? 700 : 500,
-                color: isActive ? 'var(--text-primary)' : 'var(--text-muted)',
-                whiteSpace: 'nowrap',
-                transition: 'color 0.3s ease'
-              };
             const matchScore = calculateLocalMatch(resumeText, job);
             const isSelected = selectedJobs.includes(job.id);
 
