@@ -81,6 +81,35 @@ function getScoreColor(score) {
   return 'var(--accent-rose)';
 }
 
+export function checkLinkStatus(url) {
+  if (!url || !url.trim()) return null;
+  const cleanUrl = url.trim().toLowerCase();
+  
+  try {
+    let urlObj;
+    if (/^https?:\/\//i.test(cleanUrl)) {
+      urlObj = new URL(cleanUrl);
+    } else {
+      urlObj = new URL(`https://${cleanUrl}`);
+    }
+    
+    const path = urlObj.pathname;
+    
+    if (path.includes('/profile/') || path.includes('/candidate/') || path.includes('/inbox/') || path.includes('/apply/') || path.includes('/login') || path.includes('/dashboard')) {
+      return 'login_required';
+    }
+    
+    const isGeneric = path === '/' || path === '' || path === '/jobs' || path === '/jobs/' || path.includes('/search') || path.includes('/careers');
+    if (isGeneric && !urlObj.search && !urlObj.hash) {
+      return 'generic_link';
+    }
+  } catch (e) {
+    return 'generic_link';
+  }
+  
+  return 'valid';
+}
+
 function getLocalMatchBreakdown(resumeText, job) {
   if (!resumeText || !job) {
     return {
@@ -267,8 +296,10 @@ export default function JobTrackerView({ setActiveView }) {
 
       if (!formattedText || formattedText.length < 50) {
         if (isPrivateProfile) {
+          updateResource(jobId, { linkStatus: 'login_required' });
           throw new Error("Private candidate profile links (e.g. /profile/) require a signed-in session and cannot be crawled. Please copy the public job posting link (e.g. /jobs/) or paste the description text manually.");
         }
+        updateResource(jobId, { linkStatus: 'generic_link' });
         throw new Error("This webpage uses client-side JavaScript rendering (SPA) or is empty, so its content cannot be read by the scraper. Please paste the description text manually.");
       }
 
@@ -277,13 +308,15 @@ export default function JobTrackerView({ setActiveView }) {
       
       if (isNotJobPost) {
         if (isPrivateProfile) {
+          updateResource(jobId, { linkStatus: 'login_required' });
           throw new Error("Private candidate portal link detected. The scraper was redirected to a login screen. Please use the public listing URL (e.g. /jobs/) or paste the description text manually.");
         }
+        updateResource(jobId, { linkStatus: 'generic_link' });
         throw new Error(`The link does not appear to contain a specific job description (login, cookie verification, or security block page detected: "${pageTitle}"). Please paste the description text manually.`);
       }
 
       // Save formatted text to Notes
-      const updates = { notesText: formattedText };
+      const updates = { notesText: formattedText, linkStatus: 'valid' };
       
       // Auto-extract metadata if fields are empty
       const currentJob = jobApplications.find(j => j.id === jobId);
@@ -363,6 +396,7 @@ export default function JobTrackerView({ setActiveView }) {
       location: jobData.location || '',
       type: jobData.type || 'Full-Time',
       link: jobData.link || '',
+      linkStatus: checkLinkStatus(jobData.link),
       status: jobData.status || 'Wishlist',
       linkedContactIds: jobData.linkedContactIds || [],
       notesText: jobData.notesText || ''
@@ -952,6 +986,16 @@ Product Designer - metacareers.com/jobs/1397212694826926"
                   <span className={`badge ${getStatusColorClass(job.status || 'Wishlist')}`} style={{ fontSize: '0.65rem' }}>
                     {job.status || 'Wishlist'}
                   </span>
+                  {job.linkStatus === 'login_required' && (
+                    <span className="badge badge-rose" style={{ fontSize: '0.65rem', fontWeight: 600 }}>
+                      🔑 Behind Login
+                    </span>
+                  )}
+                  {job.linkStatus === 'generic_link' && (
+                    <span className="badge badge-amber" style={{ fontSize: '0.65rem', fontWeight: 600 }}>
+                      ⚠️ Not Direct Link
+                    </span>
+                  )}
                 </div>
               </div>
             );
@@ -1024,6 +1068,16 @@ Product Designer - metacareers.com/jobs/1397212694826926"
                   <span className={`badge ${getStatusColorClass(job.status || 'Wishlist')}`} style={{ fontSize: '0.65rem' }}>
                     {job.status || 'Wishlist'}
                   </span>
+                  {job.linkStatus === 'login_required' && (
+                    <span className="badge badge-rose" style={{ fontSize: '0.65rem', fontWeight: 600 }}>
+                      🔑 Behind Login
+                    </span>
+                  )}
+                  {job.linkStatus === 'generic_link' && (
+                    <span className="badge badge-amber" style={{ fontSize: '0.65rem', fontWeight: 600 }}>
+                      ⚠️ Not Direct Link
+                    </span>
+                  )}
                 </div>
               </div>
             );
@@ -1258,7 +1312,13 @@ Product Designer - metacareers.com/jobs/1397212694826926"
                       placeholder="Add job link (e.g. careers.google.com)..."
                       style={{ fontSize: '0.8rem', padding: '0.35rem 0.55rem', minHeight: '32px', flex: 1 }}
                       value={activeJob.link || ''}
-                      onChange={(e) => updateResource(activeJob.id, { link: e.target.value })}
+                      onChange={(e) => {
+                        const newLink = e.target.value;
+                        updateResource(activeJob.id, { 
+                          link: newLink, 
+                          linkStatus: checkLinkStatus(newLink) 
+                        });
+                      }}
                     />
                     <button
                       type="button"
@@ -1292,6 +1352,16 @@ Product Designer - metacareers.com/jobs/1397212694826926"
                       </a>
                     )}
                   </div>
+                  {activeJob.linkStatus === 'login_required' && (
+                    <div style={{ fontSize: '0.725rem', color: 'var(--accent-rose)', display: 'flex', alignItems: 'center', gap: '0.25rem', marginTop: '0.2rem', fontWeight: 600 }}>
+                      <span>🔑 Behind Login: Link requires session. Use public listing URL instead.</span>
+                    </div>
+                  )}
+                  {activeJob.linkStatus === 'generic_link' && (
+                    <div style={{ fontSize: '0.725rem', color: 'var(--accent-amber)', display: 'flex', alignItems: 'center', gap: '0.25rem', marginTop: '0.2rem', fontWeight: 600 }}>
+                      <span>⚠️ Not Direct Link: URL is generic page. Scraper needs specific posting.</span>
+                    </div>
+                  )}
                 </div>
               </div>
 
