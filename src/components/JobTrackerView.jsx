@@ -923,6 +923,7 @@ Product Designer - metacareers.com/jobs/1397212694826926"
             const steps = ['Wishlist', 'Applied', 'Interviewing', job.status === 'Rejected' ? 'Rejected' : 'Offer'];
             const currentStepIndex = steps.indexOf(job.status || 'Wishlist') !== -1 ? steps.indexOf(job.status || 'Wishlist') : 0;
             const isSelected = selectedJobs.includes(job.id);
+            const isActiveJob = selectedDescriptionJob && selectedDescriptionJob.id === job.id;
 
             const getLabelStyle = (idx, isActive) => {
               const baseStyle = {
@@ -948,8 +949,16 @@ Product Designer - metacareers.com/jobs/1397212694826926"
                   gap: '0.75rem',
                   padding: '1.25rem',
                   position: 'relative',
-                  border: isSelected ? '1px solid var(--accent-blue)' : '1px solid var(--border-color)',
-                  background: isSelected ? 'var(--bg-card-hover)' : 'var(--bg-card)',
+                  border: isActiveJob 
+                    ? '2px solid var(--accent-blue)' 
+                    : isSelected 
+                      ? '1px solid var(--accent-blue)' 
+                      : '1px solid var(--border-color)',
+                  background: isActiveJob 
+                    ? 'rgba(37, 99, 235, 0.03)' 
+                    : isSelected 
+                      ? 'var(--bg-card-hover)' 
+                      : 'var(--bg-card)',
                   transition: 'all 0.15s ease',
                   cursor: 'pointer'
                 }}
@@ -958,7 +967,11 @@ Product Designer - metacareers.com/jobs/1397212694826926"
                   e.currentTarget.style.boxShadow = 'var(--shadow-md)';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = isSelected ? 'var(--accent-blue)' : 'var(--border-color)';
+                  e.currentTarget.style.borderColor = isActiveJob 
+                    ? 'var(--accent-blue)' 
+                    : isSelected 
+                      ? 'var(--accent-blue)' 
+                      : 'var(--border-color)';
                   e.currentTarget.style.boxShadow = 'none';
                 }}
               >
@@ -1017,6 +1030,7 @@ Product Designer - metacareers.com/jobs/1397212694826926"
           {filteredJobs.map(job => {
             const matchScore = calculateLocalMatch(resumeText, job);
             const isSelected = selectedJobs.includes(job.id);
+            const isActiveJob = selectedDescriptionJob && selectedDescriptionJob.id === job.id;
 
             return (
               <div 
@@ -1028,15 +1042,27 @@ Product Designer - metacareers.com/jobs/1397212694826926"
                   alignItems: 'center',
                   justifyContent: 'space-between',
                   padding: '0.85rem 1.25rem',
-                  border: isSelected ? '1px solid var(--accent-blue)' : '1px solid var(--border-color)',
-                  background: isSelected ? 'var(--bg-card-hover)' : 'var(--bg-card)',
+                  border: isActiveJob 
+                    ? '2px solid var(--accent-blue)' 
+                    : isSelected 
+                      ? '1px solid var(--accent-blue)' 
+                      : '1px solid var(--border-color)',
+                  background: isActiveJob 
+                    ? 'rgba(37, 99, 235, 0.03)' 
+                    : isSelected 
+                      ? 'var(--bg-card-hover)' 
+                      : 'var(--bg-card)',
                   transition: 'all 0.15s ease',
                   cursor: 'pointer',
                   gap: '1rem',
                   flexWrap: 'wrap'
                 }}
                 onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--accent-blue)'}
-                onMouseLeave={(e) => e.currentTarget.style.borderColor = isSelected ? 'var(--accent-blue)' : 'var(--border-color)'}
+                onMouseLeave={(e) => e.currentTarget.style.borderColor = isActiveJob 
+                  ? 'var(--accent-blue)' 
+                  : isSelected 
+                    ? 'var(--accent-blue)' 
+                    : 'var(--border-color)'}
               >
                 {/* Left Side: Checkbox, Status Dot, Company & Role */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', flex: 1, minWidth: '250px' }}>
@@ -1144,11 +1170,11 @@ Product Designer - metacareers.com/jobs/1397212694826926"
               gap: '0.5rem'
             }}>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {activeJob.company}
-                </h3>
-                <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={activeJob.role}>
                   {activeJob.role}
+                </h3>
+                <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={activeJob.company}>
+                  {activeJob.company}
                 </div>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
