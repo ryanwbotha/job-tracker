@@ -772,25 +772,33 @@ Product Designer - metacareers.com/jobs/1397212694826926"
               if (idx === 0) return { ...baseStyle, left: '0', transform: 'none' };
               if (idx === 3) return { ...baseStyle, right: '0', transform: 'none' };
               return { ...baseStyle, left: '50%', transform: 'translateX(-50%)' };
-            };
-
-            return (
+            };            return (
               <div 
                 key={job.id} 
                 className="section-card" 
+                onClick={() => setSelectedDescriptionJob(job)}
                 style={{ 
                   display: 'flex', 
                   flexDirection: 'column', 
-                  gap: '1rem',
-                  padding: '1.35rem',
+                  gap: '0.75rem',
+                  padding: '1.25rem',
                   position: 'relative',
                   border: isSelected ? '1px solid var(--accent-blue)' : '1px solid var(--border-color)',
                   background: isSelected ? 'var(--bg-card-hover)' : 'var(--bg-card)',
-                  transition: 'border-color 0.15s ease, background 0.15s ease'
+                  transition: 'all 0.15s ease',
+                  cursor: 'pointer'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = 'var(--accent-blue)';
+                  e.currentTarget.style.boxShadow = 'var(--shadow-md)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = isSelected ? 'var(--accent-blue)' : 'var(--border-color)';
+                  e.currentTarget.style.boxShadow = 'none';
                 }}
               >
-                {/* Selection Checkbox & Single Delete Row */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                {/* Selection Checkbox */}
+                <div style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center' }} onClick={(e) => e.stopPropagation()}>
                   <input
                     type="checkbox"
                     checked={isSelected}
@@ -803,427 +811,37 @@ Product Designer - metacareers.com/jobs/1397212694826926"
                     }}
                     style={{ width: '16px', height: '16px', cursor: 'pointer' }}
                   />
-                  <button
-                    onClick={() => deleteResource(job.id)}
-                    style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '0.2rem' }}
-                    title="Delete Job Application"
-                  >
-                    <Trash2 size={16} className="btn-icon-hover" />
-                  </button>
                 </div>
 
                 {/* Company & Role Header */}
                 <div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', paddingRight: '1.5rem' }}>
-                    <h4 style={{ fontSize: '1.2rem', fontWeight: 800, fontFamily: 'var(--font-heading)' }}>{job.company}</h4>
-                    {job.link && (
-                      <button 
-                        onClick={() => setSelectedDescriptionJob(job)}
-                        style={{ background: 'none', border: 'none', padding: 0, display: 'flex', alignItems: 'center', color: 'var(--text-muted)', cursor: 'pointer' }}
-                        title="View Job Description"
-                      >
-                        <ExternalLink size={14} className="btn-icon-hover" />
-                      </button>
-                    )}
-                  </div>
-                  <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', fontWeight: 600, marginTop: '0.15rem' }}>{job.role}</div>
+                  <h4 style={{ fontSize: '1.15rem', fontWeight: 800, fontFamily: 'var(--font-heading)', color: 'var(--text-primary)' }}>{job.company}</h4>
+                  <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600, marginTop: '0.15rem' }}>{job.role}</div>
                 </div>
 
-                {/* Location & Type Badges */}
+                {/* Location & Type & Match Score Badges */}
                 <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', alignItems: 'center' }}>
                   {job.location && (
-                    <span className="badge badge-blue" style={{ fontSize: '0.7rem' }}>
-                      <MapPin size={10} style={{ marginRight: '-1px' }} />
+                    <span className="badge badge-blue" style={{ fontSize: '0.65rem' }}>
+                      <MapPin size={8} style={{ marginRight: '-1px' }} />
                       {job.location}
                     </span>
                   )}
                   {job.type && (
-                    <span className="badge badge-emerald" style={{ fontSize: '0.7rem' }}>
+                    <span className="badge badge-emerald" style={{ fontSize: '0.65rem' }}>
                       {job.type}
                     </span>
                   )}
                   {hasMasterResume && (
-                    <span 
-                      onClick={() => setActiveBreakdownJob(job)}
-                      className={`badge ${getMatchBadgeClass(matchScore)}`} 
-                      style={{ fontSize: '0.7rem', display: 'inline-flex', alignItems: 'center', gap: '0.25rem', cursor: 'pointer' }} 
-                      title="Click to view keyword match breakdown"
-                    >
-                      <Sparkles size={10} />
+                    <span className={`badge ${getMatchBadgeClass(matchScore)}`} style={{ fontSize: '0.65rem', display: 'inline-flex', alignItems: 'center', gap: '0.2rem' }}>
+                      <Sparkles size={8} />
                       <span>Match: {matchScore}%</span>
                     </span>
                   )}
+                  <span className={`badge ${getStatusColorClass(job.status || 'Wishlist')}`} style={{ fontSize: '0.65rem' }}>
+                    {job.status || 'Wishlist'}
+                  </span>
                 </div>
-
-                {/* Material Status Stepper Bar */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', margin: '0.25rem 0' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase' }}>
-                      Progress
-                    </span>
-                    <select
-                      value={job.status || 'Wishlist'}
-                      onChange={(e) => handleStatusChange(job.id, e.target.value)}
-                      className={`badge ${getStatusColorClass(job.status || 'Wishlist')}`}
-                      style={{
-                        border: 'none',
-                        cursor: 'pointer',
-                        outline: 'none',
-                        fontWeight: 700,
-                        padding: '0.2rem 1.4rem 0.2rem 0.5rem',
-                        fontFamily: 'var(--font-body)',
-                        appearance: 'none',
-                        backgroundPosition: 'right 0.4rem center',
-                        backgroundRepeat: 'no-repeat',
-                        backgroundImage: 'url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%2364748b\' stroke-width=\'2.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpath d=\'m6 9 6 6 6-6\'/%3E%3C/svg%3E")',
-                        backgroundSize: '8px',
-                        fontSize: '0.7rem',
-                        borderRadius: '9999px',
-                        textTransform: 'uppercase'
-                      }}
-                    >
-                      <option value="Wishlist">Jobs</option>
-                      <option value="Applied">Applied</option>
-                      <option value="Interviewing">Interviewing</option>
-                      <option value="Offer">Offer</option>
-                      <option value="Rejected">Rejected</option>
-                    </select>
-                  </div>
-                  
-                  {/* Stepper Track */}
-                  <div style={{ position: 'relative', height: '4px', background: 'rgba(0,0,0,0.06)', borderRadius: '2px', margin: '0.5rem 0 1.25rem 0' }}>
-                    {/* Active Filled Track */}
-                    <div style={{
-                      position: 'absolute',
-                      left: 0,
-                      top: 0,
-                      height: '100%',
-                      width: `${(currentStepIndex / 3) * 100}%`,
-                      background: getStatusColor(job.status || 'Wishlist'),
-                      borderRadius: '2px',
-                      transition: 'width 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
-                    }} />
-                    
-                    {/* Stepper Dots */}
-                    <div style={{ display: 'flex', justifyContent: 'space-between', position: 'absolute', width: '100%', top: '-4px', left: 0 }}>
-                      {steps.map((step, idx) => {
-                        const isCompleted = idx <= currentStepIndex;
-                        const isActive = idx === currentStepIndex;
-                        const stepColor = isCompleted ? getStatusColor(job.status || 'Wishlist') : 'rgba(0,0,0,0.12)';
-                        
-                        return (
-                          <div key={step} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative' }}>
-                            {/* Step Dot */}
-                            <div style={{
-                              width: '12px',
-                              height: '12px',
-                              borderRadius: '50%',
-                              background: isActive ? '#ffffff' : stepColor,
-                              border: `3px solid ${stepColor}`,
-                              boxShadow: isActive ? `0 0 0 3px ${stepColor}40, var(--shadow-subtle)` : 'none',
-                              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                              cursor: 'pointer',
-                              zIndex: 2
-                            }}
-                            onClick={() => handleStatusChange(job.id, step === 'Rejected' || step === 'Offer' ? (job.status === 'Rejected' ? 'Rejected' : 'Offer') : step)}
-                            title={`Set status to ${step}`}
-                            />
-                            {/* Step Label */}
-                            <span style={getLabelStyle(idx, isActive)}>
-                              {step === 'Wishlist' ? 'Jobs' : step}
-                            </span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Job Listing Link Input */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-                  <label style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-muted)', display: 'block', textTransform: 'uppercase' }}>Job Listing Link</label>
-                  <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
-                    <input
-                      type="text"
-                      className="input-field"
-                      placeholder="Add job link (e.g. careers.google.com)..."
-                      style={{ fontSize: '0.8rem', padding: '0.35rem 0.55rem', minHeight: '32px', flex: 1 }}
-                      value={job.link || ''}
-                      onChange={(e) => updateResource(job.id, { link: e.target.value })}
-                    />
-                    {job.link && (
-                      <a 
-                        href={job.link.startsWith('http') ? job.link : `https://${job.link}`} 
-                        target="_blank" 
-                        rel="noopener noreferrer" 
-                        style={{ 
-                          display: 'flex', 
-                          alignItems: 'center', 
-                          justifyContent: 'center', 
-                          color: 'var(--text-muted)',
-                          padding: '0.25rem',
-                          background: 'rgba(0, 0, 0, 0.02)',
-                          border: '1px solid var(--border-color)',
-                          borderRadius: 'var(--radius-sm)',
-                          minHeight: '32px',
-                          width: '32px'
-                        }}
-                        title="Open job listing"
-                      >
-                        <ExternalLink size={14} className="btn-icon-hover" />
-                      </a>
-                    )}
-                  </div>
-                </div>
-
-                {/* Notes Input Area */}
-                <div>
-                  <label style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-muted)', display: 'block', marginBottom: '0.25rem', textTransform: 'uppercase' }}>Application Notes</label>
-                  <textarea
-                    className="textarea-field"
-                    rows={2}
-                    placeholder="Add details, salary info, application steps..."
-                    style={{ fontSize: '0.8rem', padding: '0.5rem 0.65rem', minHeight: '60px' }}
-                    value={job.notesText || ''}
-                    onChange={(e) => handleNotesChange(job.id, e.target.value)}
-                  />
-                </div>
-
-                {/* Resume Upload Section */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-                  <label style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-muted)', display: 'block', textTransform: 'uppercase' }}>
-                    Resume / Document
-                  </label>
-                  {job.resume ? (
-                    <div style={{ 
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      justifyContent: 'space-between', 
-                      background: 'rgba(0, 0, 0, 0.02)', 
-                      padding: '0.5rem 0.75rem', 
-                      borderRadius: 'var(--radius-sm)', 
-                      border: '1px solid var(--border-color)' 
-                    }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', overflow: 'hidden', flex: 1 }}>
-                        <FileText size={16} color="var(--accent-blue)" style={{ flexShrink: 0 }} />
-                        <span 
-                          onClick={() => {
-                            const link = document.createElement('a');
-                            link.href = job.resume.data;
-                            link.download = job.resume.name;
-                            link.click();
-                          }}
-                          style={{ 
-                            fontSize: '0.8rem', 
-                            fontWeight: 500, 
-                            color: 'var(--text-primary)', 
-                            textDecoration: 'underline',
-                            cursor: 'pointer',
-                            overflow: 'hidden', 
-                            textOverflow: 'ellipsis', 
-                            whiteSpace: 'nowrap' 
-                          }}
-                          title="Download resume"
-                        >
-                          {job.resume.name}
-                        </span>
-                      </div>
-                      <button
-                        onClick={() => {
-                          if (window.confirm('Are you sure you want to remove this resume?')) {
-                            updateResource(job.id, { resume: null });
-                          }
-                        }}
-                        style={{ 
-                          background: 'transparent', 
-                          border: 'none', 
-                          color: 'var(--accent-rose)', 
-                          cursor: 'pointer', 
-                          padding: '0.25rem',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center'
-                        }}
-                        title="Remove resume"
-                      >
-                        <X size={14} />
-                      </button>
-                    </div>
-                  ) : (
-                    <div style={{ position: 'relative' }}>
-                      <label 
-                        htmlFor={`resume-upload-${job.id}`}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          gap: '0.5rem',
-                          padding: '0.5rem',
-                          border: '1px dashed var(--text-muted)',
-                          borderRadius: 'var(--radius-sm)',
-                          cursor: 'pointer',
-                          background: 'transparent',
-                          transition: 'all 0.15s ease',
-                          fontSize: '0.8rem',
-                          color: 'var(--text-secondary)',
-                          fontWeight: 500
-                        }}
-                      >
-                        <Plus size={14} />
-                        <span>Upload Resume</span>
-                      </label>
-                      <input
-                        id={`resume-upload-${job.id}`}
-                        type="file"
-                        accept=".pdf,.doc,.docx,.txt,.rtf,.odt"
-                        style={{ display: 'none' }}
-                        onChange={(e) => {
-                          const file = e.target.files[0];
-                          if (!file) return;
-                          
-                          const allowedExtensions = ['pdf', 'doc', 'docx', 'txt', 'rtf', 'odt'];
-                          const fileExtension = file.name.split('.').pop().toLowerCase();
-                          
-                          if (!allowedExtensions.includes(fileExtension)) {
-                            alert("Invalid file format. Please upload a document format (.pdf, .doc, .docx, .txt, .rtf, .odt).");
-                            return;
-                          }
-                          
-                          const reader = new FileReader();
-                          reader.onload = (event) => {
-                            updateResource(job.id, {
-                              resume: {
-                                name: file.name,
-                                type: file.type,
-                                data: event.target.result
-                              }
-                            });
-                          };
-                          reader.readAsDataURL(file);
-                        }}
-                      />
-                    </div>
-                  )}
-                </div>
-
-                {/* Contact Connector section */}
-                <div style={{ borderTop: '1px solid rgba(0,0,0,0.03)', paddingTop: '0.75rem' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.45rem' }}>
-                    <span style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Contacts Contacted</span>
-                    <button
-                      className="btn btn-secondary btn-sm"
-                      onClick={() => setAddingContactJobId(addingContactJobId === job.id ? null : job.id)}
-                      style={{ minHeight: '28px', padding: '0.15rem 0.45rem', fontSize: '0.725rem' }}
-                    >
-                      <UserPlus size={12} />
-                      <span>{addingContactJobId === job.id ? 'Close' : 'Quick Add'}</span>
-                    </button>
-                  </div>
-
-                  {/* Quick add contact inline form */}
-                  {addingContactJobId === job.id && (
-                    <form 
-                      onSubmit={(e) => handleQuickAddContactSubmit(e, job.id, job)} 
-                      style={{ 
-                        display: 'flex', 
-                        flexDirection: 'column', 
-                        gap: '0.4rem', 
-                        background: '#f8fafc', 
-                        padding: '0.65rem', 
-                        borderRadius: 'var(--radius-sm)', 
-                        marginBottom: '0.5rem',
-                        border: '1px solid var(--border-color)'
-                      }}
-                    >
-                      <input
-                        type="text"
-                        className="input-field"
-                        placeholder="Contact Person Name *"
-                        value={newContactName}
-                        onChange={(e) => setNewContactName(e.target.value)}
-                        style={{ fontSize: '0.75rem', padding: '0.35rem 0.5rem', minHeight: '32px' }}
-                        required
-                      />
-                      <input
-                        type="text"
-                        className="input-field"
-                        placeholder="LinkedIn Profile URL (optional)"
-                        value={newContactLinkedin}
-                        onChange={(e) => setNewContactLinkedin(e.target.value)}
-                        style={{ fontSize: '0.75rem', padding: '0.35rem 0.5rem', minHeight: '32px' }}
-                      />
-                      <button type="submit" className="btn btn-primary btn-sm" style={{ minHeight: '30px', fontSize: '0.75rem', padding: '0.2rem' }}>
-                        Link & Save Contact
-                      </button>
-                    </form>
-                  )}
-
-                  {/* List of linked contacts */}
-                  {linkedContacts.length === 0 ? (
-                    <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontStyle: 'italic', padding: '0.25rem 0' }}>
-                      No contacts linked to this application yet.
-                    </div>
-                  ) : (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', marginBottom: '0.5rem' }}>
-                      {linkedContacts.map(contact => (
-                        <div 
-                          key={contact.id} 
-                          style={{ 
-                            display: 'flex', 
-                            justifyContent: 'space-between', 
-                            alignItems: 'center', 
-                            background: '#f8fafc', 
-                            padding: '0.35rem 0.55rem', 
-                            borderRadius: 'var(--radius-sm)',
-                            border: '1px solid var(--border-color)'
-                          }}
-                        >
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                            <strong style={{ fontSize: '0.8rem', color: 'var(--text-primary)' }}>{contact.name}</strong>
-                            {contact.linkedinUrl && (
-                              <a href={contact.linkedinUrl} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center' }}>
-                                <Linkedin size={10} color="#2563eb" />
-                              </a>
-                            )}
-                          </div>
-                          
-                          <button
-                            onClick={() => handleUnlinkContact(job.id, contact.id, job)}
-                            style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '0.1rem' }}
-                            title="Unlink contact"
-                          >
-                            <X size={12} />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Link existing contact select dropdown */}
-                  {availableContacts.length > 0 && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', marginTop: '0.35rem' }}>
-                      <select
-                        onChange={(e) => {
-                          if (e.target.value) {
-                            handleLinkContact(job.id, e.target.value, job);
-                            e.target.value = ''; // reset dropdown selection
-                          }
-                        }}
-                        className="select-field"
-                        style={{ fontSize: '0.725rem', padding: '0.25rem 0.45rem', minHeight: '30px' }}
-                        defaultValue=""
-                      >
-                        <option value="" disabled>Link existing contact...</option>
-                        {availableContacts.map(c => (
-                          <option key={c.id} value={c.id}>
-                            {c.name} {c.organization ? `(${c.organization})` : ''}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  )}
-                </div>
-
               </div>
             );
           })}
@@ -1251,505 +869,83 @@ Product Designer - metacareers.com/jobs/1397212694826926"
                 whiteSpace: 'nowrap',
                 transition: 'color 0.3s ease'
               };
-              if (idx === 0) return { ...baseStyle, left: '0', transform: 'none' };
-              if (idx === 3) return { ...baseStyle, right: '0', transform: 'none' };
-              return { ...baseStyle, left: '50%', transform: 'translateX(-50%)' };
-            };
+            const matchScore = calculateLocalMatch(resumeText, job);
+            const isSelected = selectedJobs.includes(job.id);
 
             return (
               <div 
                 key={job.id}
                 className="section-card"
+                onClick={() => setSelectedDescriptionJob(job)}
                 style={{
                   display: 'flex',
-                  flexDirection: 'column',
-                  padding: '1rem',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '0.85rem 1.25rem',
                   border: isSelected ? '1px solid var(--accent-blue)' : '1px solid var(--border-color)',
                   background: isSelected ? 'var(--bg-card-hover)' : 'var(--bg-card)',
                   transition: 'all 0.15s ease',
-                  gap: isExpanded ? '1rem' : '0'
+                  cursor: 'pointer',
+                  gap: '1rem',
+                  flexWrap: 'wrap'
                 }}
+                onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--accent-blue)'}
+                onMouseLeave={(e) => e.currentTarget.style.borderColor = isSelected ? 'var(--accent-blue)' : 'var(--border-color)'}
               >
-                {/* Compact Row Header */}
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
-                  {/* Left Controls & Info */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flex: 1, minWidth: '250px' }}>
-                    <input
-                      type="checkbox"
-                      checked={isSelected}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          setSelectedJobs(prev => [...prev, job.id]);
-                        } else {
-                          setSelectedJobs(prev => prev.filter(id => id !== job.id));
-                        }
-                      }}
-                      style={{ width: '16px', height: '16px', cursor: 'pointer' }}
-                    />
-                    
-                    {/* Status Dot */}
-                    <div style={{
-                      width: '10px',
-                      height: '10px',
-                      borderRadius: '50%',
-                      background: getStatusColor(job.status || 'Wishlist'),
-                      boxShadow: `0 0 6px ${getStatusColor(job.status || 'Wishlist')}80`
-                    }} />
+                {/* Left Side: Checkbox, Status Dot, Company & Role */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', flex: 1, minWidth: '250px' }}>
+                  <input
+                    type="checkbox"
+                    checked={isSelected}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setSelectedJobs(prev => [...prev, job.id]);
+                      } else {
+                        setSelectedJobs(prev => prev.filter(id => id !== job.id));
+                      }
+                    }}
+                    onClick={(e) => e.stopPropagation()}
+                    style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+                  />
+                  
+                  {/* Status Dot */}
+                  <div style={{
+                    width: '8px',
+                    height: '8px',
+                    borderRadius: '50%',
+                    background: getStatusColor(job.status || 'Wishlist'),
+                    boxShadow: `0 0 6px ${getStatusColor(job.status || 'Wishlist')}80`
+                  }} />
 
-                    {/* Company and Role */}
-                    <div 
-                      onClick={() => {
-                        if (isExpanded) {
-                          setExpandedJobs(prev => prev.filter(id => id !== job.id));
-                        } else {
-                          setExpandedJobs(prev => [...prev, job.id]);
-                        }
-                      }}
-                      style={{ cursor: 'pointer', flex: 1 }}
-                    >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                        <strong style={{ fontSize: '1.05rem', color: 'var(--text-primary)' }}>{job.company}</strong>
-                        {job.link && (
-                          <button 
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setSelectedDescriptionJob(job);
-                            }}
-                            style={{ background: 'none', border: 'none', padding: 0, display: 'inline-flex', alignItems: 'center', color: 'var(--text-muted)', cursor: 'pointer' }}
-                            title="View Job Description"
-                          >
-                            <ExternalLink size={12} className="btn-icon-hover" />
-                          </button>
-                        )}
-                      </div>
-                      <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{job.role}</div>
-                    </div>
-                  </div>
-
-                  {/* Badges & Status Selector */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
-                    {/* Location Badge */}
-                    {job.location && (
-                      <span className="badge badge-blue" style={{ fontSize: '0.65rem', padding: '0.15rem 0.45rem' }}>
-                        <MapPin size={8} style={{ marginRight: '-1px' }} />
-                        {job.location}
-                      </span>
-                    )}
-
-                    {hasMasterResume && (
-                      <span 
-                        onClick={() => setActiveBreakdownJob(job)}
-                        className={`badge ${getMatchBadgeClass(matchScore)}`} 
-                        style={{ fontSize: '0.65rem', padding: '0.15rem 0.45rem', display: 'inline-flex', alignItems: 'center', gap: '0.2rem', cursor: 'pointer' }} 
-                        title="Click to view keyword match breakdown"
-                      >
-                        <Sparkles size={8} />
-                        <span>Match: {matchScore}%</span>
-                      </span>
-                    )}
-
-                    {/* Status selector */}
-                    <select
-                      value={job.status || 'Wishlist'}
-                      onChange={(e) => handleStatusChange(job.id, e.target.value)}
-                      className={`badge ${getStatusColorClass(job.status || 'Wishlist')}`}
-                      style={{
-                        border: 'none',
-                        cursor: 'pointer',
-                        outline: 'none',
-                        fontWeight: 700,
-                        padding: '0.2rem 1.4rem 0.2rem 0.5rem',
-                        fontFamily: 'var(--font-body)',
-                        appearance: 'none',
-                        backgroundPosition: 'right 0.4rem center',
-                        backgroundRepeat: 'no-repeat',
-                        backgroundImage: 'url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%2364748b\' stroke-width=\'2.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpath d=\'m6 9 6 6 6-6\'/%3E%3C/svg%3E")',
-                        backgroundSize: '8px',
-                        fontSize: '0.7rem',
-                        borderRadius: '9999px',
-                        textTransform: 'uppercase'
-                      }}
-                    >
-                      <option value="Wishlist">Jobs</option>
-                      <option value="Applied">Applied</option>
-                      <option value="Interviewing">Interviewing</option>
-                      <option value="Offer">Offer</option>
-                      <option value="Rejected">Rejected</option>
-                    </select>
-                  </div>
-
-                  {/* Actions buttons */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <button
-                      onClick={() => {
-                        if (isExpanded) {
-                          setExpandedJobs(prev => prev.filter(id => id !== job.id));
-                        } else {
-                          setExpandedJobs(prev => [...prev, job.id]);
-                        }
-                      }}
-                      style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', padding: '0.25rem', display: 'flex', alignItems: 'center' }}
-                      title={isExpanded ? "Collapse Details" : "Expand Details"}
-                    >
-                      {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                    </button>
-                    <button
-                      onClick={() => deleteResource(job.id)}
-                      style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '0.25rem', display: 'flex', alignItems: 'center' }}
-                      title="Delete Job"
-                    >
-                      <Trash2 size={15} className="btn-icon-hover" />
-                    </button>
+                  <div>
+                    <strong style={{ fontSize: '1rem', color: 'var(--text-primary)' }}>{job.company}</strong>
+                    <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{job.role}</div>
                   </div>
                 </div>
 
-                {/* Expandable Details Panel */}
-                {isExpanded && (
-                  <div 
-                    style={{ 
-                      display: 'grid', 
-                      gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', 
-                      gap: '1.25rem', 
-                      borderTop: '1px solid var(--border-color)', 
-                      paddingTop: '1rem',
-                      marginTop: '0.5rem'
-                    }}
-                  >
-                    {/* Left Column (Stepper, Link, Notes) */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-                      {/* Stepper progress */}
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', margin: '0.25rem 0' }}>
-                        <div style={{ position: 'relative', height: '4px', background: 'rgba(0,0,0,0.06)', borderRadius: '2px', margin: '0.5rem 0 1.25rem 0' }}>
-                          <div style={{
-                            position: 'absolute',
-                            left: 0,
-                            top: 0,
-                            height: '100%',
-                            width: `${(currentStepIndex / 3) * 100}%`,
-                            background: getStatusColor(job.status || 'Wishlist'),
-                            borderRadius: '2px',
-                            transition: 'width 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
-                          }} />
-                          <div style={{ display: 'flex', justifyContent: 'space-between', position: 'absolute', width: '100%', top: '-4px', left: 0 }}>
-                            {steps.map((step, idx) => {
-                              const isCompleted = idx <= currentStepIndex;
-                              const isActive = idx === currentStepIndex;
-                              const stepColor = isCompleted ? getStatusColor(job.status || 'Wishlist') : 'rgba(0,0,0,0.12)';
-                              return (
-                                <div key={step} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative' }}>
-                                  <div style={{
-                                    width: '12px',
-                                    height: '12px',
-                                    borderRadius: '50%',
-                                    background: isActive ? '#ffffff' : stepColor,
-                                    border: `3px solid ${stepColor}`,
-                                    boxShadow: isActive ? `0 0 0 3px ${stepColor}40` : 'none',
-                                    transition: 'all 0.3s ease',
-                                    cursor: 'pointer',
-                                    zIndex: 2
-                                  }}
-                                  onClick={() => handleStatusChange(job.id, step === 'Rejected' || step === 'Offer' ? (job.status === 'Rejected' ? 'Rejected' : 'Offer') : step)}
-                                  title={`Set status to ${step}`}
-                                  />
-                                  <span style={getLabelStyle(idx, isActive)}>
-                                    {step === 'Wishlist' ? 'Jobs' : step}
-                                  </span>
-                                </div>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Job Listing Link Input */}
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', marginTop: '0.5rem' }}>
-                        <label style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-muted)', display: 'block', textTransform: 'uppercase' }}>Job Listing Link</label>
-                        <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
-                          <input
-                            type="text"
-                            className="input-field"
-                            placeholder="Add job link..."
-                            style={{ fontSize: '0.8rem', padding: '0.35rem 0.55rem', minHeight: '32px', flex: 1 }}
-                            value={job.link || ''}
-                            onChange={(e) => updateResource(job.id, { link: e.target.value })}
-                          />
-                          {job.link && (
-                            <a 
-                              href={job.link.startsWith('http') ? job.link : `https://${job.link}`} 
-                              target="_blank" 
-                              rel="noopener noreferrer" 
-                              style={{ 
-                                display: 'flex', 
-                                alignItems: 'center', 
-                                justifyContent: 'center', 
-                                color: 'var(--text-muted)',
-                                padding: '0.25rem',
-                                background: 'rgba(0, 0, 0, 0.02)',
-                                border: '1px solid var(--border-color)',
-                                borderRadius: 'var(--radius-sm)',
-                                minHeight: '32px',
-                                width: '32px'
-                              }}
-                              title="Open job listing"
-                            >
-                              <ExternalLink size={14} className="btn-icon-hover" />
-                            </a>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Notes Input Area */}
-                      <div>
-                        <label style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-muted)', display: 'block', marginBottom: '0.25rem', textTransform: 'uppercase' }}>Application Notes</label>
-                        <textarea
-                          className="textarea-field"
-                          rows={2}
-                          placeholder="Add details, salary info, application steps..."
-                          style={{ fontSize: '0.8rem', padding: '0.5rem 0.65rem', minHeight: '60px' }}
-                          value={job.notesText || ''}
-                          onChange={(e) => handleNotesChange(job.id, e.target.value)}
-                        />
-                      </div>
-                    </div>
-
-                    {/* Right Column (Resume, Contacts) */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-                      {/* Resume Upload Section */}
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-                        <label style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-muted)', display: 'block', textTransform: 'uppercase' }}>
-                          Resume / Document
-                        </label>
-                        {job.resume ? (
-                          <div style={{ 
-                            display: 'flex', 
-                            alignItems: 'center', 
-                            justifyContent: 'space-between', 
-                            background: 'rgba(0, 0, 0, 0.02)', 
-                            padding: '0.5rem 0.75rem', 
-                            borderRadius: 'var(--radius-sm)', 
-                            border: '1px solid var(--border-color)' 
-                          }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', overflow: 'hidden', flex: 1 }}>
-                              <FileText size={16} color="var(--accent-blue)" style={{ flexShrink: 0 }} />
-                              <span 
-                                onClick={() => {
-                                  const link = document.createElement('a');
-                                  link.href = job.resume.data;
-                                  link.download = job.resume.name;
-                                  link.click();
-                                }}
-                                style={{ 
-                                  fontSize: '0.8rem', 
-                                  fontWeight: 500, 
-                                  color: 'var(--text-primary)', 
-                                  textDecoration: 'underline',
-                                  cursor: 'pointer',
-                                  overflow: 'hidden', 
-                                  textOverflow: 'ellipsis', 
-                                  whiteSpace: 'nowrap' 
-                                }}
-                                title="Download resume"
-                              >
-                                {job.resume.name}
-                              </span>
-                            </div>
-                            <button
-                              onClick={() => {
-                                if (window.confirm('Are you sure you want to remove this resume?')) {
-                                  updateResource(job.id, { resume: null });
-                                }
-                              }}
-                              style={{ 
-                                background: 'transparent', 
-                                border: 'none', 
-                                color: 'var(--accent-rose)', 
-                                cursor: 'pointer', 
-                                padding: '0.25rem',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center'
-                              }}
-                              title="Remove resume"
-                            >
-                              <X size={14} />
-                            </button>
-                          </div>
-                        ) : (
-                          <div style={{ position: 'relative' }}>
-                            <label 
-                              htmlFor={`resume-upload-list-${job.id}`}
-                              style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                gap: '0.5rem',
-                                padding: '0.5rem',
-                                border: '1px dashed var(--text-muted)',
-                                borderRadius: 'var(--radius-sm)',
-                                cursor: 'pointer',
-                                background: 'transparent',
-                                transition: 'all 0.15s ease',
-                                fontSize: '0.8rem',
-                                color: 'var(--text-secondary)',
-                                fontWeight: 500
-                              }}
-                            >
-                              <Plus size={14} />
-                              <span>Upload Resume</span>
-                            </label>
-                            <input
-                              id={`resume-upload-list-${job.id}`}
-                              type="file"
-                              accept=".pdf,.doc,.docx,.txt,.rtf,.odt"
-                              style={{ display: 'none' }}
-                              onChange={(e) => {
-                                const file = e.target.files[0];
-                                if (!file) return;
-                                
-                                const allowedExtensions = ['pdf', 'doc', 'docx', 'txt', 'rtf', 'odt'];
-                                const fileExtension = file.name.split('.').pop().toLowerCase();
-                                
-                                if (!allowedExtensions.includes(fileExtension)) {
-                                  alert("Invalid file format. Please upload a document format (.pdf, .doc, .docx, .txt, .rtf, .odt).");
-                                  return;
-                                }
-                                
-                                const reader = new FileReader();
-                                reader.onload = (event) => {
-                                  updateResource(job.id, {
-                                    resume: {
-                                      name: file.name,
-                                      type: file.type,
-                                      data: event.target.result
-                                    }
-                                  });
-                                };
-                                reader.readAsDataURL(file);
-                              }}
-                            />
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Contact Connector section */}
-                      <div style={{ borderTop: '1px solid rgba(0,0,0,0.03)', paddingTop: '0.5rem' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.45rem' }}>
-                          <span style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Contacts Contacted</span>
-                          <button
-                            className="btn btn-secondary btn-sm"
-                            onClick={() => setAddingContactJobId(addingContactJobId === job.id ? null : job.id)}
-                            style={{ minHeight: '28px', padding: '0.15rem 0.45rem', fontSize: '0.725rem' }}
-                          >
-                            <UserPlus size={12} />
-                            <span>{addingContactJobId === job.id ? 'Close' : 'Quick Add'}</span>
-                          </button>
-                        </div>
-
-                        {/* Quick add contact inline form */}
-                        {addingContactJobId === job.id && (
-                          <form 
-                            onSubmit={(e) => handleQuickAddContactSubmit(e, job.id, job)} 
-                            style={{ 
-                              display: 'flex', 
-                              flexDirection: 'column', 
-                              gap: '0.4rem', 
-                              background: '#f8fafc', 
-                              padding: '0.65rem', 
-                              borderRadius: 'var(--radius-sm)', 
-                              marginBottom: '0.5rem',
-                              border: '1px solid var(--border-color)'
-                            }}
-                          >
-                            <input
-                              type="text"
-                              className="input-field"
-                              placeholder="Contact Person Name *"
-                              value={newContactName}
-                              onChange={(e) => setNewContactName(e.target.value)}
-                              style={{ fontSize: '0.75rem', padding: '0.35rem 0.55rem', minHeight: '32px' }}
-                              required
-                            />
-                            <input
-                              type="text"
-                              className="input-field"
-                              placeholder="LinkedIn Profile URL (optional)"
-                              value={newContactLinkedin}
-                              onChange={(e) => setNewContactLinkedin(e.target.value)}
-                              style={{ fontSize: '0.75rem', padding: '0.35rem 0.55rem', minHeight: '32px' }}
-                            />
-                            <button type="submit" className="btn btn-primary btn-sm" style={{ minHeight: '30px', fontSize: '0.75rem', padding: '0.2rem' }}>
-                              Link & Save Contact
-                            </button>
-                          </form>
-                        )}
-
-                        {/* List of linked contacts */}
-                        {linkedContacts.length === 0 ? (
-                          <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontStyle: 'italic', padding: '0.25rem 0' }}>
-                            No contacts linked to this application yet.
-                          </div>
-                        ) : (
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', marginBottom: '0.5rem' }}>
-                            {linkedContacts.map(contact => (
-                              <div 
-                                key={contact.id} 
-                                style={{ 
-                                  display: 'flex', 
-                                  justifyContent: 'space-between', 
-                                  alignItems: 'center', 
-                                  background: '#f8fafc', 
-                                  padding: '0.35rem 0.55rem', 
-                                  borderRadius: 'var(--radius-sm)',
-                                  border: '1px solid var(--border-color)'
-                                }}
-                              >
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                                  <strong style={{ fontSize: '0.8rem', color: 'var(--text-primary)' }}>{contact.name}</strong>
-                                  {contact.linkedinUrl && (
-                                    <a href={contact.linkedinUrl} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center' }}>
-                                      <Linkedin size={10} color="#2563eb" />
-                                    </a>
-                                  )}
-                                </div>
-                                <button
-                                  onClick={() => handleUnlinkContact(job.id, contact.id, job)}
-                                  style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '0.1rem' }}
-                                  title="Unlink contact"
-                                >
-                                  <X size={12} />
-                                </button>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-
-                        {/* Link existing contact select dropdown */}
-                        {availableContacts.length > 0 && (
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', marginTop: '0.35rem' }}>
-                            <select
-                              onChange={(e) => {
-                                if (e.target.value) {
-                                  handleLinkContact(job.id, e.target.value, job);
-                                  e.target.value = '';
-                                }
-                              }}
-                              className="select-field"
-                              style={{ fontSize: '0.725rem', padding: '0.25rem 0.45rem', minHeight: '30px' }}
-                              defaultValue=""
-                            >
-                              <option value="" disabled>Link existing contact...</option>
-                              {availableContacts.map(c => (
-                                <option key={c.id} value={c.id}>
-                                  {c.name} {c.organization ? `(${c.organization})` : ''}
-                                </option>
-                              ))}
-                            </select>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                )}
+                {/* Right Side: Badges */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flexWrap: 'wrap' }}>
+                  {job.location && (
+                    <span className="badge badge-blue" style={{ fontSize: '0.65rem' }}>
+                      <MapPin size={8} style={{ marginRight: '-1px' }} />
+                      {job.location}
+                    </span>
+                  )}
+                  {job.type && (
+                    <span className="badge badge-emerald" style={{ fontSize: '0.65rem' }}>
+                      {job.type}
+                    </span>
+                  )}
+                  {hasMasterResume && (
+                    <span className={`badge ${getMatchBadgeClass(matchScore)}`} style={{ fontSize: '0.65rem' }}>
+                      <Sparkles size={8} />
+                      <span>Match: {matchScore}%</span>
+                    </span>
+                  )}
+                  <span className={`badge ${getStatusColorClass(job.status || 'Wishlist')}`} style={{ fontSize: '0.65rem' }}>
+                    {job.status || 'Wishlist'}
+                  </span>
+                </div>
               </div>
             );
           })}
@@ -1758,7 +954,32 @@ Product Designer - metacareers.com/jobs/1397212694826926"
       </div>
 
       {/* Inline responsive Side Panel Drawer */}
-        {selectedDescriptionJob && (
+      {selectedDescriptionJob && (() => {
+        const activeJob = jobApplications.find(j => j.id === selectedDescriptionJob.id);
+        if (!activeJob) return null;
+
+        const matchScore = calculateLocalMatch(resumeText, activeJob);
+        const linkedContacts = (allContacts || []).filter(c => (activeJob.linkedContactIds || []).includes(c.id));
+        const availableContacts = (allContacts || []).filter(c => !(activeJob.linkedContactIds || []).includes(c.id));
+        const steps = ['Wishlist', 'Applied', 'Interviewing', activeJob.status === 'Rejected' ? 'Rejected' : 'Offer'];
+        const currentStepIndex = steps.indexOf(activeJob.status || 'Wishlist') !== -1 ? steps.indexOf(activeJob.status || 'Wishlist') : 0;
+
+        const getLabelStyle = (idx, isActive) => {
+          const baseStyle = {
+            position: 'absolute',
+            top: '16px',
+            fontSize: '0.65rem',
+            fontWeight: isActive ? 700 : 500,
+            color: isActive ? 'var(--text-primary)' : 'var(--text-muted)',
+            whiteSpace: 'nowrap',
+            transition: 'color 0.3s ease'
+          };
+          if (idx === 0) return { ...baseStyle, left: '0', transform: 'none' };
+          if (idx === 3) return { ...baseStyle, right: '0', transform: 'none' };
+          return { ...baseStyle, left: '50%', transform: 'translateX(-50%)' };
+        };
+
+        return (
           <div className="tracker-side-pane">
             {/* Header */}
             <div style={{
@@ -1767,33 +988,52 @@ Product Designer - metacareers.com/jobs/1397212694826926"
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              background: '#f8fafc'
+              background: '#f8fafc',
+              gap: '0.5rem'
             }}>
-              <div>
-                <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-primary)' }}>Job Details</h3>
-                <span className={`badge ${getStatusColorClass(selectedDescriptionJob.status || 'Wishlist')}`} style={{ marginTop: '0.25rem', display: 'inline-block' }}>
-                  {selectedDescriptionJob.status || 'Wishlist'}
-                </span>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {activeJob.company}
+                </h3>
+                <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {activeJob.role}
+                </div>
               </div>
-              <button 
-                onClick={() => setSelectedDescriptionJob(null)}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: 'var(--text-muted)',
-                  cursor: 'pointer',
-                  padding: '0.4rem',
-                  borderRadius: '50%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  transition: 'background-color 0.2s'
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#e2e8f0'}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-              >
-                <X size={20} />
-              </button>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                <button
+                  onClick={() => {
+                    if (window.confirm(`Are you sure you want to delete this application to ${activeJob.company}?`)) {
+                      deleteResource(activeJob.id);
+                      setSelectedDescriptionJob(null);
+                    }
+                  }}
+                  style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '0.4rem', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                  title="Delete Application"
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#fee2e2'}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                >
+                  <Trash2 size={16} color="var(--accent-rose)" />
+                </button>
+                <button 
+                  onClick={() => setSelectedDescriptionJob(null)}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: 'var(--text-muted)',
+                    cursor: 'pointer',
+                    padding: '0.4rem',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transition: 'background-color 0.2s'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#e2e8f0'}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                >
+                  <X size={20} />
+                </button>
+              </div>
             </div>
 
             {/* Content Scroll Area */}
@@ -1805,147 +1045,431 @@ Product Designer - metacareers.com/jobs/1397212694826926"
               flexDirection: 'column',
               gap: '1.25rem'
             }}>
-              {/* Job Header */}
-              <div>
-                <h2 style={{ fontSize: '1.3rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '0.25rem' }}>{selectedDescriptionJob.company}</h2>
-                <div style={{ fontSize: '0.95rem', fontWeight: 600, color: 'var(--text-secondary)' }}>{selectedDescriptionJob.role}</div>
+              
+              {/* Status Section */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase' }}>
+                    Status Progress
+                  </span>
+                  <select
+                    value={activeJob.status || 'Wishlist'}
+                    onChange={(e) => handleStatusChange(activeJob.id, e.target.value)}
+                    className={`badge ${getStatusColorClass(activeJob.status || 'Wishlist')}`}
+                    style={{
+                      border: 'none',
+                      cursor: 'pointer',
+                      outline: 'none',
+                      fontWeight: 700,
+                      padding: '0.2rem 1.4rem 0.2rem 0.5rem',
+                      fontFamily: 'var(--font-body)',
+                      appearance: 'none',
+                      backgroundPosition: 'right 0.4rem center',
+                      backgroundRepeat: 'no-repeat',
+                      backgroundImage: 'url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%2364748b\' stroke-width=\'2.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpath d=\'m6 9 6 6 6-6\'/%3E%3C/svg%3E")',
+                      backgroundSize: '8px',
+                      fontSize: '0.7rem',
+                      borderRadius: '9999px',
+                      textTransform: 'uppercase'
+                    }}
+                  >
+                    <option value="Wishlist">Wishlist</option>
+                    <option value="Applied">Applied</option>
+                    <option value="Interviewing">Interviewing</option>
+                    <option value="Offer">Offer</option>
+                    <option value="Rejected">Rejected</option>
+                  </select>
+                </div>
+                
+                {/* Stepper Track */}
+                <div style={{ position: 'relative', height: '4px', background: 'rgba(0,0,0,0.06)', borderRadius: '2px', margin: '0.5rem 0 1.25rem 0' }}>
+                  <div style={{
+                    position: 'absolute',
+                    left: 0,
+                    top: 0,
+                    height: '100%',
+                    width: `${(currentStepIndex / 3) * 100}%`,
+                    background: getStatusColor(activeJob.status || 'Wishlist'),
+                    borderRadius: '2px',
+                    transition: 'width 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+                  }} />
+                  
+                  <div style={{ display: 'flex', justifyContent: 'space-between', position: 'absolute', width: '100%', top: '-4px', left: 0 }}>
+                    {steps.map((step, idx) => {
+                      const isCompleted = idx <= currentStepIndex;
+                      const isActive = idx === currentStepIndex;
+                      const stepColor = isCompleted ? getStatusColor(activeJob.status || 'Wishlist') : 'rgba(0,0,0,0.12)';
+                      
+                      return (
+                        <div key={step} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative' }}>
+                          <div style={{
+                            width: '12px',
+                            height: '12px',
+                            borderRadius: '50%',
+                            background: isActive ? '#ffffff' : stepColor,
+                            border: `3px solid ${stepColor}`,
+                            boxShadow: isActive ? `0 0 0 3px ${stepColor}40, var(--shadow-subtle)` : 'none',
+                            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                            cursor: 'pointer',
+                            zIndex: 2
+                          }}
+                          onClick={() => handleStatusChange(activeJob.id, step === 'Rejected' || step === 'Offer' ? (activeJob.status === 'Rejected' ? 'Rejected' : 'Offer') : step)}
+                          title={`Set status to ${step}`}
+                          />
+                          <span style={getLabelStyle(idx, isActive)}>
+                            {step === 'Wishlist' ? 'Jobs' : step}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
               </div>
 
-              {/* Metadata Badges & External Link */}
+              {/* Metadata Editing Fields */}
               <div style={{
                 display: 'flex',
                 flexDirection: 'column',
-                gap: '0.75rem',
-                padding: '0.85rem',
+                gap: '0.85rem',
+                padding: '1rem',
                 background: '#f8fafc',
                 borderRadius: 'var(--radius-md)',
                 border: '1px solid var(--border-color)'
               }}>
-                <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
-                  {selectedDescriptionJob.location && (
-                    <span className="badge badge-blue" style={{ fontSize: '0.65rem' }}>
-                      <MapPin size={10} style={{ marginRight: '2px' }} />
-                      {selectedDescriptionJob.location}
-                    </span>
-                  )}
-                  {selectedDescriptionJob.type && (
-                    <span className="badge badge-emerald" style={{ fontSize: '0.65rem' }}>
-                      {selectedDescriptionJob.type}
-                    </span>
-                  )}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                  <div>
+                    <label style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-muted)', display: 'block', textTransform: 'uppercase', marginBottom: '0.25rem' }}>Location</label>
+                    <input 
+                      type="text" 
+                      className="input-field" 
+                      style={{ fontSize: '0.8rem', padding: '0.35rem 0.55rem', minHeight: '32px' }}
+                      value={activeJob.location || ''} 
+                      onChange={(e) => updateResource(activeJob.id, { location: e.target.value })}
+                      placeholder="e.g. Remote"
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-muted)', display: 'block', textTransform: 'uppercase', marginBottom: '0.25rem' }}>Job Type</label>
+                    <select 
+                      className="select-field" 
+                      style={{ fontSize: '0.8rem', padding: '0.35rem 0.55rem', minHeight: '32px' }}
+                      value={activeJob.type || 'Full-Time'} 
+                      onChange={(e) => updateResource(activeJob.id, { type: e.target.value })}
+                    >
+                      <option value="Full-Time">Full-Time</option>
+                      <option value="Part-Time">Part-Time</option>
+                      <option value="Contract">Contract</option>
+                      <option value="Internship">Internship</option>
+                    </select>
+                  </div>
                 </div>
 
-                {selectedDescriptionJob.link && (
-                  <a 
-                    href={selectedDescriptionJob.link.startsWith('http') ? selectedDescriptionJob.link : `https://${selectedDescriptionJob.link}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn btn-primary"
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '0.4rem',
-                      textDecoration: 'none',
-                      marginTop: '0.25rem',
-                      fontSize: '0.8rem',
-                      minHeight: '34px',
-                      color: '#ffffff'
-                    }}
-                  >
-                    <span>Go to Job Posting</span>
-                    <ExternalLink size={12} />
-                  </a>
-                )}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                  <label style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-muted)', display: 'block', textTransform: 'uppercase' }}>Job Posting Link</label>
+                  <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
+                    <input
+                      type="text"
+                      className="input-field"
+                      placeholder="Add job link (e.g. careers.google.com)..."
+                      style={{ fontSize: '0.8rem', padding: '0.35rem 0.55rem', minHeight: '32px', flex: 1 }}
+                      value={activeJob.link || ''}
+                      onChange={(e) => updateResource(activeJob.id, { link: e.target.value })}
+                    />
+                    {activeJob.link && (
+                      <a 
+                        href={activeJob.link.startsWith('http') ? activeJob.link : `https://${activeJob.link}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn btn-secondary"
+                        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '32px', width: '32px', padding: 0 }}
+                      >
+                        <ExternalLink size={12} />
+                      </a>
+                    )}
+                  </div>
+                </div>
               </div>
 
-              {/* Formatted Job Description / Notes Section */}
-              <div>
-                <h4 style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '0.5rem', letterSpacing: '0.05em' }}>
-                  Job Description & Notes
-                </h4>
-                {selectedDescriptionJob.notesText ? (
+              {/* ATS Match Overview */}
+              {hasMasterResume && (
+                <div>
+                  <label style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-muted)', display: 'block', textTransform: 'uppercase', marginBottom: '0.45rem' }}>
+                    ATS Resume Match Quality
+                  </label>
                   <div style={{
-                    fontSize: '0.85rem',
-                    lineHeight: 1.5,
-                    color: '#334155',
-                    whiteSpace: 'pre-wrap',
-                    background: '#fcfcfc',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: '0.85rem',
                     border: '1px solid var(--border-color)',
                     borderRadius: 'var(--radius-md)',
-                    padding: '0.85rem',
-                    fontFamily: 'var(--font-body)'
+                    background: '#ffffff'
                   }}>
-                    {selectedDescriptionJob.notesText}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                      <div style={{
+                        width: '36px',
+                        height: '36px',
+                        borderRadius: '50%',
+                        border: `3px solid ${getScoreColor(matchScore)}`,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontWeight: 800,
+                        fontSize: '0.85rem',
+                        color: getScoreColor(matchScore)
+                      }}>
+                        {matchScore}%
+                      </div>
+                      <div>
+                        <div style={{ fontSize: '0.8rem', fontWeight: 700 }}>Keyword Overlap</div>
+                        <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>
+                          {matchScore}% matched with master resume
+                        </div>
+                      </div>
+                    </div>
+                    <button 
+                      className="btn btn-secondary btn-sm"
+                      style={{ minHeight: '28px', padding: '0.15rem 0.45rem', fontSize: '0.725rem' }}
+                      onClick={() => {
+                        setSelectedDescriptionJob(null);
+                        setActiveBreakdownJob(activeJob);
+                      }}
+                    >
+                      Breakdown
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Application Notes (editable) */}
+              <div>
+                <label style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-muted)', display: 'block', marginBottom: '0.35rem', textTransform: 'uppercase' }}>
+                  Job Description & Notes
+                </label>
+                <textarea
+                  className="textarea-field"
+                  rows={6}
+                  placeholder="Paste details, requirements, notes, salary info, or interview steps here..."
+                  style={{ fontSize: '0.85rem', padding: '0.5rem 0.65rem', lineHeight: 1.5 }}
+                  value={activeJob.notesText || ''}
+                  onChange={(e) => handleNotesChange(activeJob.id, e.target.value)}
+                />
+              </div>
+
+              {/* Document/Resume upload section */}
+              <div style={{ borderTop: '1px solid rgba(0,0,0,0.05)', paddingTop: '1rem' }}>
+                <label style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-muted)', display: 'block', textTransform: 'uppercase', marginBottom: '0.45rem' }}>
+                  Resume Document
+                </label>
+                {activeJob.resume ? (
+                  <div style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'space-between', 
+                    background: 'rgba(0, 0, 0, 0.02)', 
+                    padding: '0.5rem 0.75rem', 
+                    borderRadius: 'var(--radius-sm)', 
+                    border: '1px solid var(--border-color)' 
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', overflow: 'hidden', flex: 1 }}>
+                      <FileText size={16} color="var(--accent-blue)" style={{ flexShrink: 0 }} />
+                      <span 
+                        onClick={() => {
+                          const link = document.createElement('a');
+                          link.href = activeJob.resume.data;
+                          link.download = activeJob.resume.name;
+                          link.click();
+                        }}
+                        style={{ 
+                          fontSize: '0.8rem', 
+                          color: 'var(--accent-blue)', 
+                          fontWeight: 600, 
+                          cursor: 'pointer',
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis'
+                        }}
+                        title="Download resume"
+                      >
+                        {activeJob.resume.name}
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => {
+                        if (window.confirm("Remove this resume?")) {
+                          updateResource(activeJob.id, { resume: null });
+                        }
+                      }}
+                      style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '0.2rem' }}
+                    >
+                      <Trash2 size={14} className="btn-icon-hover" />
+                    </button>
                   </div>
                 ) : (
-                  <div style={{
-                    fontSize: '0.8rem',
-                    color: 'var(--text-muted)',
-                    fontStyle: 'italic',
-                    padding: '0.85rem',
-                    border: '1px dashed var(--border-color)',
-                    borderRadius: 'var(--radius-md)',
-                    textAlign: 'center'
-                  }}>
-                    No job description or notes saved yet. Use the card edit button to add details!
+                  <div>
+                    <label 
+                      htmlFor={`resume-upload-drawer-${activeJob.id}`} 
+                      className="btn btn-secondary"
+                      style={{ 
+                        cursor: 'pointer',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '0.35rem',
+                        fontSize: '0.8rem',
+                        color: 'var(--text-secondary)',
+                        fontWeight: 500
+                      }}
+                    >
+                      <Plus size={14} />
+                      <span>Upload Resume</span>
+                    </label>
+                    <input
+                      id={`resume-upload-drawer-${activeJob.id}`}
+                      type="file"
+                      accept=".pdf,.doc,.docx,.txt,.rtf,.odt"
+                      style={{ display: 'none' }}
+                      onChange={(e) => {
+                        const file = e.target.files[0];
+                        if (!file) return;
+                        
+                        const allowedExtensions = ['pdf', 'doc', 'docx', 'txt', 'rtf', 'odt'];
+                        const fileExtension = file.name.split('.').pop().toLowerCase();
+                        
+                        if (!allowedExtensions.includes(fileExtension)) {
+                          alert("Invalid file format. Please upload a document format (.pdf, .doc, .docx, .txt, .rtf, .odt).");
+                          return;
+                        }
+                        
+                        const reader = new FileReader();
+                        reader.onload = (event) => {
+                          updateResource(activeJob.id, {
+                            resume: {
+                              name: file.name,
+                              type: file.type,
+                              data: event.target.result
+                            }
+                          });
+                        };
+                        reader.readAsDataURL(file);
+                      }}
+                    />
                   </div>
                 )}
               </div>
 
-              {/* Auto ATS Match overview */}
-              {hasMasterResume && (() => {
-                const breakdown = getLocalMatchBreakdown(resumeText, selectedDescriptionJob);
-                return (
-                  <div>
-                    <h4 style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '0.5rem', letterSpacing: '0.05em' }}>
-                      ATS Resume Match Quality
-                    </h4>
-                    <div style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      padding: '0.85rem',
-                      border: '1px solid var(--border-color)',
-                      borderRadius: 'var(--radius-md)',
-                      background: '#ffffff'
-                    }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-                        <div style={{
-                          width: '36px',
-                          height: '36px',
-                          borderRadius: '50%',
-                          border: `3px solid ${getScoreColor(breakdown.score)}`,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          fontWeight: 800,
-                          fontSize: '0.85rem',
-                          color: getScoreColor(breakdown.score)
-                        }}>
-                          {breakdown.score}%
-                        </div>
-                        <div>
-                          <div style={{ fontSize: '0.8rem', fontWeight: 700 }}>Keyword Overlap</div>
-                          <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>
-                            {breakdown.matchingWords.length} matched / {breakdown.missingWords.length} missing
-                          </div>
-                        </div>
-                      </div>
-                      <button 
-                        className="btn btn-secondary btn-sm"
-                        style={{ minHeight: '28px', padding: '0.15rem 0.45rem', fontSize: '0.725rem' }}
-                        onClick={() => {
-                          setSelectedDescriptionJob(null);
-                          setActiveBreakdownJob(selectedDescriptionJob);
+              {/* Linked Contacts connector section */}
+              <div style={{ borderTop: '1px solid rgba(0,0,0,0.05)', paddingTop: '1rem', marginBottom: '1rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.45rem' }}>
+                  <span style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Contacts Contacted</span>
+                  <button
+                    className="btn btn-secondary btn-sm"
+                    onClick={() => setAddingContactJobId(addingContactJobId === activeJob.id ? null : activeJob.id)}
+                    style={{ minHeight: '28px', padding: '0.15rem 0.45rem', fontSize: '0.725rem' }}
+                  >
+                    <UserPlus size={12} />
+                    <span>{addingContactJobId === activeJob.id ? 'Close' : 'Quick Add'}</span>
+                  </button>
+                </div>
+
+                {/* Quick Add Form */}
+                {addingContactJobId === activeJob.id && (
+                  <form 
+                    onSubmit={(e) => handleQuickAddContactSubmit(e, activeJob.id, activeJob)} 
+                    style={{ 
+                      display: 'flex', 
+                      flexDirection: 'column', 
+                      gap: '0.4rem', 
+                      background: '#f8fafc', 
+                      padding: '0.65rem', 
+                      borderRadius: 'var(--radius-sm)', 
+                      marginBottom: '0.5rem',
+                      border: '1px solid var(--border-color)'
+                    }}
+                  >
+                    <input 
+                      type="text" 
+                      placeholder="Contact name (required)..." 
+                      className="input-field" 
+                      style={{ fontSize: '0.8rem', padding: '0.35rem 0.55rem', minHeight: '30px' }}
+                      value={newContactName} 
+                      onChange={(e) => setNewContactName(e.target.value)} 
+                      required 
+                    />
+                    <input 
+                      type="text" 
+                      placeholder="LinkedIn URL (optional)..." 
+                      className="input-field" 
+                      style={{ fontSize: '0.8rem', padding: '0.35rem 0.55rem', minHeight: '30px' }}
+                      value={newContactLinkedin} 
+                      onChange={(e) => setNewContactLinkedin(e.target.value)} 
+                    />
+                    <button type="submit" className="btn btn-emerald btn-sm" style={{ alignSelf: 'flex-end', minHeight: '28px', fontSize: '0.725rem' }}>
+                      Add & Link
+                    </button>
+                  </form>
+                )}
+
+                {/* Contact list mapping */}
+                {linkedContacts.length > 0 && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', margin: '0.5rem 0' }}>
+                    {linkedContacts.map(contact => (
+                      <div 
+                        key={contact.id} 
+                        style={{ 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          justifyContent: 'space-between', 
+                          padding: '0.4rem 0.6rem', 
+                          background: '#f8fafc', 
+                          borderRadius: 'var(--radius-sm)',
+                          border: '1px solid var(--border-color)'
                         }}
                       >
-                        Breakdown
-                      </button>
-                    </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                          <strong style={{ fontSize: '0.8rem', color: 'var(--text-primary)' }}>{contact.name}</strong>
+                          {contact.linkedinUrl && (
+                            <a href={contact.linkedinUrl} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center' }}>
+                              <Linkedin size={10} color="#2563eb" />
+                            </a>
+                          )}
+                        </div>
+                        <button
+                          onClick={() => handleUnlinkContact(activeJob.id, contact.id, activeJob)}
+                          style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '0.1rem' }}
+                          title="Unlink contact"
+                        >
+                          <X size={12} />
+                        </button>
+                      </div>
+                    ))}
                   </div>
-                );
-              })()}
+                )}
+
+                {/* Link existing contact select dropdown */}
+                {availableContacts.length > 0 && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', marginTop: '0.35rem' }}>
+                    <select
+                      onChange={(e) => {
+                        if (e.target.value) {
+                          handleLinkContact(activeJob.id, e.target.value, activeJob);
+                          e.target.value = '';
+                        }
+                      }}
+                      className="select-field"
+                      style={{ fontSize: '0.725rem', padding: '0.25rem 0.45rem', minHeight: '30px' }}
+                      defaultValue=""
+                    >
+                      <option value="" disabled>Link existing contact...</option>
+                      {availableContacts.map(c => (
+                        <option key={c.id} value={c.id}>
+                          {c.name} {c.organization ? `(${c.organization})` : ''}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+              </div>
+
             </div>
             
             {/* Footer */}
@@ -1957,11 +1481,12 @@ Product Designer - metacareers.com/jobs/1397212694826926"
               justifyContent: 'flex-end'
             }}>
               <button className="btn btn-secondary btn-sm" onClick={() => setSelectedDescriptionJob(null)}>
-                Close
+                Close Details
               </button>
             </div>
           </div>
-        )}
+        );
+      })()}
       </div>
 
       {/* Manual Quick Add Form */}
