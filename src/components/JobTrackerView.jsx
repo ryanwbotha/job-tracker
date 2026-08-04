@@ -230,13 +230,16 @@ export default function JobTrackerView({ setActiveView }) {
         cleanedText = cleanedText.substring(0, 30000);
       }
 
-      const prompt = `You are a helpful assistant. Extract the job description from the following job listing webpage text. 
-Format the job description professionally with sections (About Us, Role, Requirements, Responsibilities, Benefits, etc.) using bullet points and markdown.
+      const prompt = `You are a helpful assistant. First, evaluate whether the webpage text below contains a specific, individual job listing posting (with a job title, role description, qualifications, and/or responsibilities).
+If it is a generic page, homepage, index/search listing of multiple jobs, or an error page, set "isJobPosting" to false and provide a helpful reason in "errorReason" explaining why it is not a specific job post.
+If it is a specific job listing, set "isJobPosting" to true, and extract the job description and metadata.
 
-Also extract metadata: company name, role/title, location, and job type.
+Format the job description professionally with sections (About Us, Role, Requirements, Responsibilities, Benefits, etc.) using bullet points and markdown.
 
 Return a JSON response matching this structure exactly:
 {
+  "isJobPosting": true or false,
+  "errorReason": "<if not a job posting, explain why e.g. 'This is a general company landing page rather than a specific job posting.' otherwise empty string>",
   "jobDescription": "<extracted clean markdown job description>",
   "company": "<extracted company name or empty string if not found>",
   "role": "<extracted role/title or empty string if not found>",
@@ -294,6 +297,10 @@ ${cleanedText}`;
       }
 
       const parsedResult = JSON.parse(cleanJson);
+      
+      if (parsedResult.isJobPosting === false) {
+        throw new Error(parsedResult.errorReason || "The link does not appear to contain a specific job posting.");
+      }
       
       const updates = {};
       if (parsedResult.jobDescription) {
