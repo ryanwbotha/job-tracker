@@ -429,6 +429,18 @@ export default function JobTrackerView({ setActiveView }) {
     let currentCompany = '';
 
     const urlRegex = /((?:https?:\/\/)?(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&//=]*))/;
+    
+    const noiseLabels = [
+      'location link', 'job link', 'apply here', 'apply link', 'link to job', 
+      'url', 'posting link', 'link', 'details', 'more info', 'click here', 
+      'website', 'job website', 'careers page', 'careers link', 'view job',
+      'apply online', 'online application', 'job details', 'location'
+    ];
+
+    const isNoiseLabel = (str) => {
+      const clean = str.toLowerCase().replace(/[:\-\s]+/g, ' ').trim();
+      return noiseLabels.some(label => clean === label || clean.startsWith(label));
+    };
 
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
@@ -452,7 +464,7 @@ export default function JobTrackerView({ setActiveView }) {
         // Clean up role labels
         rolePart = rolePart.replace(/^role\s*:?/i, '').replace(/^[|\-\s]+/g, '').trim();
         
-        if (rolePart && currentCompany) {
+        if (rolePart && !isNoiseLabel(rolePart) && currentCompany) {
           jobs.push({
             company: currentCompany,
             role: rolePart.length > 60 ? rolePart.substring(0, 57) + '...' : rolePart,
@@ -465,7 +477,7 @@ export default function JobTrackerView({ setActiveView }) {
           // If no role on this line, try to grab the previous line as the role if it wasn't the company name
           const prevLine = i > 0 ? lines[i - 1] : '';
           const isPrevCompany = prevLine.match(/^\d+\./) || (prevLine.length < 40 && (prevLine.toLowerCase().includes('platforms') || prevLine.toLowerCase().includes('google') || prevLine.toLowerCase().includes('ey') || prevLine.toLowerCase().includes('group') || prevLine.toLowerCase().includes('systems') || prevLine.toLowerCase().includes('corp') || prevLine.toLowerCase().includes('inc.')));
-          const inferredRole = !isPrevCompany && prevLine ? prevLine : 'Open Role';
+          const inferredRole = !isPrevCompany && prevLine && !isNoiseLabel(prevLine) ? prevLine : 'Open Role';
           
           jobs.push({
             company: currentCompany,
@@ -478,7 +490,7 @@ export default function JobTrackerView({ setActiveView }) {
         }
       } else if (lower.startsWith('role') || lower.startsWith('title')) {
         const roleText = line.replace(/^(?:role|title)\s*:?/i, '').trim();
-        if (roleText && currentCompany) {
+        if (roleText && !isNoiseLabel(roleText) && currentCompany) {
           // Look ahead to check if next line is a URL
           const nextLine = i + 1 < lines.length ? lines[i + 1] : '';
           const nextUrlMatch = nextLine.match(urlRegex);
@@ -494,7 +506,7 @@ export default function JobTrackerView({ setActiveView }) {
           });
           if (link) i++; // skip next line containing the link
         }
-      } else if (currentCompany && line.length < 100) {
+      } else if (currentCompany && line.length < 100 && !isNoiseLabel(line)) {
         // Look ahead: if next line is a URL, this line is likely the role
         const nextLine = i + 1 < lines.length ? lines[i + 1] : '';
         const nextUrlMatch = nextLine.match(urlRegex);
@@ -536,6 +548,7 @@ export default function JobTrackerView({ setActiveView }) {
 
     const prompt = `You are a structured job opportunity parser. Parse the following unstructured list of company names, roles, locations, links, and job details. 
 Extract all the open jobs listed. Make sure to capture the exact URL links for the jobs if they are in the list.
+Do NOT extract label text (like 'Location Link', 'Apply Here', 'Job Link', 'Click Link', 'Website') as the job title/role. The role should always be the actual professional title (e.g. Software Engineer, Product Designer). If no professional title is specified, use 'Open Role'.
 
 Return a JSON array of objects with this exact structure:
 [
