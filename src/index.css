@@ -46,6 +46,7 @@
   --color-text-primary:   var(--text-primary);
   --color-text-secondary: var(--text-secondary);
   --color-text-muted:     var(--text-muted);
+  --color-text-invert:    var(--text-invert);
 
   /* Semantic accent colours (same in both themes) */
   --color-accent-blue:    #3b82f6;
@@ -141,6 +142,7 @@ body, h1, h2, h3, h4, h5, h6, p, ol, ul, li, figure, blockquote, dl, dd {
 
 html {
   scroll-behavior: smooth;
+  scrollbar-gutter: stable;
 }
 
 body {
@@ -302,6 +304,10 @@ h1, h2, h3, h4, h5, h6 {
   outline: none;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
   -webkit-appearance: none;
+}
+input[type="date"].input, 
+input[type="time"].input {
+  -webkit-appearance: auto;
 }
 .input::placeholder { color: var(--text-muted); }
 .input:focus {
@@ -496,4 +502,20 @@ input:-webkit-autofill:focus {
   --shadow-hover: var(--shadow-md);
 }
 
-
+/* ─── Date Picker Click Hack ─────────────────────────────────────────────── */
+.date-wrapper-hack {
+  position: relative;
+}
+.date-input-hack::-webkit-calendar-picker-indicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}

@@ -78,11 +78,12 @@ export default function DatePickerPopover({ selectedDate, setSelectedDate }) {
   const todayStr = new Date().toISOString().split('T')[0];
 
   return (
-    <div ref={popoverRef} className="relative inline-block">
+    <div ref={popoverRef} className="relative inline-block h-full">
       {/* Trigger */}
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
+        className="hover:bg-[var(--bg-card)] transition-colors"
         style={{
           background: 'transparent',
           color: 'var(--text-primary)',
@@ -91,15 +92,16 @@ export default function DatePickerPopover({ selectedDate, setSelectedDate }) {
           fontSize: '0.75rem',
           fontWeight: 600,
           fontFamily: 'inherit',
-          padding: '0 0.375rem',
-          minWidth: '90px',
+          padding: '0 0.75rem',
+          minWidth: '100px',
           display: 'flex',
           alignItems: 'center',
-          gap: '0.25rem',
+          gap: '0.5rem',
           height: '100%',
           justifyContent: 'center',
         }}
       >
+        <CalendarIcon size={14} style={{ color: 'var(--text-muted)' }} />
         {getDisplayLabel()}
       </button>
 
@@ -112,17 +114,21 @@ export default function DatePickerPopover({ selectedDate, setSelectedDate }) {
             left: '50%',
             transform: 'translateX(-50%)',
             zIndex: 100,
-            background: 'var(--bg-card)',
-            border: '1px solid var(--border)',
-            borderRadius: 'var(--radius-lg)',
-            boxShadow: 'var(--shadow-lg)',
-            width: '256px',
-            padding: '0.875rem',
           }}
-          className="animate-fadeIn"
         >
-          {/* Month nav */}
-          <div className="flex items-center justify-between mb-3.5 px-1">
+          <div
+            style={{
+              background: 'var(--bg-card)',
+              border: '1px solid var(--border)',
+              borderRadius: 'var(--radius-lg)',
+              boxShadow: 'var(--shadow-lg)',
+              width: '256px',
+              padding: '0.875rem',
+            }}
+            className="animate-fadeIn"
+          >
+            {/* Month nav */}
+            <div className="flex items-center justify-between mb-3.5 px-1">
             <button
               type="button"
               onClick={handlePrevMonth}
@@ -226,6 +232,7 @@ export default function DatePickerPopover({ selectedDate, setSelectedDate }) {
               Show All
             </button>
           </div>
+        </div>
         </div>
       )}
     </div>

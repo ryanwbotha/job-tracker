@@ -21,11 +21,13 @@ export default function Header({ onOpenAccountability, onOpenBrainDump, activeTa
 
       <div className="flex items-center gap-3 flex-wrap">
         {/* Date Selector */}
-        <div className="flex items-center gap-2 bg-bg-elevated py-1.5 px-3 rounded-md border border-border-color">
+        <div 
+          className="flex items-center gap-2 bg-bg-elevated py-1.5 px-3 rounded-md border border-border-color cursor-pointer hover:bg-bg-card transition-colors date-wrapper-hack"
+        >
           <Calendar size={15} color="var(--accent-blue)" />
           <input
             type="date"
-            className="border-none bg-transparent p-0 w-auto font-semibold text-[0.85rem] text-text-primary focus:outline-none"
+            className="border-none bg-transparent p-0 w-auto font-semibold text-[0.85rem] text-text-primary focus:outline-none cursor-pointer date-input-hack"
             value={selectedDate}
             onChange={(e) => setSelectedDate(e.target.value)}
           />

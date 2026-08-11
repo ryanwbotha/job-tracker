@@ -61,7 +61,7 @@ export default function TopToolbar({ viewTitle, viewSubtitle, onOpenBrainDump, o
         {/* Date navigator */}
         <div
           style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)' }}
-          className="flex items-center gap-0 overflow-hidden h-10 min-h-[40px]"
+          className="flex items-center gap-0 h-10 min-h-[40px]"
         >
           <button
             type="button"
@@ -75,9 +75,8 @@ export default function TopToolbar({ viewTitle, viewSubtitle, onOpenBrainDump, o
 
           <div
             style={{ borderLeft: '1px solid var(--border)', borderRight: '1px solid var(--border)' }}
-            className="flex items-center gap-2 px-3 h-full"
+            className="flex items-center h-full"
           >
-            <CalendarDays size={13} style={{ color: 'var(--text-muted)' }} />
             <DatePickerPopover selectedDate={selectedDate} setSelectedDate={setSelectedDate} />
           </div>
 
