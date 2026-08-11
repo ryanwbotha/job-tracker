@@ -8,7 +8,6 @@ export default function UndoToastNotification() {
 
   useEffect(() => {
     if (!lastDeleted) return;
-
     setTimeLeft(5);
     const interval = setInterval(() => {
       setTimeLeft(prev => {
@@ -20,77 +19,70 @@ export default function UndoToastNotification() {
         return prev - 1;
       });
     }, 1000);
-
     return () => clearInterval(interval);
   }, [lastDeleted]);
 
   if (!lastDeleted) return null;
 
-  const itemName = typeof lastDeleted.item === 'string' ? lastDeleted.item : (lastDeleted.item.name || 'item');
+  const itemName = typeof lastDeleted.item === 'string'
+    ? lastDeleted.item
+    : (lastDeleted.item?.name || 'item');
 
   return (
     <div
       style={{
         position: 'fixed',
-        bottom: '24px',
-        right: '24px',
+        bottom: '1.5rem',
+        right: '1.5rem',
         zIndex: 200,
-        background: '#0f172a',
-        color: '#ffffff',
-        border: '1px solid #334155',
-        borderRadius: '12px',
-        padding: '0.85rem 1.1rem',
-        boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.2), 0 4px 6px -2px rgba(0, 0, 0, 0.1)',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '0.5rem',
-        minWidth: '320px',
-        animation: 'slideUp 0.25s ease'
+        background: 'var(--bg-sidebar)',
+        border: '1px solid var(--border)',
+        borderRadius: 'var(--radius-lg)',
+        boxShadow: 'var(--shadow-lg)',
+        minWidth: '300px',
       }}
+      className="flex flex-col gap-2.5 p-4 animate-slideInRight"
     >
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem' }}>
-        <div style={{ fontSize: '0.85rem', lineHeight: 1.4 }}>
-          <span>Deleted <strong>{lastDeleted.type}</strong> "{itemName}"</span>
-          <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Auto-closing in {timeLeft}s</div>
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <p style={{ color: 'var(--text-primary)' }} className="text-sm font-medium">
+            Deleted <strong>{lastDeleted.type}</strong>{' '}
+            <span style={{ color: 'var(--text-secondary)' }}>"{itemName}"</span>
+          </p>
+          <p style={{ color: 'var(--text-muted)' }} className="text-xs mt-0.5">
+            Auto-closing in {timeLeft}s
+          </p>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+        <div className="flex items-center gap-1.5 shrink-0">
           <button
             onClick={restoreLastDeleted}
-            style={{
-              background: '#2563eb',
-              color: '#ffffff',
-              border: 'none',
-              borderRadius: '6px',
-              padding: '0.35rem 0.75rem',
-              fontWeight: 600,
-              fontSize: '0.8rem',
-              cursor: 'pointer',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.35rem'
-            }}
+            className="btn btn-primary btn-xs"
           >
-            <RotateCcw size={14} />
-            <span>Undo</span>
+            <RotateCcw size={12} />
+            Undo
           </button>
           <button
             onClick={clearLastDeleted}
-            style={{ background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer', padding: '0.2rem' }}
+            style={{ color: 'var(--text-muted)', background: 'transparent', border: 'none' }}
+            className="inline-flex items-center justify-center w-7 h-7 rounded-md cursor-pointer transition-colors hover:!bg-[var(--bg-elevated)] hover:!text-[var(--text-primary)]"
           >
-            <X size={16} />
+            <X size={14} />
           </button>
         </div>
       </div>
 
-      {/* 5-second Progress Bar */}
-      <div style={{ background: '#334155', height: '3px', borderRadius: '2px', overflow: 'hidden' }}>
+      {/* Countdown progress bar */}
+      <div
+        style={{ background: 'var(--border)', height: '2px', borderRadius: '999px', overflow: 'hidden' }}
+      >
         <div
           style={{
-            background: '#2563eb',
-            height: '100%',
             width: `${(timeLeft / 5) * 100}%`,
-            transition: 'width 1s linear'
+            background: '#3b82f6',
+            height: '100%',
+            transition: 'width 1s linear',
+            borderRadius: 'inherit',
           }}
         />
       </div>

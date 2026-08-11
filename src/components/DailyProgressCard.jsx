@@ -3,37 +3,40 @@ import { useTracker } from '../context/TrackerContext';
 import { Compass, Users, Video } from 'lucide-react';
 
 function ProgressRing({ current, total, color }) {
-  const radius = 26;
+  const radius = 24;
   const circumference = 2 * Math.PI * radius;
-  const percent = Math.min(100, Math.round((current / total) * 100));
+  const percent = Math.min(100, total > 0 ? Math.round((current / total) * 100) : 0);
   const strokeDashoffset = circumference - (percent / 100) * circumference;
 
   return (
-    <div className="progress-ring-container">
-      <svg width="66" height="66" viewBox="0 0 66 66">
+    <div className="w-[60px] h-[60px] shrink-0 relative flex items-center justify-center">
+      <svg width="60" height="60" viewBox="0 0 60 60">
+        {/* Track */}
         <circle
-          cx="33"
-          cy="33"
-          r={radius}
-          stroke="rgba(0, 0, 0, 0.04)"
-          strokeWidth="3.5"
+          cx="30" cy="30" r={radius}
+          stroke="var(--border)"
+          strokeWidth="3"
           fill="transparent"
         />
+        {/* Progress */}
         <circle
-          cx="33"
-          cy="33"
-          r={radius}
+          cx="30" cy="30" r={radius}
           stroke={color}
-          strokeWidth="3.5"
+          strokeWidth="3"
           fill="transparent"
           strokeDasharray={circumference}
           strokeDashoffset={strokeDashoffset}
           strokeLinecap="round"
           style={{ transition: 'stroke-dashoffset 0.6s ease' }}
-          transform="rotate(-90 33 33)"
+          transform="rotate(-90 30 30)"
         />
       </svg>
-      <span className="progress-ring-text" style={{ fontSize: '1.2rem', fontWeight: 800 }}>{current}</span>
+      <span
+        style={{ color: 'var(--text-primary)' }}
+        className="absolute font-bold text-[1.05rem] leading-none"
+      >
+        {current}
+      </span>
     </div>
   );
 }
@@ -41,99 +44,106 @@ function ProgressRing({ current, total, color }) {
 export default function DailyProgressCard({ setActiveView }) {
   const { resources, contacts, meetings } = useTracker();
 
-  const resCount = resources.length;
-  const conCount = contacts.length;
-  const mtgCount = meetings.length;
-
   const cards = [
     {
       id: 'resources',
       title: '15 Resources',
-      count: resCount,
-      total: 15,
       icon: Compass,
-      color: '#2563eb',
-      bgColor: 'rgba(37, 99, 235, 0.04)',
-      borderColor: 'rgba(37, 99, 235, 0.08)',
-      subtitle: `${Math.round((resCount / 15) * 100)}% of daily goal`,
-      ariaLabel: '15 Resources Progress Card. Click to view Resources Identified section.'
+      count: resources.length,
+      total: 15,
+      color: '#3b82f6',
+      accentBg: 'rgba(59,130,246,0.08)',
+      accentBorder: 'rgba(59,130,246,0.2)',
+      iconBg: 'rgba(59,130,246,0.1)',
     },
     {
       id: 'contacts',
       title: '10 Contacts',
-      count: conCount,
-      total: 10,
       icon: Users,
+      count: contacts.length,
+      total: 10,
       color: '#10b981',
-      bgColor: 'rgba(16, 185, 129, 0.04)',
-      borderColor: 'rgba(16, 185, 129, 0.08)',
-      subtitle: `${Math.round((conCount / 10) * 100)}% of daily goal`,
-      ariaLabel: '10 Contacts Progress Card. Click to view Contacts Made section.'
+      accentBg: 'rgba(16,185,129,0.08)',
+      accentBorder: 'rgba(16,185,129,0.2)',
+      iconBg: 'rgba(16,185,129,0.1)',
     },
     {
       id: 'meetings',
       title: '2 Meetings',
-      count: mtgCount,
-      total: 2,
       icon: Video,
+      count: meetings.length,
+      total: 2,
       color: '#8b5cf6',
-      bgColor: 'rgba(139, 92, 246, 0.04)',
-      borderColor: 'rgba(139, 92, 246, 0.08)',
-      subtitle: `${Math.round((mtgCount / 2) * 100)}% of daily goal`,
-      ariaLabel: '2 Meetings Progress Card. Click to view Face-to-Face Meetings section.'
-    }
+      accentBg: 'rgba(139,92,246,0.08)',
+      accentBorder: 'rgba(139,92,246,0.2)',
+      iconBg: 'rgba(139,92,246,0.1)',
+    },
   ];
 
   return (
-    <div className="progress-grid">
+    <div className="grid grid-cols-3 max-[900px]:grid-cols-1 gap-3">
       {cards.map(card => {
         const Icon = card.icon;
+        const pct = Math.min(100, card.total > 0 ? Math.round((card.count / card.total) * 100) : 0);
+        const met = card.count >= card.total;
+
         return (
           <div
             key={card.id}
-            className="progress-card"
             onClick={() => setActiveView && setActiveView(card.id)}
             role="button"
             tabIndex={0}
-            aria-label={card.ariaLabel}
-            onKeyDown={(e) => {
-              if ((e.key === 'Enter' || e.key === ' ') && setActiveView) {
-                e.preventDefault();
-                setActiveView(card.id);
-              }
-            }}
-            style={{ 
+            aria-label={`${card.title} — ${card.count} of ${card.total}. Click to view.`}
+            onKeyDown={e => { if ((e.key === 'Enter' || e.key === ' ') && setActiveView) { e.preventDefault(); setActiveView(card.id); } }}
+            style={{
+              background: 'var(--bg-card)',
+              border: `1px solid ${met ? card.color + '44' : 'var(--border)'}`,
+              borderRadius: 'var(--radius-lg)',
+              boxShadow: 'var(--shadow-sm)',
               cursor: 'pointer',
-              background: card.bgColor,
-              borderColor: card.borderColor,
-              borderWidth: '1px',
-              borderStyle: 'solid',
-              boxShadow: 'var(--shadow-subtle)',
-              transition: 'transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease, border-color 0.2s ease'
+              transition: 'all 0.2s ease',
             }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-3px)';
-              e.currentTarget.style.boxShadow = 'var(--shadow-card)';
-              e.currentTarget.style.borderColor = card.color;
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = 'var(--shadow-subtle)';
-              e.currentTarget.style.borderColor = card.borderColor;
-            }}
-            title={`Click to view ${card.title} section`}
+            className="flex items-center gap-3.5 p-4 px-4.5 hover:translate-y-[-2px] hover:!shadow-[var(--shadow-md)]"
           >
             <ProgressRing current={card.count} total={card.total} color={card.color} />
 
-            <div className="progress-info">
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                <Icon size={16} color={card.color} />
-                <span className="progress-title" style={{ color: card.color, fontWeight: 700 }}>{card.title}</span>
+            <div className="flex flex-col gap-1 flex-1 min-w-0">
+              <div className="flex items-center gap-1.5">
+                <div className="rounded-md p-1" style={{ background: card.iconBg }}>
+                  <Icon size={12} color={card.color} />
+                </div>
+                <span className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: card.color }}>
+                  {card.title}
+                </span>
               </div>
-              <div className="progress-count" style={{ fontSize: '1.8rem', fontWeight: 800 }}>
-                {card.count} <span style={{ fontSize: '1rem', color: 'var(--text-muted)', fontWeight: 600 }}>/ {card.total}</span>
+
+              <div className="flex items-baseline gap-1">
+                <span style={{ color: 'var(--text-primary)' }} className="text-2xl font-bold">
+                  {card.count}
+                </span>
+                <span style={{ color: 'var(--text-muted)' }} className="text-sm font-medium">
+                  / {card.total}
+                </span>
               </div>
-              <span className="progress-subtitle" style={{ fontSize: '0.8rem', fontWeight: 600 }}>{card.subtitle}</span>
+
+              {/* Mini progress bar */}
+              <div
+                className="h-1 rounded-full overflow-hidden mt-0.5"
+                style={{ background: 'var(--border)' }}
+              >
+                <div
+                  style={{
+                    width: `${pct}%`,
+                    background: card.color,
+                    transition: 'width 0.5s ease',
+                    height: '100%',
+                    borderRadius: 'inherit',
+                  }}
+                />
+              </div>
+              <span style={{ color: 'var(--text-muted)' }} className="text-[11px] font-medium">
+                {pct}% {met ? '✓ Goal met!' : 'of daily goal'}
+              </span>
             </div>
           </div>
         );

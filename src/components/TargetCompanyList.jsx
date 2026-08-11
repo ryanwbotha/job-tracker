@@ -2,6 +2,10 @@ import React, { useState } from 'react';
 import { useTracker } from '../context/TrackerContext';
 import { Building2, Plus, X } from 'lucide-react';
 
+// Tailwind CSS styling constants for v4 migration
+const BTN_SM_SECONDARY = `inline-flex items-center justify-center gap-2 font-semibold text-[16px] min-h-[40px] px-3.5 py-1.5 rounded-sm border border-border-color cursor-pointer transition-colors active:opacity-85 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-blue bg-bg-card text-text-primary hover:bg-bg-elevated`;
+const INPUT_FIELD = "w-full rounded-lg border border-border-color bg-bg-input px-3 py-2.5 text-sm text-text-primary placeholder-text-muted shadow-sm outline-none transition focus:border-accent-blue focus:ring-4 focus:ring-accent-blue/10";
+
 export default function TargetCompanyList() {
   const { targets, addTarget, deleteTarget } = useTracker();
   const [newTarget, setNewTarget] = useState('');
@@ -15,57 +19,45 @@ export default function TargetCompanyList() {
   };
 
   return (
-    <div className="section-card">
-      <div className="section-header">
-        <div className="section-title-group">
+    <div className="section-card p-6 md:p-8">
+      <div className="flex items-center justify-between mb-5 flex-wrap gap-3">
+        <div className="flex items-center gap-3">
           <Building2 size={22} color="var(--accent-amber)" />
           <div>
-            <h3 style={{ fontSize: '1.1rem' }}>Target Organizations & Sectors</h3>
-            <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+            <h3 className="text-[1.1rem] font-bold text-text-primary">Target Organizations & Sectors</h3>
+            <p className="text-[0.8rem] text-text-secondary">
               Primary companies and industries you are targeting for networking and applications.
             </p>
           </div>
         </div>
       </div>
 
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.65rem', alignItems: 'center', marginBottom: '1rem' }}>
+      <div className="flex flex-wrap gap-3 items-center mb-4">
         {targets.map(target => (
           <div
             key={target}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.4rem',
-              background: 'rgba(245, 158, 11, 0.12)',
-              border: '1px solid rgba(245, 158, 11, 0.3)',
-              color: '#fbbf24',
-              padding: '0.4rem 0.8rem',
-              borderRadius: 'var(--radius-md)',
-              fontWeight: 700,
-              fontSize: '0.85rem',
-              letterSpacing: '0.03em'
-            }}
+            className="inline-flex items-center gap-2 bg-amber-500/12 border border-amber-500/30 text-amber-500 px-3.5 py-2 rounded-lg font-bold text-[0.85rem] tracking-wider"
           >
             <span>{target}</span>
             <button
               onClick={() => deleteTarget(target)}
-              style={{ background: 'transparent', border: 'none', color: '#fbbf24', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+              className="bg-transparent border-none text-amber-500 cursor-pointer flex items-center p-0.5 hover:opacity-80"
+              aria-label={`Remove target ${target}`}
             >
               <X size={14} />
             </button>
           </div>
         ))}
 
-        <form onSubmit={handleAdd} style={{ display: 'inline-flex', gap: '0.5rem' }}>
+        <form onSubmit={handleAdd} className="inline-flex gap-2">
           <input
             type="text"
-            className="input-field"
+            className={`${INPUT_FIELD} w-[200px] px-3.5 py-2 text-[0.85rem] min-h-[40px]`}
             placeholder="Add Target (e.g. FINTECHS)"
-            style={{ width: '180px', padding: '0.4rem 0.65rem', fontSize: '0.825rem' }}
             value={newTarget}
             onChange={(e) => setNewTarget(e.target.value)}
           />
-          <button type="submit" className="btn btn-secondary btn-sm">
+          <button type="submit" className={BTN_SM_SECONDARY}>
             <Plus size={14} />
             <span>Add</span>
           </button>

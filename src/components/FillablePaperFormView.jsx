@@ -5,6 +5,13 @@ import InstructionsPopover from './InstructionsPopover';
 import DatePickerPopover from './DatePickerPopover';
 import { FileText, Plus, Trash2, X } from 'lucide-react';
 
+// Tailwind CSS styling constants for v4 migration
+const BTN_BASE = "inline-flex items-center justify-center gap-2 rounded-full border border-transparent text-sm font-semibold shadow-sm transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-4";
+const BTN_PRIMARY = `${BTN_BASE} border-indigo-600 bg-indigo-600 px-5 py-2.5 text-white hover:bg-indigo-700 focus-visible:ring-indigo-200`;
+const BTN_SM_PRIMARY = `inline-flex items-center justify-center gap-2 font-semibold text-[16px] min-h-[40px] px-3.5 py-1.5 rounded-sm border border-transparent cursor-pointer transition-colors active:opacity-85 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-blue bg-accent-blue text-white hover:bg-blue-700`;
+
+const CELL_INPUT = "border border-transparent rounded-[4px] bg-transparent p-[0.35rem_0.5rem] w-full font-body text-[16px] text-text-primary outline-none hover:bg-slate-100 hover:border-slate-300 focus:bg-white! focus:border-accent-blue! focus:outline-2 focus:outline-accent-blue! focus:outline-offset-1 focus:text-[#0f172a]";
+
 export default function FillablePaperFormView() {
   const {
     selectedDate,
@@ -82,25 +89,25 @@ export default function FillablePaperFormView() {
   const effectiveEmptyMtgIdx = firstEmptyMtgIdx === -1 ? 2 : firstEmptyMtgIdx;
 
   return (
-    <div className="section-card" style={{ background: '#ffffff', color: '#0f172a', padding: '1.5rem', border: '2px solid #0f172a' }}>
+    <div className="bg-white rounded-lg p-6 shadow-card transition-all duration-150 border-2 border-[#0f172a] text-[#0f172a]">
       {/* Header Banner */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '2px solid #0f172a', paddingBottom: '0.65rem', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.75rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+      <div className="flex items-center justify-between border-b-2 border-[#0f172a] pb-2.5 mb-4 flex-wrap gap-3">
+        <div className="flex items-center gap-3">
           <FileText size={24} color="#0f172a" />
           <div>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 800, textTransform: 'uppercase', margin: 0, color: '#0f172a' }}>
+            <h2 className="text-[1.25rem] font-extrabold uppercase m-0 text-[#0f172a]">
               Daily Activity Tracking Form (Fillable)
             </h2>
-            <span style={{ fontSize: '0.85rem', fontWeight: 400, color: '#64748b' }}>Form PD10048654 • Fill slots consecutively in order</span>
+            <span className="text-[0.85rem] font-normal text-slate-500">Form PD10048654 • Fill slots consecutively in order</span>
           </div>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+        <div className="flex items-center gap-3">
           {/* Instructions Info Popover */}
           <InstructionsPopover />
 
           {/* Date Selector */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 600, fontSize: '16px' }}>
+          <div className="flex items-center gap-1.5 font-semibold text-[16px]">
             <span>Date:</span>
             <DatePickerPopover selectedDate={selectedDate} setSelectedDate={setSelectedDate} />
           </div>
@@ -108,40 +115,18 @@ export default function FillablePaperFormView() {
       </div>
 
       {/* Date-locked container wrapper */}
-      <div style={{ position: 'relative' }}>
+      <div className="relative">
         {selectedDate === 'ALL' && (
-          <div style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'rgba(255, 255, 255, 0.75)',
-            backdropFilter: 'blur(3px)',
-            zIndex: 10,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            borderRadius: '4px',
-            border: '1px solid #cbd5e1'
-          }}>
-            <div style={{
-              background: '#ffffff',
-              border: '2px solid #0f172a',
-              boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)',
-              padding: '1.5rem',
-              borderRadius: '8px',
-              textAlign: 'center',
-              maxWidth: '400px'
-            }}>
-              <span style={{ fontSize: '2rem', display: 'block', marginBottom: '0.5rem' }}>🔒</span>
-              <h4 style={{ fontWeight: 800, margin: '0 0 0.5rem 0', textTransform: 'uppercase', color: '#0f172a' }}>Daily Form Locked</h4>
-              <p style={{ fontSize: '0.8rem', color: '#64748b', margin: '0 0 1rem 0', lineHeight: 1.4, fontWeight: 400 }}>
+          <div className="absolute inset-0 bg-white/75 backdrop-blur-[3px] z-10 flex items-center justify-center rounded-[4px] border border-slate-300">
+            <div className="bg-white border-2 border-[#0f172a] shadow-[0_10px_15px_-3px_rgba(0,0,0,0.1)] p-6 rounded-lg text-center max-w-[400px]">
+              <span className="text-[2rem] block mb-2">🔒</span>
+              <h4 className="font-extrabold m-[0_0_0.5rem_0] uppercase text-[#0f172a]">Daily Form Locked</h4>
+              <p className="text-[0.8rem] text-slate-500 m-[0_0_1rem_0] leading-relaxed font-normal">
                 You are viewing activity records across <strong>All Dates</strong> combined. To edit or fill daily slot records, select a specific date first.
               </p>
               <button 
                 type="button" 
-                className="btn btn-primary"
+                className={BTN_PRIMARY}
                 onClick={() => setSelectedDate(new Date().toISOString().split('T')[0])}
               >
                 Go to Today's Form
@@ -151,15 +136,15 @@ export default function FillablePaperFormView() {
         )}
 
       {/* 15 Daily Resources Identified Box */}
-      <div style={{ border: '1px solid #0f172a', padding: '0.85rem', marginBottom: '1.25rem', background: '#f8fafc' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-          <h3 style={{ fontSize: '0.9rem', fontWeight: 800, color: '#0f172a', textTransform: 'uppercase' }}>
+      <div className="border border-[#0f172a] p-3.5 mb-5 bg-slate-50">
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="text-[0.9rem] font-extrabold text-[#0f172a] uppercase">
             Daily Resources Identified (Goal: 15)
           </h3>
-          <span style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: 400 }}>{filledResourceCount} / 15 slots filled</span>
+          <span className="text-[0.85rem] text-slate-500 font-normal">{filledResourceCount} / 15 slots filled</span>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '0.4rem' }}>
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-1.5">
           {resourceSlots.map((res, i) => {
             const hasData = res && res.name && res.name.trim();
             const isSlotDisabled = !hasData && i > effectiveEmptyResIdx;
@@ -167,23 +152,15 @@ export default function FillablePaperFormView() {
             return (
               <div
                 key={`res_slot_${i}`}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.35rem',
-                  background: isSlotDisabled ? '#f1f5f9' : '#ffffff',
-                  border: '1px solid #cbd5e1',
-                  borderRadius: '4px',
-                  padding: '0.2rem 0.4rem',
-                  opacity: isSlotDisabled ? 0.55 : 1,
-                  cursor: isSlotDisabled ? 'not-allowed' : 'default'
-                }}
+                className={`flex items-center gap-1.5 border border-slate-300 rounded-[4px] p-[0.2rem_0.4rem] ${
+                  isSlotDisabled ? 'bg-slate-100 opacity-55 cursor-not-allowed' : 'bg-white opacity-100 cursor-default'
+                }`}
                 title={isSlotDisabled ? `Complete empty Resource #${effectiveEmptyResIdx + 1} first` : 'e.g. Ancestry Careers, LinkedIn Alumni Search, Chamber Directory'}
               >
-                <span style={{ fontWeight: 600, fontSize: '16px', color: isSlotDisabled ? '#94a3b8' : '#64748b', width: '22px' }}>{i + 1}.</span>
+                <span className={`font-semibold text-[16px] w-5.5 ${isSlotDisabled ? 'text-slate-400' : 'text-slate-500'}`}>{i + 1}.</span>
                 <input
                   type="text"
-                  className="cell-input"
+                  className={CELL_INPUT}
                   disabled={isSlotDisabled}
                   aria-label={`Resource Slot #${i + 1}`}
                   placeholder=""
@@ -196,7 +173,7 @@ export default function FillablePaperFormView() {
                     type="button"
                     aria-label={`Delete resource slot #${i + 1}`}
                     onClick={() => deleteResource(res.id)}
-                    style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '0.2rem', minWidth: '32px', minHeight: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                    className="bg-transparent border-none text-red-500 cursor-pointer p-1 min-w-[32px] min-h-[32px] flex items-center justify-center rounded-sm hover:bg-red-50"
                   >
                     <Trash2 size={15} />
                   </button>
@@ -208,26 +185,26 @@ export default function FillablePaperFormView() {
       </div>
 
       {/* Contacts Table Section (10 Slots) */}
-      <div style={{ marginBottom: '1.25rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.4rem', borderBottom: '2px solid #0f172a', paddingBottom: '0.25rem' }}>
-          <h3 style={{ fontSize: '0.95rem', fontWeight: 800, textTransform: 'uppercase', margin: 0 }}>
+      <div className="mb-5">
+        <div className="flex items-center justify-between mb-1.5 border-b-2 border-[#0f172a] pb-1">
+          <h3 className="text-[0.95rem] font-extrabold uppercase m-0">
             Contacts (Goal: 10)
           </h3>
-          <span style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: 400 }}>{filledContactCount} / 10 contacts</span>
+          <span className="text-[0.85rem] text-slate-500 font-normal">{filledContactCount} / 10 contacts</span>
         </div>
 
         <div className="table-responsive">
-          <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #0f172a', fontSize: '16px' }} aria-label="Contacts Form Table">
+          <table className="w-full border-collapse border border-[#0f172a] text-[16px]" aria-label="Contacts Form Table">
             <thead>
-              <tr style={{ background: '#f1f5f9' }}>
-                <th style={{ border: '1px solid #0f172a', padding: '0.5rem', textAlign: 'left', width: '30px' }}>#</th>
-                <th style={{ border: '1px solid #0f172a', padding: '0.5rem', textAlign: 'left', width: '170px' }}>Contact name</th>
-                <th style={{ border: '1px solid #0f172a', padding: '0.5rem', textAlign: 'left', width: '140px' }}>Organization</th>
-                <th style={{ border: '1px solid #0f172a', padding: '0.5rem', textAlign: 'left', width: '170px' }}>Email / Phone / LinkedIn</th>
-                <th style={{ border: '1px solid #0f172a', padding: '0.5rem', textAlign: 'left' }}>Comments</th>
-                <th style={{ border: '1px solid #0f172a', padding: '0.5rem', textAlign: 'left', width: '150px' }}>Kind of contact</th>
-                <th style={{ border: '1px solid #0f172a', padding: '0.5rem', textAlign: 'left', width: '130px' }}>Follow-up date</th>
-                <th style={{ border: '1px solid #0f172a', padding: '0.5rem', textAlign: 'center', width: '44px' }}>Action</th>
+              <tr className="bg-slate-100">
+                <th className="border border-[#0f172a] p-2 text-left w-[30px]">#</th>
+                <th className="border border-[#0f172a] p-2 text-left w-[170px]">Contact name</th>
+                <th className="border border-[#0f172a] p-2 text-left w-[140px]">Organization</th>
+                <th className="border border-[#0f172a] p-2 text-left w-[170px]">Email / Phone / LinkedIn</th>
+                <th className="border border-[#0f172a] p-2 text-left">Comments</th>
+                <th className="border border-[#0f172a] p-2 text-left w-[150px]">Kind of contact</th>
+                <th className="border border-[#0f172a] p-2 text-left w-[130px]">Follow-up date</th>
+                <th className="border border-[#0f172a] p-2 text-center w-[44px]">Action</th>
               </tr>
             </thead>
             <tbody>
@@ -238,18 +215,14 @@ export default function FillablePaperFormView() {
                 return (
                   <tr
                     key={`contact_slot_${i}`}
-                    style={{
-                      background: hasData ? '#ffffff' : '#fafafa',
-                      opacity: isContactDisabled ? 0.55 : 1,
-                      cursor: isContactDisabled ? 'not-allowed' : 'default'
-                    }}
+                    className={`${hasData ? 'bg-white' : 'bg-[#fafafa]'} ${isContactDisabled ? 'opacity-55 cursor-not-allowed' : 'opacity-100 cursor-default'}`}
                     title={isContactDisabled ? `Complete empty Contact #${effectiveEmptyConIdx + 1} first` : ''}
                   >
-                    <td style={{ border: '1px solid #0f172a', padding: '0.4rem', fontWeight: 600, color: isContactDisabled ? '#94a3b8' : '#64748b', textAlign: 'center', fontSize: '16px' }}>{i + 1}</td>
-                    <td style={{ border: '1px solid #0f172a', padding: '0.15rem' }}>
+                    <td className={`border border-[#0f172a] p-1.5 font-semibold text-center text-[16px] ${isContactDisabled ? 'text-slate-400' : 'text-slate-500'}`}>{i + 1}</td>
+                    <td className="border border-[#0f172a] p-0.5">
                       <input
                         type="text"
-                        className="cell-input"
+                        className={CELL_INPUT}
                         disabled={isContactDisabled}
                         aria-label={`Contact ${i + 1} name`}
                         placeholder=""
@@ -257,10 +230,10 @@ export default function FillablePaperFormView() {
                         onChange={(e) => handleContactChange(i, 'name', e.target.value)}
                       />
                     </td>
-                    <td style={{ border: '1px solid #0f172a', padding: '0.15rem' }}>
+                    <td className="border border-[#0f172a] p-0.5">
                       <input
                         type="text"
-                        className="cell-input"
+                        className={CELL_INPUT}
                         disabled={isContactDisabled}
                         aria-label={`Contact ${i + 1} organization`}
                         placeholder=""
@@ -268,10 +241,10 @@ export default function FillablePaperFormView() {
                         onChange={(e) => handleContactChange(i, 'organization', e.target.value)}
                       />
                     </td>
-                    <td style={{ border: '1px solid #0f172a', padding: '0.15rem' }}>
+                    <td className="border border-[#0f172a] p-0.5">
                       <input
                         type="text"
-                        className="cell-input"
+                        className={CELL_INPUT}
                         disabled={isContactDisabled}
                         aria-label={`Contact ${i + 1} email, phone, or LinkedIn`}
                         placeholder=""
@@ -279,10 +252,10 @@ export default function FillablePaperFormView() {
                         onChange={(e) => handleContactChange(i, 'emailPhone', e.target.value)}
                       />
                     </td>
-                    <td style={{ border: '1px solid #0f172a', padding: '0.15rem' }}>
+                    <td className="border border-[#0f172a] p-0.5">
                       <input
                         type="text"
-                        className="cell-input"
+                        className={CELL_INPUT}
                         disabled={isContactDisabled}
                         aria-label={`Contact ${i + 1} comments`}
                         placeholder=""
@@ -290,12 +263,11 @@ export default function FillablePaperFormView() {
                         onChange={(e) => handleContactChange(i, 'comments', e.target.value)}
                       />
                     </td>
-                    <td style={{ border: '1px solid #0f172a', padding: '0.15rem' }}>
+                    <td className="border border-[#0f172a] p-0.5">
                       <select
-                        className="cell-input"
                         disabled={isContactDisabled}
                         aria-label={`Contact ${i + 1} kind of contact`}
-                        style={{ fontWeight: 600, color: isContactDisabled ? '#94a3b8' : '#1d4ed8' }}
+                        className={`${CELL_INPUT} font-semibold ${isContactDisabled ? 'text-slate-400' : 'text-blue-700'}`}
                         value={c ? c.kindOfContact : 'Network Call'}
                         onChange={(e) => handleContactChange(i, 'kindOfContact', e.target.value)}
                       >
@@ -304,24 +276,23 @@ export default function FillablePaperFormView() {
                         ))}
                       </select>
                     </td>
-                    <td style={{ border: '1px solid #0f172a', padding: '0.15rem' }}>
+                    <td className="border border-[#0f172a] p-0.5">
                       <input
                         type="date"
-                        className="cell-input"
                         disabled={isContactDisabled}
                         aria-label={`Contact ${i + 1} follow up date`}
-                        style={{ fontWeight: 600, color: isContactDisabled ? '#94a3b8' : '#1d4ed8' }}
+                        className={`${CELL_INPUT} font-semibold ${isContactDisabled ? 'text-slate-400' : 'text-blue-700'}`}
                         value={c ? c.followUpDate : ''}
                         onChange={(e) => handleContactChange(i, 'followUpDate', e.target.value)}
                       />
                     </td>
-                    <td style={{ border: '1px solid #0f172a', padding: '0.2rem', textAlign: 'center' }}>
+                    <td className="border border-[#0f172a] p-1 text-center">
                       {hasData && (
                         <button
                           type="button"
                           aria-label={`Delete contact ${c.name}`}
                           onClick={() => deleteContact(c.id)}
-                          style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '0.3rem', minWidth: '36px', minHeight: '36px' }}
+                          className="bg-transparent border-none text-red-500 cursor-pointer p-1 min-w-[36px] min-h-[36px] flex items-center justify-center rounded-sm hover:bg-red-50 mx-auto"
                         >
                           <Trash2 size={15} />
                         </button>
@@ -336,26 +307,26 @@ export default function FillablePaperFormView() {
       </div>
 
       {/* Face-to-Face Meetings Section (2 Slots) */}
-      <div style={{ marginBottom: '1.25rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.4rem', borderBottom: '2px solid #0f172a', paddingBottom: '0.25rem' }}>
-          <h3 style={{ fontSize: '0.95rem', fontWeight: 800, textTransform: 'uppercase', margin: 0 }}>
+      <div className="mb-5">
+        <div className="flex items-center justify-between mb-1.5 border-b-2 border-[#0f172a] pb-1">
+          <h3 className="text-[0.95rem] font-extrabold uppercase m-0">
             Face-to-Face Meetings (Goal: 2)
           </h3>
-          <span style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: 400 }}>{filledMeetingCount} / 2 meetings</span>
+          <span className="text-[0.85rem] text-slate-500 font-normal">{filledMeetingCount} / 2 meetings</span>
         </div>
 
         <div className="table-responsive">
-          <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #0f172a', fontSize: '16px' }} aria-label="Meetings Form Table">
+          <table className="w-full border-collapse border border-[#0f172a] text-[16px]" aria-label="Meetings Form Table">
             <thead>
-              <tr style={{ background: '#f1f5f9' }}>
-                <th style={{ border: '1px solid #0f172a', padding: '0.5rem', textAlign: 'left', width: '30px' }}>#</th>
-                <th style={{ border: '1px solid #0f172a', padding: '0.5rem', textAlign: 'left', width: '170px' }}>Contact name</th>
-                <th style={{ border: '1px solid #0f172a', padding: '0.5rem', textAlign: 'left', width: '140px' }}>Organization</th>
-                <th style={{ border: '1px solid #0f172a', padding: '0.5rem', textAlign: 'left', width: '170px' }}>Email / Phone / LinkedIn</th>
-                <th style={{ border: '1px solid #0f172a', padding: '0.5rem', textAlign: 'left' }}>Comments</th>
-                <th style={{ border: '1px solid #0f172a', padding: '0.5rem', textAlign: 'left', width: '170px' }}>Kind of meeting</th>
-                <th style={{ border: '1px solid #0f172a', padding: '0.5rem', textAlign: 'left', width: '130px' }}>Follow-up date</th>
-                <th style={{ border: '1px solid #0f172a', padding: '0.5rem', textAlign: 'center', width: '44px' }}>Action</th>
+              <tr className="bg-slate-100">
+                <th className="border border-[#0f172a] p-2 text-left w-[30px]">#</th>
+                <th className="border border-[#0f172a] p-2 text-left w-[170px]">Contact name</th>
+                <th className="border border-[#0f172a] p-2 text-left w-[140px]">Organization</th>
+                <th className="border border-[#0f172a] p-2 text-left w-[170px]">Email / Phone / LinkedIn</th>
+                <th className="border border-[#0f172a] p-2 text-left">Comments</th>
+                <th className="border border-[#0f172a] p-2 text-left w-[170px]">Kind of meeting</th>
+                <th className="border border-[#0f172a] p-2 text-left w-[130px]">Follow-up date</th>
+                <th className="border border-[#0f172a] p-2 text-center w-[44px]">Action</th>
               </tr>
             </thead>
             <tbody>
@@ -366,18 +337,14 @@ export default function FillablePaperFormView() {
                 return (
                   <tr
                     key={`meeting_slot_${i}`}
-                    style={{
-                      background: hasData ? '#ffffff' : '#fafafa',
-                      opacity: isMeetingDisabled ? 0.55 : 1,
-                      cursor: isMeetingDisabled ? 'not-allowed' : 'default'
-                    }}
+                    className={`${hasData ? 'bg-white' : 'bg-[#fafafa]'} ${isMeetingDisabled ? 'opacity-55 cursor-not-allowed' : 'opacity-100 cursor-default'}`}
                     title={isMeetingDisabled ? `Complete empty Meeting #${effectiveEmptyMtgIdx + 1} first` : ''}
                   >
-                    <td style={{ border: '1px solid #0f172a', padding: '0.4rem', fontWeight: 600, color: isMeetingDisabled ? '#94a3b8' : '#64748b', textAlign: 'center', fontSize: '16px' }}>{i + 1}</td>
-                    <td style={{ border: '1px solid #0f172a', padding: '0.15rem' }}>
+                    <td className={`border border-[#0f172a] p-1.5 font-semibold text-center text-[16px] ${isMeetingDisabled ? 'text-slate-400' : 'text-slate-500'}`}>{i + 1}</td>
+                    <td className="border border-[#0f172a] p-0.5">
                       <input
                         type="text"
-                        className="cell-input"
+                        className={CELL_INPUT}
                         disabled={isMeetingDisabled}
                         aria-label={`Meeting ${i + 1} contact name`}
                         placeholder=""
@@ -385,10 +352,10 @@ export default function FillablePaperFormView() {
                         onChange={(e) => handleMeetingChange(i, 'name', e.target.value)}
                       />
                     </td>
-                    <td style={{ border: '1px solid #0f172a', padding: '0.15rem' }}>
+                    <td className="border border-[#0f172a] p-0.5">
                       <input
                         type="text"
-                        className="cell-input"
+                        className={CELL_INPUT}
                         disabled={isMeetingDisabled}
                         aria-label={`Meeting ${i + 1} organization`}
                         placeholder=""
@@ -396,10 +363,10 @@ export default function FillablePaperFormView() {
                         onChange={(e) => handleMeetingChange(i, 'organization', e.target.value)}
                       />
                     </td>
-                    <td style={{ border: '1px solid #0f172a', padding: '0.15rem' }}>
+                    <td className="border border-[#0f172a] p-0.5">
                       <input
                         type="text"
-                        className="cell-input"
+                        className={CELL_INPUT}
                         disabled={isMeetingDisabled}
                         aria-label={`Meeting ${i + 1} email, phone, or LinkedIn`}
                         placeholder=""
@@ -407,10 +374,10 @@ export default function FillablePaperFormView() {
                         onChange={(e) => handleMeetingChange(i, 'emailPhone', e.target.value)}
                       />
                     </td>
-                    <td style={{ border: '1px solid #0f172a', padding: '0.15rem' }}>
+                    <td className="border border-[#0f172a] p-0.5">
                       <input
                         type="text"
-                        className="cell-input"
+                        className={CELL_INPUT}
                         disabled={isMeetingDisabled}
                         aria-label={`Meeting ${i + 1} notes`}
                         placeholder=""
@@ -418,12 +385,11 @@ export default function FillablePaperFormView() {
                         onChange={(e) => handleMeetingChange(i, 'comments', e.target.value)}
                       />
                     </td>
-                    <td style={{ border: '1px solid #0f172a', padding: '0.15rem' }}>
+                    <td className="border border-[#0f172a] p-0.5">
                       <select
-                        className="cell-input"
                         disabled={isMeetingDisabled}
                         aria-label={`Meeting ${i + 1} kind of meeting`}
-                        style={{ fontWeight: 600, color: isMeetingDisabled ? '#94a3b8' : '#6d28d9' }}
+                        className={`${CELL_INPUT} font-semibold ${isMeetingDisabled ? 'text-slate-400' : 'text-purple-700'}`}
                         value={m ? m.kindOfMeeting : 'Informational Interview'}
                         onChange={(e) => handleMeetingChange(i, 'kindOfMeeting', e.target.value)}
                       >
@@ -432,24 +398,23 @@ export default function FillablePaperFormView() {
                         ))}
                       </select>
                     </td>
-                    <td style={{ border: '1px solid #0f172a', padding: '0.15rem' }}>
+                    <td className="border border-[#0f172a] p-0.5">
                       <input
                         type="date"
-                        className="cell-input"
                         disabled={isMeetingDisabled}
                         aria-label={`Meeting ${i + 1} follow up date`}
-                        style={{ fontWeight: 600, color: isMeetingDisabled ? '#94a3b8' : '#1d4ed8' }}
+                        className={`${CELL_INPUT} font-semibold ${isMeetingDisabled ? 'text-slate-400' : 'text-blue-700'}`}
                         value={m ? m.followUpDate : ''}
                         onChange={(e) => handleMeetingChange(i, 'followUpDate', e.target.value)}
                       />
                     </td>
-                    <td style={{ border: '1px solid #0f172a', padding: '0.2rem', textAlign: 'center' }}>
+                    <td className="border border-[#0f172a] p-1 text-center">
                       {hasData && (
                         <button
                           type="button"
                           aria-label={`Delete meeting ${m.name}`}
                           onClick={() => deleteMeeting(m.id)}
-                          style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '0.3rem', minWidth: '36px', minHeight: '36px' }}
+                          className="bg-transparent border-none text-red-500 cursor-pointer p-1 min-w-[36px] min-h-[36px] flex items-center justify-center rounded-sm hover:bg-red-50 mx-auto"
                         >
                           <Trash2 size={15} />
                         </button>
@@ -464,34 +429,23 @@ export default function FillablePaperFormView() {
       </div>
 
       {/* Target Companies Footer Box with Interactive Add/Remove Tags */}
-      <div style={{ border: '1px solid #0f172a', padding: '0.85rem', fontWeight: 600, fontSize: '16px', marginBottom: '0.75rem', background: '#f8fafc', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-        <div style={{ textTransform: 'uppercase', color: '#0f172a', fontSize: '0.85rem', fontWeight: 800 }}>
+      <div className="border border-[#0f172a] p-3.5 font-semibold text-[16px] mb-3 bg-slate-50 flex flex-col gap-2">
+        <div className="uppercase text-[#0f172a] text-[0.85rem] font-extrabold">
           Target Companies:
         </div>
 
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', alignItems: 'center' }}>
+        <div className="flex flex-wrap gap-2 items-center">
           {targets.map(target => (
             <div
               key={target}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.35rem',
-                background: '#eff6ff',
-                border: '1px solid #bfdbfe',
-                color: '#1d4ed8',
-                padding: '0.35rem 0.75rem',
-                borderRadius: '6px',
-                fontWeight: 600,
-                fontSize: '16px'
-              }}
+              className="inline-flex items-center gap-1.5 bg-[#eff6ff] border border-blue-200 text-blue-700 p-[0.35rem_0.75rem] rounded-md font-semibold text-[16px]"
             >
               <span>{target}</span>
               <button
                 type="button"
                 aria-label={`Remove target company ${target}`}
                 onClick={() => deleteTarget(target)}
-                style={{ background: 'transparent', border: 'none', color: '#1d4ed8', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: '0.2rem', minWidth: '28px', minHeight: '28px' }}
+                className="bg-transparent border-none text-blue-700 cursor-pointer flex items-center p-1 min-w-[28px] min-h-[28px] rounded-full hover:bg-blue-100 justify-center"
                 title={`Remove ${target}`}
               >
                 <X size={15} />
@@ -499,16 +453,16 @@ export default function FillablePaperFormView() {
             </div>
           ))}
 
-          <form onSubmit={handleAddTargetSubmit} style={{ display: 'inline-flex', gap: '0.35rem' }}>
+          <form onSubmit={handleAddTargetSubmit} className="inline-flex gap-1.5">
             <input
               type="text"
               aria-label="Add new target company"
               placeholder="+ Add Target Company"
-              style={{ padding: '0.4rem 0.65rem', fontSize: '16px', border: '1px solid #cbd5e1', borderRadius: '4px', outline: 'none', background: '#ffffff', minHeight: '44px', fontWeight: 400 }}
+              className="p-[0.4rem_0.65rem] text-[16px] border border-slate-300 rounded-[4px] outline-none bg-white min-h-[44px] font-normal"
               value={newTargetInput}
               onChange={(e) => setNewTargetInput(e.target.value)}
             />
-            <button type="submit" className="btn btn-primary btn-sm" aria-label="Submit new target company" style={{ padding: '0.4rem 0.75rem', fontSize: '16px' }}>
+            <button type="submit" className={`${BTN_SM_PRIMARY} p-[0.4rem_0.75rem] text-[16px]`} aria-label="Submit new target company">
               <Plus size={16} />
               <span>Add</span>
             </button>
@@ -519,7 +473,7 @@ export default function FillablePaperFormView() {
       </div> {/* Closing the Date-locked container wrapper */}
 
       {/* Official Form Metadata Footer */}
-      <div style={{ fontSize: '0.75rem', color: '#64748b', textAlign: 'right', fontWeight: 400 }}>
+      <div className="text-[0.75rem] text-slate-500 text-right font-normal">
         © 2013 by Intellectual Reserve, Inc. All rights reserved. Printed in the USA. English approval: 6/13 PD10048654
       </div>
     </div>

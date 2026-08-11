@@ -2,135 +2,143 @@ import React from 'react';
 import { useTracker } from '../context/TrackerContext';
 import DailyProgressCard from './DailyProgressCard';
 import DailyStrategyCoach from './DailyStrategyCoach';
-import { Briefcase, ArrowRight } from 'lucide-react';
+import { Briefcase, ArrowRight, TrendingUp } from 'lucide-react';
+
+const FUNNEL_STAGES = [
+  { key: 'Wishlist',     label: 'Wishlist',      color: '#64748b', accentBg: 'rgba(100,116,139,0.12)', accentText: '#94a3b8' },
+  { key: 'Applied',      label: 'Applied',       color: '#f59e0b', accentBg: 'rgba(245,158,11,0.12)',  accentText: '#fcd34d' },
+  { key: 'Interviewing', label: 'Interviewing',  color: '#8b5cf6', accentBg: 'rgba(139,92,246,0.12)',  accentText: '#c4b5fd' },
+  { key: 'Offer',        label: 'Offer',         color: '#10b981', accentBg: 'rgba(16,185,129,0.12)',  accentText: '#6ee7b7' },
+  { key: 'Rejected',     label: 'Rejected',      color: '#f43f5e', accentBg: 'rgba(244,63,94,0.12)',   accentText: '#fda4af' },
+];
 
 export default function OverviewDashboard({ setActiveView }) {
   const { allResources } = useTracker();
-  
-  // Filter for Job Applications
+
   const jobApplications = (allResources || []).filter(res => res.category === 'Job Application');
-  
-  // Calculate pipeline stats
-  const wishlistCount = jobApplications.filter(j => (j.status || 'Wishlist') === 'Wishlist').length;
-  const appliedCount = jobApplications.filter(j => j.status === 'Applied').length;
-  const interviewingCount = jobApplications.filter(j => j.status === 'Interviewing').length;
-  const offerCount = jobApplications.filter(j => j.status === 'Offer').length;
-  const rejectedCount = jobApplications.filter(j => j.status === 'Rejected').length;
-  
   const totalJobs = jobApplications.length;
+  const totalForBar = totalJobs || 1;
+
+  const counts = {};
+  FUNNEL_STAGES.forEach(s => {
+    counts[s.key] = jobApplications.filter(j => (s.key === 'Wishlist' ? (j.status || 'Wishlist') : j.status) === s.key).length;
+  });
+
+  const rejectedCount = counts['Rejected'] || 0;
   const totalActive = totalJobs - rejectedCount;
 
-  // Percentage calculations
-  const totalForBar = totalJobs || 1;
-  const wishlistPercent = (wishlistCount / totalForBar) * 100;
-  const appliedPercent = (appliedCount / totalForBar) * 100;
-  const interviewingPercent = (interviewingCount / totalForBar) * 100;
-  const offerPercent = (offerCount / totalForBar) * 100;
-  const rejectedPercent = (rejectedCount / totalForBar) * 100;
-
-  const funnelCards = [
-    { label: 'Jobs', count: wishlistCount, color: '#cbd5e1', bgColor: 'rgba(203, 213, 225, 0.04)', borderColor: 'rgba(203, 213, 225, 0.15)' },
-    { label: 'Applied', count: appliedCount, color: 'var(--accent-amber)', bgColor: 'rgba(245, 158, 11, 0.03)', borderColor: 'rgba(245, 158, 11, 0.08)' },
-    { label: 'Interviewing', count: interviewingCount, color: 'var(--accent-purple)', bgColor: 'rgba(139, 92, 246, 0.03)', borderColor: 'rgba(139, 92, 246, 0.08)' },
-    { label: 'Offer', count: offerCount, color: 'var(--accent-emerald)', bgColor: 'rgba(16, 185, 129, 0.03)', borderColor: 'rgba(16, 185, 129, 0.08)' },
-    { label: 'Rejected', count: rejectedCount, color: 'var(--accent-rose)', bgColor: 'rgba(244, 63, 94, 0.03)', borderColor: 'rgba(244, 63, 94, 0.08)' }
-  ];
-
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+    <div className="flex flex-col gap-5">
       {/* AI Strategy Coach Banner */}
       <DailyStrategyCoach />
 
-      {/* 15-10-2 Daily Goal Progress Cards (Clickable Navigation Targets) */}
+      {/* 15-10-2 Daily Goal Progress Cards */}
       <DailyProgressCard setActiveView={setActiveView} />
 
       {/* Job Search Funnel Widget */}
-      <div className="section-card" style={{ display: 'flex', flexDirection: 'column', gap: '1rem', padding: '1.5rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <Briefcase size={22} color="var(--accent-blue)" />
+      <div
+        style={{
+          background: 'var(--bg-card)',
+          border: '1px solid var(--border)',
+          borderRadius: 'var(--radius-lg)',
+          boxShadow: 'var(--shadow-sm)',
+        }}
+        className="p-5 md:p-6 flex flex-col gap-4 w-full"
+      >
+        {/* Header */}
+        <div className="flex justify-between items-start flex-wrap gap-3">
+          <div className="flex items-center gap-3">
+            <div
+              className="flex items-center justify-center w-9 h-9 rounded-lg"
+              style={{ background: 'rgba(59,130,246,0.1)' }}
+            >
+              <TrendingUp size={17} color="#3b82f6" />
+            </div>
             <div>
-              <h3 style={{ fontSize: '1.1rem', fontWeight: 700 }}>Job Search Funnel</h3>
-              <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                Track your progress from discovery to final job offer ({totalActive} active applications)
+              <h3 style={{ color: 'var(--text-primary)' }} className="text-[0.9375rem] font-semibold leading-tight">
+                Job Search Funnel
+              </h3>
+              <p style={{ color: 'var(--text-secondary)' }} className="text-xs mt-0.5">
+                {totalActive} active · {totalJobs} total tracked
               </p>
             </div>
           </div>
-          <button 
-            className="btn btn-secondary btn-sm"
+          <button
             onClick={() => setActiveView && setActiveView('jobTracker')}
-            style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', minHeight: '32px', fontSize: '0.75rem', padding: '0 0.65rem' }}
+            className="btn btn-ghost btn-xs"
           >
-            <span>Open Tracker</span>
-            <ArrowRight size={12} />
+            Open Tracker
+            <ArrowRight size={11} />
           </button>
         </div>
 
+        {/* Empty state */}
         {totalJobs === 0 ? (
-          <div style={{ padding: '2rem 1rem', textAlign: 'center', background: 'rgba(0,0,0,0.01)', borderRadius: 'var(--radius-md)', border: '1px dashed var(--border-color)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.25rem' }}>
-            <span style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-secondary)' }}>No jobs tracked yet</span>
-            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Go to Job Tracker to log your first job application.</span>
+          <div
+            style={{
+              background: 'var(--bg-elevated)',
+              border: '1px dashed var(--border)',
+              borderRadius: 'var(--radius-md)',
+            }}
+            className="py-10 flex flex-col items-center gap-1 text-center"
+          >
+            <Briefcase size={24} style={{ color: 'var(--text-muted)' }} />
+            <span style={{ color: 'var(--text-secondary)' }} className="text-sm font-medium mt-2">No jobs tracked yet</span>
+            <span style={{ color: 'var(--text-muted)' }} className="text-xs">Go to Job Tracker to log your first application.</span>
           </div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            {/* Visual Stacked Progress Funnel Bar */}
-            <div style={{ display: 'flex', height: '14px', borderRadius: '9999px', overflow: 'hidden', background: 'rgba(0,0,0,0.04)', border: '1px solid rgba(0,0,0,0.02)' }}>
-              {wishlistCount > 0 && <div style={{ width: `${wishlistPercent}%`, background: '#cbd5e1', transition: 'width 0.3s ease' }} title={`Jobs: ${wishlistCount}`} />}
-              {appliedCount > 0 && <div style={{ width: `${appliedPercent}%`, background: 'var(--accent-amber)', transition: 'width 0.3s ease' }} title={`Applied: ${appliedCount}`} />}
-              {interviewingCount > 0 && <div style={{ width: `${interviewingPercent}%`, background: 'var(--accent-purple)', transition: 'width 0.3s ease' }} title={`Interviewing: ${interviewingCount}`} />}
-              {offerCount > 0 && <div style={{ width: `${offerPercent}%`, background: 'var(--accent-emerald)', transition: 'width 0.3s ease' }} title={`Offer: ${offerCount}`} />}
-              {rejectedCount > 0 && <div style={{ width: `${rejectedPercent}%`, background: 'var(--accent-rose)', transition: 'width 0.3s ease' }} title={`Rejected: ${rejectedCount}`} />}
+          <div className="flex flex-col gap-4">
+            {/* Stacked Progress Bar */}
+            <div
+              className="flex h-2 rounded-full overflow-hidden gap-0.5"
+              style={{ background: 'var(--bg-elevated)' }}
+            >
+              {FUNNEL_STAGES.map(stage => {
+                const count = counts[stage.key] || 0;
+                if (!count) return null;
+                return (
+                  <div
+                    key={stage.key}
+                    style={{ width: `${(count / totalForBar) * 100}%`, background: stage.color, transition: 'width 0.4s ease' }}
+                    title={`${stage.label}: ${count}`}
+                  />
+                );
+              })}
             </div>
 
-            {/* Funnel Stage Cards Grid */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '0.75rem' }}>
-              {funnelCards.map(card => (
-                <div
-                  key={card.label}
-                  onClick={() => setActiveView && setActiveView('jobTracker')}
-                  role="button"
-                  tabIndex={0}
-                  onKeyDown={(e) => {
-                    if ((e.key === 'Enter' || e.key === ' ') && setActiveView) {
-                      e.preventDefault();
-                      setActiveView('jobTracker');
-                    }
-                  }}
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '0.35rem',
-                    padding: '0.85rem',
-                    borderRadius: 'var(--radius-md)',
-                    background: card.bgColor,
-                    border: `1px solid ${card.borderColor}`,
-                    cursor: 'pointer',
-                    transition: 'transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'translateY(-2px)';
-                    e.currentTarget.style.borderColor = card.color;
-                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.03)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'translateY(0)';
-                    e.currentTarget.style.borderColor = card.borderColor;
-                    e.currentTarget.style.boxShadow = 'none';
-                  }}
-                  title={`Click to view ${card.label} in Job Tracker`}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                    <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: card.color }} />
-                    <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-secondary)' }}>{card.label}</span>
+            {/* Stage Cards Grid */}
+            <div className="grid grid-cols-[repeat(auto-fit,minmax(120px,1fr))] gap-2.5">
+              {FUNNEL_STAGES.map(stage => {
+                const count = counts[stage.key] || 0;
+                const pct = Math.round((count / totalForBar) * 100);
+                return (
+                  <div
+                    key={stage.key}
+                    onClick={() => setActiveView && setActiveView('jobTracker')}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setActiveView && setActiveView('jobTracker'); } }}
+                    style={{
+                      background: stage.accentBg,
+                      border: `1px solid ${stage.color}22`,
+                      borderRadius: 'var(--radius-md)',
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease',
+                    }}
+                    className="p-3.5 flex flex-col gap-1.5 hover:translate-y-[-2px]"
+                    title={`View ${stage.label} jobs`}
+                  >
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-2 h-2 rounded-full" style={{ background: stage.color }} />
+                      <span className="text-[11px] font-semibold" style={{ color: stage.accentText }}>{stage.label}</span>
+                    </div>
+                    <div className="flex items-baseline gap-1">
+                      <span style={{ color: 'var(--text-primary)' }} className="text-2xl font-bold">{count}</span>
+                      <span style={{ color: 'var(--text-muted)' }} className="text-[11px] font-medium">{pct}%</span>
+                    </div>
                   </div>
-                  <div style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-primary)', display: 'flex', alignItems: 'baseline', gap: '0.2rem' }}>
-                    {card.count}
-                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 500 }}>
-                      ({Math.round((card.count / totalForBar) * 100)}%)
-                    </span>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}

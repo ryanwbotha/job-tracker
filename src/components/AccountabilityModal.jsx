@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useTracker } from '../context/TrackerContext';
 import { formatFriendlyDate } from '../utils/followUpRules';
-import { Share2, Copy, Check, X, Award } from 'lucide-react';
+import { Copy, Check, X, Award } from 'lucide-react';
 
 export default function AccountabilityModal({ isOpen, onClose }) {
   const { selectedDate, resources, contacts, meetings, targets } = useTracker();
@@ -9,17 +9,13 @@ export default function AccountabilityModal({ isOpen, onClose }) {
 
   if (!isOpen) return null;
 
-  const resourceCount = resources.length;
-  const contactCount = contacts.length;
-  const meetingCount = meetings.length;
-
   const summaryText = `📅 *Daily 15-10-2 Job Search Accountability Update*
 Date: ${selectedDate}
 
 🎯 *Daily Numbers*:
-- 🔍 Resources Identified: ${resourceCount} / 15
-- 👥 Contacts Made: ${contactCount} / 10
-- 🤝 Face-to-Face Meetings: ${meetingCount} / 2
+- 🔍 Resources Identified: ${resources.length} / 15
+- 👥 Contacts Made: ${contacts.length} / 10
+- 🤝 Face-to-Face Meetings: ${meetings.length} / 2
 
 👥 *Key Contacts & Auto Follow-ups*:
 ${contacts.map(c => `• ${c.name} (${c.organization || 'General'}) - ${c.kindOfContact} | Follow-up: ${formatFriendlyDate(c.followUpDate)}`).join('\n') || '• No contacts logged today yet.'}
@@ -38,32 +34,70 @@ ${meetings.map(m => `• ${m.name} (${m.organization || 'Org'}) - ${m.kindOfMeet
   };
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-header">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-            <Award color="var(--accent-emerald)" size={22} />
-            <h2 style={{ fontSize: '1.2rem', fontWeight: 700 }}>Daily Accountability Update</h2>
+    <div
+      className="modal-overlay"
+      onClick={onClose}
+    >
+      <div
+        className="modal-panel"
+        style={{ maxWidth: '640px' }}
+        onClick={e => e.stopPropagation()}
+      >
+        <div className="p-6 flex flex-col gap-4">
+          {/* Header */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div
+                className="w-9 h-9 rounded-lg flex items-center justify-center"
+                style={{ background: 'rgba(16,185,129,0.12)' }}
+              >
+                <Award size={17} color="#10b981" />
+              </div>
+              <div>
+                <h2 style={{ color: 'var(--text-primary)' }} className="text-base font-semibold">
+                  Daily Accountability Update
+                </h2>
+                <p style={{ color: 'var(--text-muted)' }} className="text-xs mt-0.5">
+                  Share your progress with your mentor or accountability group
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={onClose}
+              style={{ color: 'var(--text-muted)', background: 'transparent', border: 'none' }}
+              className="inline-flex items-center justify-center w-8 h-8 rounded-md cursor-pointer hover:!bg-[var(--bg-elevated)] hover:!text-[var(--text-primary)] transition-colors"
+            >
+              <X size={16} />
+            </button>
           </div>
-          <button className="modal-close-btn" onClick={onClose}>
-            <X size={18} />
-          </button>
-        </div>
 
-        <p style={{ fontSize: '0.825rem', color: 'var(--text-secondary)' }}>
-          Copy this formatted report to share with your mentor, accountability group, Slack, or WhatsApp chat.
-        </p>
+          {/* Summary box */}
+          <div
+            style={{
+              background: 'var(--bg-input)',
+              border: '1px solid var(--border)',
+              borderRadius: 'var(--radius-md)',
+              color: 'var(--text-secondary)',
+              fontFamily: "'Geist Mono', monospace",
+              fontSize: '0.75rem',
+              lineHeight: '1.7',
+              maxHeight: '320px',
+              overflowY: 'auto',
+              whiteSpace: 'pre-wrap',
+              padding: '1rem',
+            }}
+          >
+            {summaryText}
+          </div>
 
-        <div className="email-body-box" style={{ fontFamily: 'monospace', fontSize: '0.8rem', maxHeight: '300px', overflowY: 'auto' }}>
-          {summaryText}
-        </div>
-
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
-          <button className="btn btn-secondary" onClick={onClose}>Close</button>
-          <button className="btn btn-emerald" onClick={handleCopy}>
-            {copied ? <Check size={16} /> : <Copy size={16} />}
-            <span>{copied ? 'Copied to Clipboard!' : 'Copy Update Text'}</span>
-          </button>
+          {/* Actions */}
+          <div className="flex justify-end gap-2.5">
+            <button className="btn btn-ghost btn-sm" onClick={onClose}>Close</button>
+            <button className="btn btn-success btn-sm" onClick={handleCopy}>
+              {copied ? <Check size={14} /> : <Copy size={14} />}
+              {copied ? 'Copied!' : 'Copy Update Text'}
+            </button>
+          </div>
         </div>
       </div>
     </div>

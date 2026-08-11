@@ -181,147 +181,92 @@ export default function Settings() {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+    <div className="flex flex-col gap-5 font-body">
       
-      <form onSubmit={handleSaveSettings} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+      <form onSubmit={handleSaveSettings} className="flex flex-col gap-5">
         
         {/* Row 1: Personal Profile */}
-        <div style={{ 
-          background: '#ffffff', 
-          border: '1px solid var(--border-color)', 
-          borderRadius: 'var(--radius-lg)', 
-          padding: '1.5rem', 
-          boxShadow: 'var(--shadow-subtle)',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '1.25rem'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.75rem' }}>
+        <div className="section-card p-6 md:p-8 flex flex-col gap-5">
+          <div className="flex items-center gap-2.5 border-b border-border-color pb-3">
             <User size={20} color="var(--accent-blue)" />
-            <h3 style={{ fontSize: '1.1rem', fontWeight: 700 }}>Personal Job Seeker Profile</h3>
+            <h3 className="text-[1.1rem] font-bold text-text-primary font-heading">Personal Job Seeker Profile</h3>
           </div>
 
-          <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', 
-            gap: '1rem' 
-          }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-              <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Full Name</label>
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-4">
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[0.85rem] font-semibold text-text-secondary">Full Name</label>
               <input 
                 type="text" 
                 value={name} 
                 onChange={(e) => setName(e.target.value)} 
                 placeholder="e.g. Ryan Botha" 
-                style={{
-                  padding: '0.65rem 0.85rem',
-                  borderRadius: 'var(--radius-sm)',
-                  border: '1px solid var(--border-color)',
-                  fontSize: '0.9rem',
-                  width: '100%'
-                }}
+                className="bg-bg-input border border-border-color rounded-md px-3.5 py-2.5 text-text-primary font-body text-sm min-h-[44px] outline-none w-full hover:border-accent-blue focus:border-accent-blue focus:ring-4 focus:ring-accent-blue/10"
               />
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-              <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Contact Email</label>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[0.85rem] font-semibold text-text-secondary">Contact Email</label>
               <input 
                 type="email" 
                 value={email} 
                 onChange={(e) => setEmail(e.target.value)} 
                 placeholder="e.g. ryan@example.com" 
-                style={{
-                  padding: '0.65rem 0.85rem',
-                  borderRadius: 'var(--radius-sm)',
-                  border: '1px solid var(--border-color)',
-                  fontSize: '0.9rem',
-                  width: '100%'
-                }}
+                className="bg-bg-input border border-border-color rounded-md px-3.5 py-2.5 text-text-primary font-body text-sm min-h-[44px] outline-none w-full hover:border-accent-blue focus:border-accent-blue focus:ring-4 focus:ring-accent-blue/10"
               />
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-              <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Phone Number</label>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[0.85rem] font-semibold text-text-secondary">Phone Number</label>
               <input 
                 type="text" 
                 value={phone} 
                 onChange={(e) => setPhone(e.target.value)} 
                 placeholder="e.g. +1 (555) 019-2834" 
-                style={{
-                  padding: '0.65rem 0.85rem',
-                  borderRadius: 'var(--radius-sm)',
-                  border: '1px solid var(--border-color)',
-                  fontSize: '0.9rem',
-                  width: '100%'
-                }}
+                className="bg-bg-input border border-border-color rounded-md px-3.5 py-2.5 text-text-primary font-body text-sm min-h-[44px] outline-none w-full hover:border-accent-blue focus:border-accent-blue focus:ring-4 focus:ring-accent-blue/10"
               />
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-              <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Target Roles / Job Titles</label>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[0.85rem] font-semibold text-text-secondary">Target Roles / Job Titles</label>
               <input 
                 type="text" 
                 value={targetRoles} 
                 onChange={(e) => setTargetRoles(e.target.value)} 
                 placeholder="e.g. React Developer, Mobile Designer" 
-                style={{
-                  padding: '0.65rem 0.85rem',
-                  borderRadius: 'var(--radius-sm)',
-                  border: '1px solid var(--border-color)',
-                  fontSize: '0.9rem',
-                  width: '100%'
-                }}
+                className="bg-bg-input border border-border-color rounded-md px-3.5 py-2.5 text-text-primary font-body text-sm min-h-[44px] outline-none w-full hover:border-accent-blue focus:border-accent-blue focus:ring-4 focus:ring-accent-blue/10"
               />
             </div>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-            <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Professional Pitch / Summary</label>
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[0.85rem] font-semibold text-text-secondary">Professional Pitch / Summary</label>
             <textarea 
               value={summary} 
               onChange={(e) => setSummary(e.target.value)} 
               placeholder="Brief summary of your professional experience and core strengths..." 
-              style={{
-                padding: '0.65rem 0.85rem',
-                borderRadius: 'var(--radius-sm)',
-                border: '1px solid var(--border-color)',
-                fontSize: '0.9rem',
-                width: '100%',
-                minHeight: '100px',
-                resize: 'vertical',
-                fontFamily: 'var(--font-body)'
-              }}
+              className="bg-bg-input border border-border-color rounded-md px-3.5 py-2.5 text-text-primary font-body text-sm min-h-[100px] resize-y outline-none w-full hover:border-accent-blue focus:border-accent-blue focus:ring-4 focus:ring-accent-blue/10"
             />
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', marginTop: '0.75rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
-              <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Master Resume (for ATS Auto-Matching)</label>
+          <div className="flex flex-col gap-1.5 mt-3">
+            <div className="flex justify-between items-center flex-wrap gap-2">
+              <label className="text-[0.85rem] font-semibold text-text-secondary">Master Resume (for ATS Auto-Matching)</label>
               
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <div className="flex items-center gap-2">
                 <input 
                   type="file" 
                   accept=".txt,.pdf" 
                   onChange={handleFileUpload} 
-                  style={{ display: 'none' }} 
+                  className="hidden" 
                   id="settings-resume-upload" 
                 />
                 <label 
                   htmlFor="settings-resume-upload" 
-                  className="btn btn-secondary btn-sm"
-                  style={{ 
-                    cursor: 'pointer', 
-                    fontSize: '0.75rem', 
-                    minHeight: '30px', 
-                    padding: '0.2rem 0.6rem',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.3rem'
-                  }}
+                  className="inline-flex items-center justify-center gap-1 font-body font-semibold text-xs min-h-[30px] px-2.5 py-1 rounded-sm border border-border-color bg-bg-card text-text-primary hover:bg-bg-elevated cursor-pointer transition-all duration-150 active:opacity-85"
                 >
                   {isUploading ? (
                     <>
-                      <RefreshCw className="spin-animation" size={12} />
+                      <RefreshCw className="animate-spin" size={12} />
                       <span>Parsing...</span>
                     </>
                   ) : (
@@ -339,17 +284,7 @@ export default function Settings() {
                         setResumeText('');
                       }
                     }}
-                    style={{ 
-                      background: 'none', 
-                      border: 'none', 
-                      color: 'var(--accent-rose)', 
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.3rem',
-                      fontSize: '0.8rem',
-                      fontWeight: 600
-                    }}
+                    className="bg-none border-none text-accent-rose cursor-pointer flex items-center gap-1 text-xs font-semibold"
                   >
                     <Trash2 size={14} />
                     <span>Clear</span>
@@ -362,19 +297,10 @@ export default function Settings() {
               value={resumeText} 
               onChange={(e) => setResumeText(e.target.value)} 
               placeholder="Paste or upload your master resume content here. This resume is matched automatically against all your job applications!" 
-              style={{
-                padding: '0.65rem 0.85rem',
-                borderRadius: 'var(--radius-sm)',
-                border: '1px solid var(--border-color)',
-                fontSize: '0.9rem',
-                width: '100%',
-                minHeight: '150px',
-                resize: 'vertical',
-                fontFamily: 'var(--font-body)'
-              }}
+              className="bg-bg-input border border-border-color rounded-md px-3.5 py-2.5 text-text-primary font-body text-sm min-h-[150px] resize-y outline-none w-full hover:border-accent-blue focus:border-accent-blue focus:ring-4 focus:ring-accent-blue/10"
             />
             {uploadError && (
-              <span style={{ fontSize: '0.8rem', color: 'var(--accent-rose)', fontWeight: 500 }}>
+              <span className="text-xs text-accent-rose font-medium">
                 {uploadError}
               </span>
             )}
@@ -382,34 +308,18 @@ export default function Settings() {
         </div>
 
         {/* Row 2: API Keys */}
-        <div style={{ 
-          background: '#ffffff', 
-          border: '1px solid var(--border-color)', 
-          borderRadius: 'var(--radius-lg)', 
-          padding: '1.5rem', 
-          boxShadow: 'var(--shadow-subtle)',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '1.25rem'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.75rem' }}>
+        <div className="section-card p-6 md:p-8 flex flex-col gap-5">
+          <div className="flex items-center gap-2.5 border-b border-border-color pb-3">
             <Key size={20} color="var(--accent-blue)" />
-            <h3 style={{ fontSize: '1.1rem', fontWeight: 700 }}>API Configuration & Credentials</h3>
+            <h3 className="text-[1.1rem] font-bold text-text-primary font-heading">API Configuration & Credentials</h3>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Gemini API Key</label>
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-1.5">
+              <div className="flex justify-between items-center">
+                <label className="text-[0.85rem] font-semibold text-text-secondary">Gemini API Key</label>
                 {envKeyDetected && (
-                  <span style={{ 
-                    fontSize: '0.75rem', 
-                    color: 'var(--accent-emerald)', 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    gap: '0.2rem',
-                    fontWeight: 600 
-                  }}>
+                  <span className="text-[0.75rem] text-accent-emerald flex items-center gap-1 font-semibold">
                     <ShieldCheck size={12} />
                     <span>Loaded from environment (.env.local)</span>
                   </span>
@@ -420,28 +330,20 @@ export default function Settings() {
                 value={apiKey} 
                 onChange={(e) => setApiKey(e.target.value)} 
                 placeholder="Paste key to override configuration (AIzaSy...)" 
-                style={{
-                  padding: '0.65rem 0.85rem',
-                  borderRadius: 'var(--radius-sm)',
-                  border: '1px solid var(--border-color)',
-                  fontSize: '0.9rem',
-                  fontFamily: 'monospace',
-                  width: '100%'
-                }}
+                className="bg-bg-input border border-border-color rounded-md px-3.5 py-2.5 text-text-primary font-mono text-sm min-h-[44px] outline-none w-full hover:border-accent-blue focus:border-accent-blue focus:ring-4 focus:ring-accent-blue/10"
               />
             </div>
 
-            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+            <div className="flex gap-2 flex-wrap">
               <button 
                 type="button" 
                 onClick={handleTestApiKey} 
                 disabled={testingKey}
-                className="btn btn-secondary btn-sm"
-                style={{ fontSize: '0.85rem', minHeight: '36px', padding: '0.35rem 1rem' }}
+                className="inline-flex items-center justify-center gap-2 font-body font-semibold text-sm min-h-[36px] px-4 py-1.5 rounded-sm border border-border-color bg-bg-card text-text-primary hover:bg-bg-elevated cursor-pointer transition-all duration-150 active:opacity-85"
               >
                 {testingKey ? (
                   <>
-                    <RefreshCw className="spin-animation" size={14} />
+                    <RefreshCw className="animate-spin" size={14} />
                     <span>Testing...</span>
                   </>
                 ) : (
@@ -454,19 +356,11 @@ export default function Settings() {
             </div>
 
             {testResult && (
-              <div style={{ 
-                background: testResult.success ? 'rgba(16, 185, 129, 0.05)' : 'rgba(244, 63, 94, 0.05)', 
-                border: `1px solid ${testResult.success ? 'var(--accent-emerald)' : 'var(--accent-rose)'}`, 
-                color: testResult.success ? 'var(--accent-emerald)' : 'var(--accent-rose)', 
-                borderRadius: 'var(--radius-sm)', 
-                padding: '0.6rem 0.85rem',
-                fontSize: '0.85rem',
-                fontWeight: 500,
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.4rem',
-                marginTop: '0.25rem'
-              }}>
+              <div className={`border rounded-sm py-2.5 px-3.5 text-[0.85rem] font-medium flex items-center gap-1.5 mt-1 ${
+                testResult.success
+                  ? 'bg-accent-emerald/5 border-accent-emerald text-accent-emerald'
+                  : 'bg-accent-rose/5 border-accent-rose text-accent-rose'
+              }`}>
                 {testResult.success ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
                 <span>{testResult.message}</span>
               </div>
@@ -475,20 +369,19 @@ export default function Settings() {
         </div>
 
         {/* Action buttons */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+        <div className="flex justify-between items-center mt-2 flex-wrap gap-4">
           <button 
             type="button" 
             onClick={handleClearSettings} 
-            className="btn btn-secondary"
-            style={{ color: 'var(--accent-rose)', display: 'flex', gap: '0.4rem', alignItems: 'center' }}
+            className="inline-flex items-center justify-center gap-1.5 font-body font-semibold text-base min-h-[44px] px-5 py-2.5 rounded-md border border-border-color bg-bg-card text-accent-rose hover:bg-bg-elevated cursor-pointer transition-all duration-150 active:opacity-85"
           >
             <Trash2 size={16} />
             <span>Reset All Settings</span>
           </button>
 
-          <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+          <div className="flex gap-3 items-center">
             {saveSuccess && (
-              <span style={{ fontSize: '0.85rem', color: 'var(--accent-emerald)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+              <span className="text-[0.85rem] text-accent-emerald font-semibold flex items-center gap-1.5">
                 <CheckCircle2 size={16} />
                 <span>Settings Saved Successfully!</span>
               </span>
@@ -496,8 +389,7 @@ export default function Settings() {
             
             <button 
               type="submit" 
-              className="btn btn-primary"
-              style={{ display: 'flex', gap: '0.4rem', alignItems: 'center', minWidth: '150px' }}
+              className="inline-flex items-center justify-center gap-1.5 font-body font-semibold text-base min-h-[44px] px-5 py-2.5 rounded-md border border-transparent bg-accent-blue text-white hover:bg-[#1d4ed8] cursor-pointer transition-all duration-150 active:opacity-85 min-w-[150px]"
             >
               <Save size={16} />
               <span>Save Profile</span>

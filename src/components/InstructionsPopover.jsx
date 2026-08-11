@@ -1,17 +1,19 @@
 import React, { useState } from 'react';
 import { HelpCircle, X } from 'lucide-react';
 
+// Tailwind CSS styling constants for v4 migration
+const BTN_SM_BLUE = "inline-flex items-center justify-center gap-1.5 rounded-full border border-accent-blue/20 bg-accent-blue/10 px-4 py-1.5 text-xs font-semibold text-accent-blue shadow-sm transition-colors hover:bg-accent-blue/20 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-accent-blue/10 cursor-pointer";
+
 export default function InstructionsPopover() {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div style={{ position: 'relative', display: 'inline-block' }}>
+    <div className="relative inline-block">
       <button
         type="button"
-        className="btn btn-secondary btn-sm"
+        className={BTN_SM_BLUE}
         onClick={() => setIsOpen(!isOpen)}
         aria-label="Toggle Form Instructions"
-        style={{ borderColor: '#bfdbfe', background: '#eff6ff', color: '#1d4ed8' }}
       >
         <HelpCircle size={15} />
         <span>Form Instructions</span>
@@ -19,31 +21,16 @@ export default function InstructionsPopover() {
 
       {isOpen && (
         <div
-          className="popover-menu"
-          style={{
-            position: 'absolute',
-            top: 'calc(100% + 8px)',
-            right: 0,
-            width: '340px',
-            background: '#ffffff',
-            border: '1px solid #cbd5e1',
-            borderRadius: '12px',
-            padding: '1rem',
-            boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.15)',
-            zIndex: 100,
-            fontSize: '16px',
-            lineHeight: 1.5,
-            color: '#334155'
-          }}
+          className="absolute top-[calc(100%+8px)] right-0 w-[340px] bg-bg-card border border-border-color rounded-md p-4 shadow-[0_10px_25px_-5px_rgba(0,0,0,0.15)] z-[100] text-[16px] leading-normal text-text-secondary animate-fadeIn"
         >
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.4rem' }}>
-            <strong style={{ fontSize: '16px', color: '#0f172a' }}>15-10-2 Form Guidance</strong>
-            <button onClick={() => setIsOpen(false)} aria-label="Close Instructions" style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#64748b', padding: '0.2rem', minWidth: '32px', minHeight: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div className="flex items-center justify-between mb-2 border-b border-border-color pb-1.5">
+            <strong className="text-[16px] text-text-primary font-bold">15-10-2 Form Guidance</strong>
+            <button onClick={() => setIsOpen(false)} aria-label="Close Instructions" className="border-none cursor-pointer text-text-muted p-1.5 w-8 h-8 flex items-center justify-center rounded-lg hover:bg-bg-elevated hover:text-text-primary bg-transparent">
               <X size={16} />
             </button>
           </div>
 
-          <ul style={{ paddingLeft: '1.1rem', margin: 0, display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+          <ul className="pl-4.5 m-0 flex flex-col gap-1.5">
             <li><strong>Contact name:</strong> Record the contact's full name.</li>
             <li><strong>Organization:</strong> Record company or organization name.</li>
             <li><strong>Email and phone:</strong> Record email address and cell/landline number.</li>

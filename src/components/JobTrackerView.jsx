@@ -22,6 +22,18 @@ import {
 } from 'lucide-react';
 import Linkedin from './LinkedinIcon';
 
+// Tailwind CSS styling helpers for v4 migration
+const BTN_BASE = "inline-flex items-center justify-center gap-2 rounded-full border border-transparent text-sm font-semibold shadow-sm transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-4";
+const BTN_PRIMARY = `${BTN_BASE} border-indigo-600 bg-indigo-600 px-5 py-2.5 text-white hover:bg-indigo-700 focus-visible:ring-indigo-200`;
+const BTN_SECONDARY = `${BTN_BASE} border-border-color bg-bg-card px-5 py-2.5 text-text-primary hover:bg-bg-elevated focus-visible:ring-slate-200`;
+const BTN_EMERALD = `${BTN_BASE} border-accent-emerald bg-accent-emerald px-5 py-2.5 text-white hover:bg-emerald-700 focus-visible:ring-emerald-200`;
+const BTN_SM_SECONDARY = `inline-flex items-center justify-center gap-2 font-semibold text-[16px] min-h-[40px] px-3.5 py-1.5 rounded-sm border border-border-color cursor-pointer transition-colors active:opacity-85 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-blue bg-bg-card text-text-primary hover:bg-bg-elevated`;
+const BTN_SM_EMERALD = `inline-flex items-center justify-center gap-2 font-semibold text-[16px] min-h-[40px] px-3.5 py-1.5 rounded-sm border border-transparent cursor-pointer transition-colors active:opacity-85 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-blue bg-accent-emerald text-white hover:bg-emerald-700`;
+
+const INPUT_FIELD = "w-full rounded-lg border border-border-color bg-bg-input px-3 py-2.5 text-sm text-text-primary placeholder-text-muted shadow-sm outline-none transition focus:border-accent-blue focus:ring-4 focus:ring-accent-blue/10";
+const BADGE_BASE = "inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-medium";
+const CLOSE_BTN = "inline-flex items-center justify-center rounded-full p-1.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-300 cursor-pointer border-none bg-transparent";
+
 // Heuristic word-overlap matching algorithm for local resume match calculation
 function calculateLocalMatch(resumeText, job) {
   if (!resumeText || !job) return 0;
@@ -70,9 +82,9 @@ function calculateLocalMatch(resumeText, job) {
 }
 
 function getMatchBadgeClass(score) {
-  if (score >= 80) return 'badge-emerald';
-  if (score >= 50) return 'badge-amber';
-  return 'badge-rose';
+  if (score >= 80) return `${BADGE_BASE} bg-accent-emerald/8 text-accent-emerald`;
+  if (score >= 50) return `${BADGE_BASE} bg-accent-amber/8 text-amber-700`;
+  return `${BADGE_BASE} bg-accent-rose/8 text-accent-rose`;
 }
 
 function getScoreColor(score) {
@@ -369,12 +381,12 @@ export default function JobTrackerView({ setActiveView }) {
   // Status mapping colors for styles
   const getStatusColorClass = (status) => {
     switch (status) {
-      case 'Wishlist': return 'badge-slate';
-      case 'Applied': return 'badge-amber';
-      case 'Interviewing': return 'badge-purple';
-      case 'Offer': return 'badge-emerald';
-      case 'Rejected': return 'badge-rose';
-      default: return 'badge-slate';
+      case 'Wishlist': return `${BADGE_BASE} bg-slate-300/22 text-text-secondary`;
+      case 'Applied': return `${BADGE_BASE} bg-accent-amber/8 text-amber-700`;
+      case 'Interviewing': return `${BADGE_BASE} bg-accent-purple/8 text-accent-purple`;
+      case 'Offer': return `${BADGE_BASE} bg-accent-emerald/8 text-accent-emerald`;
+      case 'Rejected': return `${BADGE_BASE} bg-accent-rose/8 text-accent-rose`;
+      default: return `${BADGE_BASE} bg-slate-300/22 text-text-secondary`;
     }
   };
 
@@ -793,65 +805,44 @@ ${importText}`;
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+    <div className="flex flex-col gap-5">
       
       {/* Action Header Bar */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.85rem' }}>
-        <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap', alignItems: 'center' }}>
+      <div className="flex justify-between items-center flex-wrap gap-3.5">
+        <div className="flex gap-1.5 flex-wrap items-center">
           {['ALL', 'Wishlist', 'Applied', 'Interviewing', 'Offer', 'Rejected'].map(filter => (
             <button
               key={filter}
               onClick={() => setSelectedStatusFilter(filter)}
-              className={`btn btn-sm ${selectedStatusFilter === filter ? 'btn-primary' : 'btn-secondary'}`}
-              style={{
-                minHeight: '38px',
-                padding: '0.35rem 0.85rem',
-                fontSize: '0.825rem',
-                borderRadius: '9999px',
-                fontWeight: 700
-              }}
+              className={`min-h-[38px] px-3.5 py-1.5 text-[0.825rem] rounded-full font-bold cursor-pointer transition-colors border ${
+                selectedStatusFilter === filter 
+                  ? 'bg-text-primary text-text-invert border-transparent' 
+                  : 'bg-bg-card text-text-secondary border-border-color hover:bg-bg-elevated'
+              }`}
             >
               {filter === 'Wishlist' ? 'Jobs' : filter}
             </button>
           ))}
 
           {/* Vertical Divider */}
-          <div style={{ width: '1px', height: '24px', background: 'var(--border-color)', margin: '0 0.5rem' }} />
+          <div className="w-px h-6 bg-border-color mx-2" />
 
           {/* Grid/List Layout Toggle */}
-          <div style={{ display: 'flex', background: 'rgba(0,0,0,0.03)', padding: '2px', borderRadius: '8px', border: '1px solid var(--border-color)', alignItems: 'center' }}>
+          <div className="flex bg-black/3 p-0.5 rounded-lg border border-border-color items-center">
             <button
               onClick={() => setViewMode('grid')}
-              style={{
-                background: viewMode === 'grid' ? '#ffffff' : 'transparent',
-                border: 'none',
-                padding: '0.35rem',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                color: viewMode === 'grid' ? 'var(--accent-blue)' : 'var(--text-secondary)',
-                boxShadow: viewMode === 'grid' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
-                transition: 'all 0.15s ease'
-              }}
+              className={`border-none p-1.5 rounded-[6px] cursor-pointer flex items-center transition-all duration-150 ${
+                viewMode === 'grid' ? 'bg-bg-card text-accent-blue shadow-sm' : 'bg-transparent text-text-secondary'
+              }`}
               title="Grid View"
             >
               <Grid size={16} />
             </button>
             <button
               onClick={() => setViewMode('list')}
-              style={{
-                background: viewMode === 'list' ? '#ffffff' : 'transparent',
-                border: 'none',
-                padding: '0.35rem',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                color: viewMode === 'list' ? 'var(--accent-blue)' : 'var(--text-secondary)',
-                boxShadow: viewMode === 'list' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
-                transition: 'all 0.15s ease'
-              }}
+              className={`border-none p-1.5 rounded-[6px] cursor-pointer flex items-center transition-all duration-150 ${
+                viewMode === 'list' ? 'bg-bg-card text-accent-blue shadow-sm' : 'bg-transparent text-text-secondary'
+              }`}
               title="List View"
             >
               <List size={16} />
@@ -860,9 +851,8 @@ ${importText}`;
         </div>
 
         <button 
-          className="btn btn-primary"
           onClick={() => setShowImport(!showImport)}
-          style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}
+          className={`${BTN_PRIMARY} flex items-center gap-1.5`}
         >
           <Sparkles size={16} />
           <span>{showImport ? 'Close Paste Panel' : 'Paste AI Job List'}</span>
@@ -871,14 +861,14 @@ ${importText}`;
 
       {/* Expandable Paste Panel */}
       {showImport && (
-        <div className="section-card expandable-panel" style={{ display: 'flex', flexDirection: 'column', gap: '1rem', border: '1px dashed var(--accent-purple)', background: 'rgba(139, 92, 246, 0.02)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        <div className="bg-bg-card rounded-lg p-6 shadow-card transition-all duration-150 animate-slide-down-fade flex flex-col gap-4 border border-dashed border-accent-purple bg-[#8b5cf6]/2">
+          <div className="flex items-center gap-2">
             <Sparkles size={20} color="var(--accent-purple)" />
-            <strong style={{ fontSize: '1rem' }}>Paste AI Company & Job Openings List</strong>
+            <strong className="text-[1rem] font-bold text-text-primary">Paste AI Company & Job Openings List</strong>
           </div>
           
           <textarea
-            className="textarea-field"
+            className={INPUT_FIELD}
             rows={6}
             placeholder="Paste your compiled list here. E.g.
 1. Ernst & Young (EY)
@@ -891,9 +881,9 @@ Product Designer - metacareers.com/jobs/1397212694826926"
             onChange={(e) => setImportText(e.target.value)}
           />
 
-          <div style={{ display: 'flex', gap: '0.75rem' }}>
+          <div className="flex gap-3">
             <button 
-              className="btn btn-primary"
+              className={BTN_PRIMARY}
               disabled={isParsing || !importText.trim()}
               onClick={handleParsePaste}
             >
@@ -907,7 +897,7 @@ Product Designer - metacareers.com/jobs/1397212694826926"
 
               return (
                 <button 
-                  className="btn btn-emerald"
+                  className={BTN_EMERALD}
                   onClick={handleImportParsed}
                   disabled={importableCount === 0}
                 >
@@ -919,40 +909,38 @@ Product Designer - metacareers.com/jobs/1397212694826926"
 
           {/* Parsed Jobs Preview */}
           {parsedJobs.length > 0 && (
-            <div style={{ background: '#f8fafc', padding: '1rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
-              <div style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '0.5rem', textTransform: 'uppercase' }}>Preview found roles:</div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '0.75rem' }}>
+            <div className="bg-bg-elevated p-4 rounded-md border border-border-color">
+              <div className="text-[0.8rem] font-bold text-text-muted mb-2 uppercase">Preview found roles:</div>
+              <div className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-3">
                 {parsedJobs.map((job, idx) => {
                   const linkStatus = checkLinkStatus(job.link);
                   const isImportable = linkStatus !== 'generic_link' && linkStatus !== 'login_required';
                   
                   return (
-                    <div key={idx} style={{ 
-                      background: '#ffffff', 
-                      padding: '0.65rem 0.85rem', 
-                      borderRadius: 'var(--radius-sm)', 
-                      border: isImportable ? '1px solid var(--border-color)' : '1px dashed var(--accent-rose)', 
-                      display: 'flex', 
-                      flexDirection: 'column', 
-                      gap: '0.2rem',
-                      opacity: isImportable ? 1 : 0.7
-                    }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.5rem' }}>
-                        <strong style={{ fontSize: '0.9rem', color: 'var(--text-primary)' }}>{job.role}</strong>
+                    <div key={idx} className={`bg-bg-card p-3.5 px-4 rounded-md flex flex-col gap-1.5 ${
+                      isImportable ? 'border border-border-color opacity-100' : 'border border-dashed border-accent-rose opacity-70'
+                    }`}>
+                      <div className="flex justify-between items-start gap-2">
+                        <strong className="text-[0.9rem] text-text-primary font-bold">{job.role}</strong>
                         {!isImportable && (
-                          <span className="badge badge-rose" style={{ fontSize: '0.6rem', padding: '0.1rem 0.3rem', whiteSpace: 'nowrap', fontWeight: 600 }}>
+                          <span className={`${BADGE_BASE} bg-accent-rose/8 text-accent-rose text-[0.65rem] px-2 py-0.5 whitespace-nowrap font-semibold`}>
                             {linkStatus === 'login_required' ? '🔒 Excluded: Login Portal' : '⚠️ Excluded: General Careers'}
                           </span>
                         )}
                         {isImportable && (
-                          <span className="badge badge-emerald" style={{ fontSize: '0.6rem', padding: '0.1rem 0.3rem', whiteSpace: 'nowrap', fontWeight: 600 }}>
+                          <span className={`${BADGE_BASE} bg-accent-emerald/8 text-accent-emerald text-[0.65rem] px-2 py-0.5 whitespace-nowrap font-semibold`}>
                             ✅ Importable
                           </span>
                         )}
                       </div>
-                      <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{job.company}</span>
+                      <span className="text-[0.8rem] text-text-secondary">{job.company}</span>
                       {job.link && (
-                        <span style={{ fontSize: '0.75rem', color: isImportable ? 'var(--accent-blue)' : 'var(--text-muted)', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} title={job.link}>
+                        <span 
+                          className={`text-[0.75rem] text-ellipsis overflow-hidden whitespace-nowrap ${
+                            isImportable ? 'text-accent-blue' : 'text-text-muted'
+                          }`} 
+                          title={job.link}
+                        >
                           {job.link}
                         </span>
                       )}
@@ -966,37 +954,17 @@ Product Designer - metacareers.com/jobs/1397212694826926"
       )}
 
       {!hasMasterResume && (
-        <div style={{
-          background: 'rgba(245, 158, 11, 0.05)',
-          border: '1px solid var(--accent-amber)',
-          borderRadius: 'var(--radius-lg)',
-          padding: '1.25rem',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: '1rem',
-          boxShadow: 'var(--shadow-subtle)',
-          marginBottom: '0.5rem'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+        <div className="bg-amber-500/5 border border-accent-amber rounded-lg p-5 flex justify-between items-center flex-wrap gap-4 shadow-sm mb-2">
+          <div className="flex items-center gap-2.5">
             <Sparkles size={20} color="var(--accent-amber)" />
             <div>
-              <strong style={{ fontSize: '0.95rem', color: 'var(--text-primary)' }}>Automatic ATS Matching Available</strong>
-              <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>Add a Master Resume in Settings to automatically see keyword match scores on your job applications.</p>
+              <strong className="text-[0.95rem] font-bold text-text-primary">Automatic ATS Matching Available</strong>
+              <p className="text-[0.85rem] text-text-secondary mt-1">Add a Master Resume in Settings to automatically see keyword match scores on your job applications.</p>
             </div>
           </div>
           <button 
             onClick={() => setActiveView && setActiveView('settings')}
-            className="btn btn-secondary"
-            style={{ 
-              borderColor: 'var(--accent-amber)',
-              color: 'var(--accent-amber)',
-              background: 'transparent',
-              fontSize: '0.85rem',
-              minHeight: '36px',
-              padding: '0.35rem 1rem'
-            }}
+            className={`${BTN_SECONDARY} border border-accent-amber text-accent-amber bg-transparent text-[0.85rem] min-h-[36px] p-[0.35rem_1rem]`}
           >
             Go to Settings
           </button>
@@ -1005,17 +973,8 @@ Product Designer - metacareers.com/jobs/1397212694826926"
 
       {/* Bulk Action Toolbar */}
       {selectedJobs.length > 0 && (
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
-          alignItems: 'center', 
-          background: 'rgba(244, 63, 94, 0.05)', 
-          border: '1px solid rgba(244, 63, 94, 0.15)',
-          padding: '0.75rem 1rem', 
-          borderRadius: 'var(--radius-md)',
-          animation: 'fadeIn 0.2s ease-in-out'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+        <div className="flex justify-between items-center bg-rose-500/5 border border-rose-500/15 p-3.5 px-4.5 rounded-lg animate-fadeIn">
+          <div className="flex items-center gap-3">
             <input 
               type="checkbox"
               checked={selectedJobs.length === filteredJobs.length && filteredJobs.length > 0}
@@ -1026,18 +985,18 @@ Product Designer - metacareers.com/jobs/1397212694826926"
                   setSelectedJobs([]);
                 }
               }}
-              style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+              className="w-4 h-4 cursor-pointer"
               id="bulk-select-all"
             />
-            <label htmlFor="bulk-select-all" style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', cursor: 'pointer' }}>
+            <label htmlFor="bulk-select-all" className="text-[0.85rem] font-semibold text-text-primary cursor-pointer">
               Select All ({filteredJobs.length})
             </label>
-            <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+            <span className="text-[0.85rem] text-text-secondary">
               • {selectedJobs.length} selected
             </span>
           </div>
 
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <div className="flex gap-2">
             <button
               onClick={() => {
                 if (window.confirm(`Are you sure you want to delete the ${selectedJobs.length} selected job applications?`)) {
@@ -1045,16 +1004,14 @@ Product Designer - metacareers.com/jobs/1397212694826926"
                   setSelectedJobs([]);
                 }
               }}
-              className="btn btn-primary"
-              style={{ background: 'var(--accent-rose)', border: 'none', minHeight: '34px', padding: '0.35rem 0.85rem', fontSize: '0.8rem' }}
+              className="inline-flex items-center justify-center gap-2 font-semibold min-h-[34px] px-3.5 py-1.5 rounded-md border border-transparent cursor-pointer transition-colors active:opacity-85 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-blue bg-accent-rose text-white hover:bg-rose-700 text-xs"
             >
               <Trash2 size={14} />
               <span>Delete Selected</span>
             </button>
             <button
               onClick={() => setSelectedJobs([])}
-              className="btn btn-secondary"
-              style={{ minHeight: '34px', padding: '0.35rem 0.85rem', fontSize: '0.8rem' }}
+              className="inline-flex items-center justify-center gap-2 font-semibold min-h-[34px] px-3.5 py-1.5 rounded-md border border-border-color cursor-pointer transition-colors active:opacity-85 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-blue bg-bg-card text-text-primary hover:bg-bg-elevated text-xs"
             >
               <span>Cancel</span>
             </button>
@@ -1063,18 +1020,18 @@ Product Designer - metacareers.com/jobs/1397212694826926"
       )}
 
       {/* Main Grid/List of Job Cards wrapped in split layout */}
-      <div className="tracker-split-layout">
-        <div className="tracker-main-pane">
+      <div className="flex gap-5 items-start relative w-full max-lg:flex-col max-lg:items-stretch">
+        <div className="flex-1 min-w-0">
           {filteredJobs.length === 0 ? (
-        <div className="section-card empty-state" style={{ padding: '3.5rem 1.5rem' }}>
-          <Briefcase className="empty-state-icon" style={{ width: '48px', height: '48px' }} />
-          <strong style={{ fontSize: '1.1rem', marginTop: '0.5rem' }}>No job applications recorded</strong>
-          <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+        <div className="bg-bg-card rounded-lg shadow-card text-center p-[3.5rem_1.5rem] text-text-muted flex flex-col items-center gap-2.5">
+          <Briefcase className="text-text-muted opacity-50 w-12 h-12" />
+          <strong className="text-[1.1rem] mt-2 font-bold">No job applications recorded</strong>
+          <p className="text-[0.85rem] text-text-secondary">
             Paste a list from AI using button above, or add a single job using the Quick Add form below.
           </p>
         </div>
       ) : viewMode === 'grid' ? (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '1.25rem' }}>
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(360px,1fr))] gap-5">
           {filteredJobs.map(job => {
             const linkedContacts = (allContacts || []).filter(c => (job.linkedContactIds || []).includes(c.id));
             const availableContacts = (allContacts || []).filter(c => !(job.linkedContactIds || []).includes(c.id));
@@ -1102,11 +1059,11 @@ Product Designer - metacareers.com/jobs/1397212694826926"
             };            return (
               <div 
                 key={job.id} 
-                className={`section-card tracker-job-card ${isActiveJob ? 'active' : ''} ${isSelected ? 'selected' : ''}`}
+                className={`flex flex-col gap-3 p-5 relative rounded-lg cursor-pointer transition-all duration-150 hover:shadow-md ${isActiveJob ? 'border-2 border-accent-blue bg-accent-blue/3' : isSelected ? 'border border-accent-blue bg-bg-card-hover' : 'border border-border-color bg-bg-card hover:border-accent-blue'}`}
                 onClick={() => setSelectedDescriptionJob(job)}
               >
                 {/* Selection Checkbox */}
-                <div style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center' }} onClick={(e) => e.stopPropagation()}>
+                <div className="flex justify-start items-center" onClick={(e) => e.stopPropagation()}>
                   <input
                     type="checkbox"
                     checked={isSelected}
@@ -1117,45 +1074,45 @@ Product Designer - metacareers.com/jobs/1397212694826926"
                         setSelectedJobs(prev => prev.filter(id => id !== job.id));
                       }
                     }}
-                    style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+                    className="w-4 h-4 cursor-pointer"
                   />
                 </div>
 
                 {/* Role & Company Header */}
                 <div>
-                  <h4 style={{ fontSize: '1.15rem', fontWeight: 800, fontFamily: 'var(--font-heading)', color: 'var(--text-primary)' }}>{job.role}</h4>
-                  <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600, marginTop: '0.15rem' }}>{job.company}</div>
+                  <h4 className="text-[1.15rem] font-extrabold font-heading text-text-primary">{job.role}</h4>
+                  <div className="text-[0.85rem] text-text-secondary font-semibold mt-0.5">{job.company}</div>
                 </div>
 
                 {/* Location & Type & Match Score Badges */}
-                <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                <div className="flex gap-1.5 flex-wrap items-center">
                   {job.location && (
-                    <span className="badge badge-blue" style={{ fontSize: '0.65rem' }}>
-                      <MapPin size={8} style={{ marginRight: '-1px' }} />
+                    <span className={`${BADGE_BASE} bg-accent-blue/8 text-accent-blue text-[0.65rem]`}>
+                      <MapPin size={8} className="mr-[-1px]" />
                       {job.location}
                     </span>
                   )}
                   {job.type && (
-                    <span className="badge badge-emerald" style={{ fontSize: '0.65rem' }}>
+                    <span className={`${BADGE_BASE} bg-accent-emerald/8 text-accent-emerald text-[0.65rem]`}>
                       {job.type}
                     </span>
                   )}
                   {hasMasterResume && !!(job.notesText || '').trim() && (
-                    <span className={`badge ${getMatchBadgeClass(matchScore)}`} style={{ fontSize: '0.65rem', display: 'inline-flex', alignItems: 'center', gap: '0.2rem' }}>
+                    <span className={`${getMatchBadgeClass(matchScore)} text-[0.65rem] inline-flex items-center gap-1`}>
                       <Sparkles size={8} />
                       <span>Match: {matchScore}%</span>
                     </span>
                   )}
-                  <span className={`badge ${getStatusColorClass(job.status || 'Wishlist')}`} style={{ fontSize: '0.65rem' }}>
+                  <span className={`${getStatusColorClass(job.status || 'Wishlist')} text-[0.65rem]`}>
                     {job.status || 'Wishlist'}
                   </span>
                   {job.linkStatus === 'login_required' && (
-                    <span className="badge badge-rose" style={{ fontSize: '0.65rem', fontWeight: 600 }}>
+                    <span className={`${BADGE_BASE} bg-accent-rose/8 text-accent-rose text-[0.65rem] font-semibold`}>
                       🔑 Behind Login
                     </span>
                   )}
                   {job.linkStatus === 'generic_link' && (
-                    <span className="badge badge-amber" style={{ fontSize: '0.65rem', fontWeight: 600 }}>
+                    <span className={`${BADGE_BASE} bg-accent-amber/8 text-amber-700 text-[0.65rem] font-semibold`}>
                       ⚠️ Not Direct Link
                     </span>
                   )}
@@ -1166,7 +1123,7 @@ Product Designer - metacareers.com/jobs/1397212694826926"
         </div>
       ) : (
         /* List View */
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+        <div className="flex flex-col gap-3">
           {filteredJobs.map(job => {
             const matchScore = calculateLocalMatch(resumeText, job);
             const isSelected = selectedJobs.includes(job.id);
@@ -1175,11 +1132,11 @@ Product Designer - metacareers.com/jobs/1397212694826926"
             return (
               <div 
                 key={job.id}
-                className={`section-card tracker-job-row ${isActiveJob ? 'active' : ''} ${isSelected ? 'selected' : ''}`}
+                className={`flex items-center justify-between p-[0.85rem_1.25rem] rounded-lg cursor-pointer gap-4 flex-wrap transition-all duration-150 ${isActiveJob ? 'border-2 border-accent-blue bg-accent-blue/3' : isSelected ? 'border border-accent-blue bg-bg-card-hover' : 'border border-border-color bg-bg-card hover:border-accent-blue'}`}
                 onClick={() => setSelectedDescriptionJob(job)}
               >
                 {/* Left Side: Checkbox, Status Dot, Company & Role */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', flex: 1, minWidth: '250px' }}>
+                <div className="flex items-center gap-3.5 flex-1 min-w-[250px]">
                   <input
                     type="checkbox"
                     checked={isSelected}
@@ -1191,53 +1148,53 @@ Product Designer - metacareers.com/jobs/1397212694826926"
                       }
                     }}
                     onClick={(e) => e.stopPropagation()}
-                    style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+                    className="w-4 h-4 cursor-pointer"
                   />
                   
                   {/* Status Dot */}
-                  <div style={{
-                    width: '8px',
-                    height: '8px',
-                    borderRadius: '50%',
-                    background: getStatusColor(job.status || 'Wishlist'),
-                    boxShadow: `0 0 6px ${getStatusColor(job.status || 'Wishlist')}80`
-                  }} />
+                  <div 
+                    className="w-2 h-2 rounded-full shadow-sm shrink-0" 
+                    style={{
+                      background: getStatusColor(job.status || 'Wishlist'),
+                      boxShadow: `0 0 6px ${getStatusColor(job.status || 'Wishlist')}80`
+                    }} 
+                  />
 
                   <div>
-                    <strong style={{ fontSize: '1rem', color: 'var(--text-primary)' }}>{job.role}</strong>
-                    <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{job.company}</div>
+                    <strong className="text-[1rem] text-text-primary font-bold">{job.role}</strong>
+                    <div className="text-[0.8rem] text-text-secondary">{job.company}</div>
                   </div>
                 </div>
 
                 {/* Right Side: Badges */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flexWrap: 'wrap' }}>
+                <div className="flex items-center gap-2.5 flex-wrap">
                   {job.location && (
-                    <span className="badge badge-blue" style={{ fontSize: '0.65rem' }}>
-                      <MapPin size={8} style={{ marginRight: '-1px' }} />
+                    <span className={`${BADGE_BASE} bg-accent-blue/8 text-accent-blue text-[0.65rem]`}>
+                      <MapPin size={8} className="mr-[-1px]" />
                       {job.location}
                     </span>
                   )}
                   {job.type && (
-                    <span className="badge badge-emerald" style={{ fontSize: '0.65rem' }}>
+                    <span className={`${BADGE_BASE} bg-accent-emerald/8 text-accent-emerald text-[0.65rem]`}>
                       {job.type}
                     </span>
                   )}
                   {hasMasterResume && !!(job.notesText || '').trim() && (
-                    <span className={`badge ${getMatchBadgeClass(matchScore)}`} style={{ fontSize: '0.65rem' }}>
+                    <span className={`${getMatchBadgeClass(matchScore)} text-[0.65rem]`}>
                       <Sparkles size={8} />
                       <span>Match: {matchScore}%</span>
                     </span>
                   )}
-                  <span className={`badge ${getStatusColorClass(job.status || 'Wishlist')}`} style={{ fontSize: '0.65rem' }}>
+                  <span className={`${getStatusColorClass(job.status || 'Wishlist')} text-[0.65rem]`}>
                     {job.status || 'Wishlist'}
                   </span>
                   {job.linkStatus === 'login_required' && (
-                    <span className="badge badge-rose" style={{ fontSize: '0.65rem', fontWeight: 600 }}>
+                    <span className={`${BADGE_BASE} bg-accent-rose/8 text-accent-rose text-[0.65rem] font-semibold`}>
                       🔑 Behind Login
                     </span>
                   )}
                   {job.linkStatus === 'generic_link' && (
-                    <span className="badge badge-amber" style={{ fontSize: '0.65rem', fontWeight: 600 }}>
+                    <span className={`${BADGE_BASE} bg-accent-amber/8 text-amber-700 text-[0.65rem] font-semibold`}>
                       ⚠️ Not Direct Link
                     </span>
                   )}
@@ -1251,7 +1208,7 @@ Product Designer - metacareers.com/jobs/1397212694826926"
 
       {/* Responsive Side Drawer Spacer to shift listings */}
       {selectedDescriptionJob && (
-        <div className="tracker-side-spacer" />
+        <div className="w-[400px] shrink-0 max-lg:hidden" />
       )}
       </div>
 
@@ -1282,26 +1239,18 @@ Product Designer - metacareers.com/jobs/1397212694826926"
         };
 
         return (
-          <div className="tracker-side-pane">
+          <div className="w-[400px] shrink-0 bg-bg-card border border-border-color rounded-lg shadow-card flex flex-col fixed top-[100px] right-8 bottom-8 z-[100] overflow-hidden animate-slide-in-right max-lg:fixed max-lg:top-[60px] max-lg:right-0 max-lg:bottom-0 max-lg:left-0 max-lg:w-full max-lg:rounded-none max-lg:z-[9999]">
             {/* Header */}
-            <div style={{
-              padding: '1.25rem',
-              borderBottom: '1px solid var(--border-color)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              background: '#f8fafc',
-              gap: '0.5rem'
-            }}>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={activeJob.role}>
+            <div className="p-5 border-b border-border-color flex items-center justify-between bg-bg-elevated gap-2">
+              <div className="flex-1 min-w-0">
+                <h3 className="text-[1.1rem] font-extrabold text-text-primary overflow-hidden text-ellipsis whitespace-nowrap" title={activeJob.role}>
                   {activeJob.role}
                 </h3>
-                <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={activeJob.company}>
+                <div className="text-[0.85rem] text-text-secondary font-semibold overflow-hidden text-ellipsis whitespace-nowrap" title={activeJob.company}>
                   {activeJob.company}
                 </div>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+              <div className="flex items-center gap-1">
                 <button
                   onClick={() => {
                     if (window.confirm(`Are you sure you want to delete this application to ${activeJob.company}?`)) {
@@ -1309,29 +1258,14 @@ Product Designer - metacareers.com/jobs/1397212694826926"
                       setSelectedDescriptionJob(null);
                     }
                   }}
-                  style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '0.4rem', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                  className="bg-transparent border-none text-text-muted cursor-pointer p-1.5 rounded-full flex items-center justify-center hover:bg-red-50 hover:text-red-600"
                   title="Delete Application"
-                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#fee2e2'}
-                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                 >
                   <Trash2 size={16} color="var(--accent-rose)" />
                 </button>
                 <button 
                   onClick={() => setSelectedDescriptionJob(null)}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    color: 'var(--text-muted)',
-                    cursor: 'pointer',
-                    padding: '0.4rem',
-                    borderRadius: '50%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    transition: 'background-color 0.2s'
-                  }}
-                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#e2e8f0'}
-                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                  className="bg-transparent border-none text-text-muted cursor-pointer p-1.5 rounded-full flex items-center justify-center hover:bg-slate-100 hover:text-text-primary transition-colors"
                 >
                   <X size={20} />
                 </button>
@@ -1339,41 +1273,19 @@ Product Designer - metacareers.com/jobs/1397212694826926"
             </div>
 
             {/* Content Scroll Area */}
-            <div style={{
-              flex: 1,
-              padding: '1.25rem',
-              overflowY: 'auto',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '1.25rem'
-            }}>
+            <div className="flex-1 p-5 overflow-y-auto flex flex-col gap-5">
               
               {/* Status Section */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase' }}>
+              <div className="flex flex-col gap-2">
+                <div className="flex justify-between items-center">
+                  <span className="text-[0.7rem] font-bold text-text-muted uppercase">
                     Status Progress
                   </span>
                   <select
                     value={activeJob.status || 'Wishlist'}
                     onChange={(e) => handleStatusChange(activeJob.id, e.target.value)}
                     className={`badge ${getStatusColorClass(activeJob.status || 'Wishlist')}`}
-                    style={{
-                      border: 'none',
-                      cursor: 'pointer',
-                      outline: 'none',
-                      fontWeight: 700,
-                      padding: '0.2rem 1.4rem 0.2rem 0.5rem',
-                      fontFamily: 'var(--font-body)',
-                      appearance: 'none',
-                      backgroundPosition: 'right 0.4rem center',
-                      backgroundRepeat: 'no-repeat',
-                      backgroundImage: 'url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%2364748b\' stroke-width=\'2.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpath d=\'m6 9 6 6 6-6\'/%3E%3C/svg%3E")',
-                      backgroundSize: '8px',
-                      fontSize: '0.7rem',
-                      borderRadius: '9999px',
-                      textTransform: 'uppercase'
-                    }}
+                    className="border-none cursor-pointer outline-none font-bold py-[0.2rem] pr-[1.4rem] pl-[0.5rem] font-body appearance-none bg-[right_0.4rem_center] bg-no-repeat text-[0.7rem] rounded-full uppercase"
                   >
                     <option value="Wishlist">Wishlist</option>
                     <option value="Applied">Applied</option>
@@ -1384,41 +1296,34 @@ Product Designer - metacareers.com/jobs/1397212694826926"
                 </div>
                 
                 {/* Stepper Track */}
-                <div style={{ position: 'relative', height: '4px', background: 'rgba(0,0,0,0.06)', borderRadius: '2px', margin: '0.5rem 0 1.25rem 0' }}>
-                  <div style={{
-                    position: 'absolute',
-                    left: 0,
-                    top: 0,
-                    height: '100%',
-                    width: `${(currentStepIndex / 3) * 100}%`,
-                    background: getStatusColor(activeJob.status || 'Wishlist'),
-                    borderRadius: '2px',
-                    transition: 'width 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
-                  }} />
+                <div className="relative h-1 bg-black/6 rounded-sm my-2 mb-5">
+                  <div 
+                    className="absolute left-0 top-0 h-full rounded-sm transition-[width] duration-300 cubic-bezier-[0.4,0,0.2,1]"
+                    style={{
+                      width: `${(currentStepIndex / 3) * 100}%`,
+                      background: getStatusColor(activeJob.status || 'Wishlist')
+                    }} 
+                  />
                   
-                  <div style={{ display: 'flex', justifyContent: 'space-between', position: 'absolute', width: '100%', top: '-4px', left: 0 }}>
+                  <div className="flex justify-between absolute w-full -top-1 left-0">
                     {steps.map((step, idx) => {
                       const isCompleted = idx <= currentStepIndex;
                       const isActive = idx === currentStepIndex;
                       const stepColor = isCompleted ? getStatusColor(activeJob.status || 'Wishlist') : 'rgba(0,0,0,0.12)';
                       
                       return (
-                        <div key={step} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative' }}>
-                          <div style={{
-                            width: '12px',
-                            height: '12px',
-                            borderRadius: '50%',
-                            background: isActive ? '#ffffff' : stepColor,
-                            border: `3px solid ${stepColor}`,
-                            boxShadow: isActive ? `0 0 0 3px ${stepColor}40, var(--shadow-subtle)` : 'none',
-                            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                            cursor: 'pointer',
-                            zIndex: 2
-                          }}
-                          onClick={() => handleStatusChange(activeJob.id, step === 'Rejected' || step === 'Offer' ? (activeJob.status === 'Rejected' ? 'Rejected' : 'Offer') : step)}
-                          title={`Set status to ${step}`}
+                        <div key={step} className="flex flex-col items-center relative">
+                          <div 
+                            className="w-3 h-3 rounded-full cursor-pointer z-[2] transition-all duration-300 cubic-bezier-[0.4,0,0.2,1]"
+                            style={{
+                              background: isActive ? '#ffffff' : stepColor,
+                              border: `3px solid ${stepColor}`,
+                              boxShadow: isActive ? `0 0 0 3px ${stepColor}40, var(--shadow-subtle)` : 'none'
+                            }}
+                            onClick={() => handleStatusChange(activeJob.id, step === 'Rejected' || step === 'Offer' ? (activeJob.status === 'Rejected' ? 'Rejected' : 'Offer') : step)}
+                            title={`Set status to ${step}`}
                           />
-                          <span style={getLabelStyle(idx, isActive)}>
+                          <span className={`absolute top-4 text-[0.6rem] font-semibold whitespace-nowrap ${isActive ? 'text-text-primary' : 'text-text-muted'} ${idx === 0 ? 'left-0' : idx === steps.length - 1 ? 'right-0' : '-translate-x-1/2'}`}>
                             {step === 'Wishlist' ? 'Jobs' : step}
                           </span>
                         </div>
@@ -1429,32 +1334,22 @@ Product Designer - metacareers.com/jobs/1397212694826926"
               </div>
 
               {/* Metadata Editing Fields */}
-              <div style={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '0.85rem',
-                padding: '1rem',
-                background: '#f8fafc',
-                borderRadius: 'var(--radius-md)',
-                border: '1px solid var(--border-color)'
-              }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+              <div className="flex flex-col gap-3.5 p-4 bg-slate-50 rounded-md border border-border-color">
+                <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-muted)', display: 'block', textTransform: 'uppercase', marginBottom: '0.25rem' }}>Location</label>
+                    <label className="text-[0.7rem] font-bold text-text-muted block uppercase mb-1">Location</label>
                     <input 
                       type="text" 
-                      className="input-field" 
-                      style={{ fontSize: '0.8rem', padding: '0.35rem 0.55rem', minHeight: '32px' }}
+                      className={`${INPUT_FIELD} text-[0.8rem] p-[0.35rem_0.55rem] min-h-[32px]`}
                       value={activeJob.location || ''} 
                       onChange={(e) => updateResource(activeJob.id, { location: e.target.value })}
                       placeholder="e.g. Remote"
                     />
                   </div>
                   <div>
-                    <label style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-muted)', display: 'block', textTransform: 'uppercase', marginBottom: '0.25rem' }}>Job Type</label>
+                    <label className="text-[0.7rem] font-bold text-text-muted block uppercase mb-1">Job Type</label>
                     <select 
-                      className="select-field" 
-                      style={{ fontSize: '0.8rem', padding: '0.35rem 0.55rem', minHeight: '32px' }}
+                      className={`${INPUT_FIELD} text-[0.8rem] p-[0.35rem_0.55rem] min-h-[32px]`}
                       value={activeJob.type || 'Full-Time'} 
                       onChange={(e) => updateResource(activeJob.id, { type: e.target.value })}
                     >
@@ -1466,14 +1361,14 @@ Product Designer - metacareers.com/jobs/1397212694826926"
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-                  <label style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-muted)', display: 'block', textTransform: 'uppercase' }}>Job Posting Link</label>
-                  <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
+                <div className="flex flex-col gap-1">
+                  <label className="text-[0.7rem] font-bold text-text-muted block uppercase">Job Posting Link</label>
+                  <div className="flex gap-1.5 items-center">
                     <input
                       type="text"
-                      className="input-field"
+                      className={INPUT_FIELD}
                       placeholder="Add job link (e.g. careers.google.com)..."
-                      style={{ fontSize: '0.8rem', padding: '0.35rem 0.55rem', minHeight: '32px', flex: 1 }}
+                      className="text-[0.8rem] p-[0.35rem_0.55rem] min-h-[32px] flex-1"
                       value={activeJob.link || ''}
                       onChange={(e) => {
                         const newLink = e.target.value;
@@ -1485,19 +1380,9 @@ Product Designer - metacareers.com/jobs/1397212694826926"
                     />
                     <button
                       type="button"
-                      className="btn btn-secondary"
+                      className={`${BTN_SECONDARY} flex items-center justify-center min-h-[32px] px-2 py-0 text-[0.725rem] gap-1 font-semibold`}
                       onClick={() => pullJobDescription(activeJob.id, activeJob.link)}
                       disabled={!activeJob.link || isPullingDesc}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        minHeight: '32px',
-                        padding: '0 0.5rem',
-                        fontSize: '0.725rem',
-                        gap: '0.25rem',
-                        fontWeight: 600
-                      }}
                       title="Pull details and description from link"
                     >
                       <Sparkles size={12} color="var(--accent-blue)" />
@@ -1508,20 +1393,19 @@ Product Designer - metacareers.com/jobs/1397212694826926"
                         href={activeJob.link.startsWith('http') ? activeJob.link : `https://${activeJob.link}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="btn btn-secondary"
-                        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '32px', width: '32px', padding: 0 }}
+                        className={`${BTN_SECONDARY} flex items-center justify-center min-h-[32px] w-8 p-0`}
                       >
                         <ExternalLink size={12} />
                       </a>
                     )}
                   </div>
                   {activeJob.linkStatus === 'login_required' && (
-                    <div style={{ fontSize: '0.725rem', color: 'var(--accent-rose)', display: 'flex', alignItems: 'center', gap: '0.25rem', marginTop: '0.2rem', fontWeight: 600 }}>
+                    <div className="text-[0.725rem] text-accent-rose flex items-center gap-1 mt-1 font-semibold">
                       <span>🔑 Behind Login: Link requires session. Use public listing URL instead.</span>
                     </div>
                   )}
                   {activeJob.linkStatus === 'generic_link' && (
-                    <div style={{ fontSize: '0.725rem', color: 'var(--accent-amber)', display: 'flex', alignItems: 'center', gap: '0.25rem', marginTop: '0.2rem', fontWeight: 600 }}>
+                    <div className="text-[0.725rem] text-accent-amber flex items-center gap-1 mt-1 font-semibold">
                       <span>⚠️ Not Direct Link: URL is generic page. Scraper needs specific posting.</span>
                     </div>
                   )}
@@ -1531,43 +1415,29 @@ Product Designer - metacareers.com/jobs/1397212694826926"
               {/* ATS Match Overview */}
               {hasMasterResume && !!(activeJob.notesText || '').trim() && (
                 <div>
-                  <label style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-muted)', display: 'block', textTransform: 'uppercase', marginBottom: '0.45rem' }}>
+                  <label className="text-[0.7rem] font-bold text-text-muted block uppercase mb-2">
                     ATS Resume Match Quality
                   </label>
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    padding: '0.85rem',
-                    border: '1px solid var(--border-color)',
-                    borderRadius: 'var(--radius-md)',
-                    background: '#ffffff'
-                  }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-                      <div style={{
-                        width: '36px',
-                        height: '36px',
-                        borderRadius: '50%',
-                        border: `3px solid ${getScoreColor(matchScore)}`,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontWeight: 800,
-                        fontSize: '0.85rem',
-                        color: getScoreColor(matchScore)
-                      }}>
+                  <div className="flex items-center justify-between p-3.5 border border-border-color rounded-md bg-bg-elevated">
+                    <div className="flex items-center gap-2.5">
+                      <div 
+                        className="w-9 h-9 rounded-full border-[3px] flex items-center justify-center font-extrabold text-[0.85rem]"
+                        style={{
+                          borderColor: getScoreColor(matchScore),
+                          color: getScoreColor(matchScore)
+                        }}
+                      >
                         {matchScore}%
                       </div>
                       <div>
-                        <div style={{ fontSize: '0.8rem', fontWeight: 700 }}>Keyword Overlap</div>
-                        <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>
+                        <div className="text-[0.8rem] font-bold">Keyword Overlap</div>
+                        <div className="text-[0.7rem] text-text-secondary">
                           {matchScore}% matched with master resume
                         </div>
                       </div>
                     </div>
                     <button 
-                      className="btn btn-secondary btn-sm"
-                      style={{ minHeight: '28px', padding: '0.15rem 0.45rem', fontSize: '0.725rem' }}
+                      className={`${BTN_SM_SECONDARY} min-h-[28px] p-[0.15rem_0.45rem] text-[0.725rem]`}
                       onClick={() => {
                         setSelectedDescriptionJob(null);
                         setActiveBreakdownJob(activeJob);
@@ -1581,36 +1451,28 @@ Product Designer - metacareers.com/jobs/1397212694826926"
 
               {/* Application Notes (editable) */}
               <div>
-                <label style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-muted)', display: 'block', marginBottom: '0.35rem', textTransform: 'uppercase' }}>
+                <label className="text-[0.7rem] font-bold text-text-muted block mb-1.5 uppercase">
                   Job Description & Notes
                 </label>
                 <textarea
-                  className="textarea-field"
+                  className={INPUT_FIELD}
                   rows={6}
                   placeholder="Paste details, requirements, notes, salary info, or interview steps here..."
-                  style={{ fontSize: '0.85rem', padding: '0.5rem 0.65rem', lineHeight: 1.5 }}
+                  className="text-[0.85rem] p-[0.5rem_0.65rem] leading-relaxed"
                   value={activeJob.notesText || ''}
                   onChange={(e) => handleNotesChange(activeJob.id, e.target.value)}
                 />
               </div>
 
               {/* Document/Resume upload section */}
-              <div style={{ borderTop: '1px solid rgba(0,0,0,0.05)', paddingTop: '1rem' }}>
-                <label style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-muted)', display: 'block', textTransform: 'uppercase', marginBottom: '0.45rem' }}>
+              <div className="border-t border-black/5 pt-4">
+                <label className="text-[0.7rem] font-bold text-text-muted block uppercase mb-2">
                   Resume Document
                 </label>
                 {activeJob.resume ? (
-                  <div style={{ 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    justifyContent: 'space-between', 
-                    background: 'rgba(0, 0, 0, 0.02)', 
-                    padding: '0.5rem 0.75rem', 
-                    borderRadius: 'var(--radius-sm)', 
-                    border: '1px solid var(--border-color)' 
-                  }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', overflow: 'hidden', flex: 1 }}>
-                      <FileText size={16} color="var(--accent-blue)" style={{ flexShrink: 0 }} />
+                  <div className="flex items-center justify-between bg-black/2 p-2 rounded-sm border border-border-color">
+                    <div className="flex items-center gap-2 overflow-hidden flex-1">
+                      <FileText size={16} color="var(--accent-blue)" className="shrink-0" />
                       <span 
                         onClick={() => {
                           const link = document.createElement('a');
@@ -1618,15 +1480,7 @@ Product Designer - metacareers.com/jobs/1397212694826926"
                           link.download = activeJob.resume.name;
                           link.click();
                         }}
-                        style={{ 
-                          fontSize: '0.8rem', 
-                          color: 'var(--accent-blue)', 
-                          fontWeight: 600, 
-                          cursor: 'pointer',
-                          whiteSpace: 'nowrap',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis'
-                        }}
+                        className="text-[0.8rem] text-accent-blue font-semibold cursor-pointer whitespace-nowrap overflow-hidden text-ellipsis"
                         title="Download resume"
                       >
                         {activeJob.resume.name}
@@ -1638,25 +1492,17 @@ Product Designer - metacareers.com/jobs/1397212694826926"
                           updateResource(activeJob.id, { resume: null });
                         }
                       }}
-                      style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '0.2rem' }}
+                      className="p-1 text-gray-400 hover:text-red-500 transition-colors"
                     >
-                      <Trash2 size={14} className="btn-icon-hover" />
+                      <Trash2 size={14} className="transition-all duration-150 hover:text-accent-rose hover:scale-115" />
                     </button>
                   </div>
                 ) : (
                   <div>
                     <label 
+                      id={`resume-upload-drawer-label-${activeJob.id}`}
                       htmlFor={`resume-upload-drawer-${activeJob.id}`} 
-                      className="btn btn-secondary"
-                      style={{ 
-                        cursor: 'pointer',
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '0.35rem',
-                        fontSize: '0.8rem',
-                        color: 'var(--text-secondary)',
-                        fontWeight: 500
-                      }}
+                      className="inline-flex items-center gap-1.5 text-[0.8rem] text-text-secondary font-medium cursor-pointer py-1.5 px-3 rounded-sm border border-border-color bg-bg-card hover:bg-bg-elevated transition-all font-body"
                     >
                       <Plus size={14} />
                       <span>Upload Resume</span>
@@ -1665,7 +1511,7 @@ Product Designer - metacareers.com/jobs/1397212694826926"
                       id={`resume-upload-drawer-${activeJob.id}`}
                       type="file"
                       accept=".pdf,.doc,.docx,.txt,.rtf,.odt"
-                      style={{ display: 'none' }}
+                      className="hidden"
                       onChange={(e) => {
                         const file = e.target.files[0];
                         if (!file) return;
@@ -1696,13 +1542,13 @@ Product Designer - metacareers.com/jobs/1397212694826926"
               </div>
 
               {/* Linked Contacts connector section */}
-              <div style={{ borderTop: '1px solid rgba(0,0,0,0.05)', paddingTop: '1rem', marginBottom: '1rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.45rem' }}>
-                  <span style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Contacts Contacted</span>
+              <div className="border-t border-black/5 pt-4 mb-4">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-[0.7rem] font-bold text-text-muted uppercase">Contacts Contacted</span>
                   <button
-                    className="btn btn-secondary btn-sm"
+                    className={BTN_SM_SECONDARY}
                     onClick={() => setAddingContactJobId(addingContactJobId === activeJob.id ? null : activeJob.id)}
-                    style={{ minHeight: '28px', padding: '0.15rem 0.45rem', fontSize: '0.725rem' }}
+                    className={`${BTN_SM_SECONDARY} min-h-[28px] p-[0.15rem_0.45rem] text-[0.725rem]`}
                   >
                     <UserPlus size={12} />
                     <span>{addingContactJobId === activeJob.id ? 'Close' : 'Quick Add'}</span>
@@ -1713,22 +1559,12 @@ Product Designer - metacareers.com/jobs/1397212694826926"
                 {addingContactJobId === activeJob.id && (
                   <form 
                     onSubmit={(e) => handleQuickAddContactSubmit(e, activeJob.id, activeJob)} 
-                    style={{ 
-                      display: 'flex', 
-                      flexDirection: 'column', 
-                      gap: '0.4rem', 
-                      background: '#f8fafc', 
-                      padding: '0.65rem', 
-                      borderRadius: 'var(--radius-sm)', 
-                      marginBottom: '0.5rem',
-                      border: '1px solid var(--border-color)'
-                    }}
+                    className="flex flex-col gap-1.5 bg-slate-50 p-2.5 rounded-sm mb-2 border border-border-color"
                   >
                     <input 
                       type="text" 
                       placeholder="Contact name (required)..." 
-                      className="input-field" 
-                      style={{ fontSize: '0.8rem', padding: '0.35rem 0.55rem', minHeight: '30px' }}
+                      className={`${INPUT_FIELD} text-[0.8rem] p-[0.35rem_0.55rem] min-h-[30px]`}
                       value={newContactName} 
                       onChange={(e) => setNewContactName(e.target.value)} 
                       required 
@@ -1736,12 +1572,11 @@ Product Designer - metacareers.com/jobs/1397212694826926"
                     <input 
                       type="text" 
                       placeholder="LinkedIn URL (optional)..." 
-                      className="input-field" 
-                      style={{ fontSize: '0.8rem', padding: '0.35rem 0.55rem', minHeight: '30px' }}
+                      className={`${INPUT_FIELD} text-[0.8rem] p-[0.35rem_0.55rem] min-h-[30px]`}
                       value={newContactLinkedin} 
                       onChange={(e) => setNewContactLinkedin(e.target.value)} 
                     />
-                    <button type="submit" className="btn btn-emerald btn-sm" style={{ alignSelf: 'flex-end', minHeight: '28px', fontSize: '0.725rem' }}>
+                    <button type="submit" className={`${BTN_SM_EMERALD} self-end min-h-[28px] text-[0.725rem]`}>
                       Add & Link
                     </button>
                   </form>
@@ -1749,31 +1584,23 @@ Product Designer - metacareers.com/jobs/1397212694826926"
 
                 {/* Contact list mapping */}
                 {linkedContacts.length > 0 && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', margin: '0.5rem 0' }}>
+                  <div className="flex flex-col gap-1.5 my-2">
                     {linkedContacts.map(contact => (
                       <div 
                         key={contact.id} 
-                        style={{ 
-                          display: 'flex', 
-                          alignItems: 'center', 
-                          justifyContent: 'space-between', 
-                          padding: '0.4rem 0.6rem', 
-                          background: '#f8fafc', 
-                          borderRadius: 'var(--radius-sm)',
-                          border: '1px solid var(--border-color)'
-                        }}
+                        className="flex items-center justify-between p-[0.4rem_0.6rem] bg-slate-50 rounded-sm border border-border-color"
                       >
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                          <strong style={{ fontSize: '0.8rem', color: 'var(--text-primary)' }}>{contact.name}</strong>
+                        <div className="flex items-center gap-1.5">
+                          <strong className="text-[0.8rem] text-text-primary font-bold">{contact.name}</strong>
                           {contact.linkedinUrl && (
-                            <a href={contact.linkedinUrl} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center' }}>
+                            <a href={contact.linkedinUrl} target="_blank" rel="noopener noreferrer" className="flex items-center">
                               <Linkedin size={10} color="#2563eb" />
                             </a>
                           )}
                         </div>
                         <button
                           onClick={() => handleUnlinkContact(activeJob.id, contact.id, activeJob)}
-                          style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '0.1rem' }}
+                          className="bg-transparent border-none text-text-muted cursor-pointer p-0.5 hover:text-accent-rose transition-colors"
                           title="Unlink contact"
                         >
                           <X size={12} />
@@ -1785,7 +1612,7 @@ Product Designer - metacareers.com/jobs/1397212694826926"
 
                 {/* Link existing contact select dropdown */}
                 {availableContacts.length > 0 && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', marginTop: '0.35rem' }}>
+                  <div className="flex items-center gap-2 mt-1.5">
                     <select
                       onChange={(e) => {
                         if (e.target.value) {
@@ -1793,8 +1620,8 @@ Product Designer - metacareers.com/jobs/1397212694826926"
                           e.target.value = '';
                         }
                       }}
-                      className="select-field"
-                      style={{ fontSize: '0.725rem', padding: '0.25rem 0.45rem', minHeight: '30px' }}
+                      className={INPUT_FIELD}
+                      className="text-[0.725rem] p-[0.25rem_0.45rem] min-h-[30px]"
                       defaultValue=""
                     >
                       <option value="" disabled>Link existing contact...</option>
@@ -1811,14 +1638,8 @@ Product Designer - metacareers.com/jobs/1397212694826926"
             </div>
             
             {/* Footer */}
-            <div style={{
-              padding: '0.85rem 1.25rem',
-              borderTop: '1px solid var(--border-color)',
-              background: '#f8fafc',
-              display: 'flex',
-              justifyContent: 'flex-end'
-            }}>
-              <button className="btn btn-secondary btn-sm" onClick={() => setSelectedDescriptionJob(null)}>
+            <div className="p-[0.85rem_1.25rem] border-t border-border-color bg-slate-50 flex justify-end">
+              <button className={BTN_SM_SECONDARY} onClick={() => setSelectedDescriptionJob(null)}>
                 Close Details
               </button>
             </div>
@@ -1827,18 +1648,18 @@ Product Designer - metacareers.com/jobs/1397212694826926"
       })()}
 
       {/* Manual Quick Add Form */}
-      <div className="section-card">
-        <h4 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+      <div className="bg-bg-card rounded-lg p-6 shadow-card border border-border-color">
+        <h4 className="text-[1rem] font-bold mb-3 flex items-center gap-1.5">
           <PlusCircle size={16} color="var(--accent-blue)" />
           <span>Add Single Job Application</span>
         </h4>
-        <form onSubmit={handleQuickSubmit} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.85rem', alignItems: 'end' }}>
+        <form onSubmit={handleQuickSubmit} className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-3.5 items-end">
           <div>
-            <label htmlFor="quick-company" style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: '0.25rem' }}>Company *</label>
+            <label htmlFor="quick-company" className="text-[0.75rem] font-semibold text-text-secondary block mb-1">Company *</label>
             <input
               id="quick-company"
               type="text"
-              className="input-field"
+              className={INPUT_FIELD}
               placeholder="e.g. Google"
               value={quickCompany}
               onChange={(e) => setQuickCompany(e.target.value)}
@@ -1846,11 +1667,11 @@ Product Designer - metacareers.com/jobs/1397212694826926"
             />
           </div>
           <div>
-            <label htmlFor="quick-role" style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: '0.25rem' }}>Role / Title *</label>
+            <label htmlFor="quick-role" className="text-[0.75rem] font-semibold text-text-secondary block mb-1">Role / Title *</label>
             <input
               id="quick-role"
               type="text"
-              className="input-field"
+              className={INPUT_FIELD}
               placeholder="e.g. Product Designer"
               value={quickRole}
               onChange={(e) => setQuickRole(e.target.value)}
@@ -1858,17 +1679,17 @@ Product Designer - metacareers.com/jobs/1397212694826926"
             />
           </div>
           <div>
-            <label htmlFor="quick-link" style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: '0.25rem' }}>Posting Link</label>
+            <label htmlFor="quick-link" className="text-[0.75rem] font-semibold text-text-secondary block mb-1">Posting Link</label>
             <input
               id="quick-link"
               type="text"
-              className="input-field"
+              className={INPUT_FIELD}
               placeholder="e.g. careers.google.com"
               value={quickLink}
               onChange={(e) => setQuickLink(e.target.value)}
             />
           </div>
-          <button type="submit" className="btn btn-primary" style={{ minHeight: '44px' }}>
+          <button type="submit" className={`${BTN_PRIMARY} min-h-[44px]`}>
             Add Application
           </button>
         </form>
@@ -1877,37 +1698,29 @@ Product Designer - metacareers.com/jobs/1397212694826926"
       {activeBreakdownJob && (() => {
         const breakdown = getLocalMatchBreakdown(resumeText, activeBreakdownJob);
         return (
-          <div className="modal-overlay" onClick={() => setActiveBreakdownJob(null)}>
-            <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '600px', width: '90%' }}>
-              <div className="modal-header">
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+          <div className="fixed inset-0 bg-[#0f172a]/40 backdrop-blur-[4px] z-[100] flex items-center justify-center p-5 animate-fadeIn" onClick={() => setActiveBreakdownJob(null)}>
+            <div className="bg-bg-card border border-border-color rounded-xl w-full max-w-[600px] max-h-[90vh] overflow-y-auto p-6 shadow-[0_20px_25px_-5px_rgba(0,0,0,0.1),0_10px_10px_-5px_rgba(0,0,0,0.04)] flex flex-col gap-4.5 animate-fadeIn" onClick={(e) => e.stopPropagation()}>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
                   <Sparkles color="var(--accent-blue)" size={22} />
-                  <h2 style={{ fontSize: '1.2rem', fontWeight: 700 }}>Keyword Match Breakdown</h2>
+                  <h2 className="text-[1.2rem] font-bold text-text-primary">Keyword Match Breakdown</h2>
                 </div>
-                <button className="modal-close-btn" onClick={() => setActiveBreakdownJob(null)}>
+                <button className={CLOSE_BTN} onClick={() => setActiveBreakdownJob(null)}>
                   <X size={18} />
                 </button>
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', marginTop: '0.5rem' }}>
+              <div className="flex flex-col gap-5 mt-2">
                 <div>
-                  <h3 style={{ fontSize: '1.1rem', fontWeight: 800 }}>{activeBreakdownJob.company}</h3>
-                  <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>{activeBreakdownJob.role}</div>
+                  <h3 className="text-[1.1rem] font-extrabold text-text-primary">{activeBreakdownJob.company}</h3>
+                  <div className="text-[0.9rem] text-text-secondary">{activeBreakdownJob.role}</div>
                 </div>
 
                 {/* Score summary */}
-                <div style={{
-                  background: '#f8fafc',
-                  border: '1px solid var(--border-color)',
-                  borderRadius: 'var(--radius-md)',
-                  padding: '1rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between'
-                }}>
+                <div className="bg-slate-50 border border-border-color rounded-md p-4 flex items-center justify-between">
                   <div>
-                    <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Local Keyword Match</div>
-                    <div style={{ fontSize: '1.1rem', fontWeight: 800, color: getScoreColor(breakdown.score) }}>
+                    <div className="text-[0.8rem] text-text-secondary font-semibold">Local Keyword Match</div>
+                    <div className="text-[1.1rem] font-extrabold" style={{ color: getScoreColor(breakdown.score) }}>
                       {breakdown.score >= 80 
                         ? 'Strong Match'
                         : breakdown.score >= 50
@@ -1915,65 +1728,61 @@ Product Designer - metacareers.com/jobs/1397212694826926"
                         : 'Low Keyword Overlap'}
                     </div>
                   </div>
-                  <div style={{
-                    fontSize: '2rem',
-                    fontWeight: 900,
-                    color: getScoreColor(breakdown.score)
-                  }}>
+                  <div className="text-[2rem] font-black" style={{ color: getScoreColor(breakdown.score) }}>
                     {breakdown.score}%
                   </div>
                 </div>
 
                 {/* Breakdown lists */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                <div className="flex flex-col gap-5">
                   {/* Matching Words */}
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--accent-emerald)' }}>
+                  <div className="flex flex-col gap-2">
+                    <div className="flex items-center gap-1.5 text-accent-emerald">
                       <CheckCircle2 size={18} />
-                      <strong style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--text-primary)' }}>Matched Words ({breakdown.matchingWords.length})</strong>
+                      <strong className="text-[0.95rem] font-bold text-text-primary">Matched Words ({breakdown.matchingWords.length})</strong>
                     </div>
-                    <p style={{ fontSize: '0.775rem', color: 'var(--text-secondary)' }}>
+                    <p className="text-[0.775rem] text-text-secondary">
                       Words from this job listing description/title found in your resume:
                     </p>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem', background: '#fafdfb', border: '1px solid #e6f6ec', borderRadius: 'var(--radius-md)', padding: '0.75rem', maxHeight: '150px', overflowY: 'auto' }}>
+                    <div className="flex flex-wrap gap-1.5 bg-[#fafdfb] border border-[#e6f6ec] rounded-md p-3 max-h-[150px] overflow-y-auto">
                       {breakdown.matchingWords.length > 0 ? (
                         breakdown.matchingWords.map((word, i) => (
-                          <span key={i} className="badge badge-emerald" style={{ padding: '0.2rem 0.45rem', fontSize: '0.75rem', fontWeight: 600 }}>
+                          <span key={i} className={`${BADGE_BASE} bg-accent-emerald/8 text-accent-emerald p-[0.2rem_0.45rem] text-[0.75rem] font-semibold`}>
                             {word}
                           </span>
                         ))
                       ) : (
-                        <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>No matching keywords.</span>
+                        <span className="text-[0.85rem] text-text-muted">No matching keywords.</span>
                       )}
                     </div>
                   </div>
 
                   {/* Missing/Unmatched Words */}
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--accent-rose)' }}>
+                  <div className="flex flex-col gap-2">
+                    <div className="flex items-center gap-1.5 text-accent-rose">
                       <AlertTriangle size={18} />
-                      <strong style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--text-primary)' }}>Unmatched Words ({breakdown.missingWords.length})</strong>
+                      <strong className="text-[0.95rem] font-bold text-text-primary">Unmatched Words ({breakdown.missingWords.length})</strong>
                     </div>
-                    <p style={{ fontSize: '0.775rem', color: 'var(--text-secondary)' }}>
+                    <p className="text-[0.775rem] text-text-secondary">
                       Words in this job listing description/title missing from your resume:
                     </p>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem', background: '#fffbfa', border: '1px solid #fdeee9', borderRadius: 'var(--radius-md)', padding: '0.75rem', maxHeight: '150px', overflowY: 'auto' }}>
+                    <div className="flex flex-wrap gap-1.5 bg-[#fffbfa] border border-[#fdeee9] rounded-md p-3 max-h-[150px] overflow-y-auto">
                       {breakdown.missingWords.length > 0 ? (
                         breakdown.missingWords.map((word, i) => (
-                          <span key={i} className="badge badge-rose" style={{ padding: '0.2rem 0.45rem', fontSize: '0.75rem', fontWeight: 600 }}>
+                          <span key={i} className={`${BADGE_BASE} bg-accent-rose/8 text-accent-rose p-[0.2rem_0.45rem] text-[0.75rem] font-semibold`}>
                             {word}
                           </span>
                         ))
                       ) : (
-                        <span style={{ fontSize: '0.85rem', color: 'var(--accent-emerald)', fontWeight: 600 }}>All keywords match!</span>
+                        <span className="text-[0.85rem] text-accent-emerald font-semibold">All keywords match!</span>
                       )}
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1.25rem', borderTop: '1px solid var(--border-color)', paddingTop: '0.75rem' }}>
-                <button className="btn btn-secondary" onClick={() => setActiveBreakdownJob(null)}>Close Breakdown</button>
+              <div className="flex justify-end mt-5 border-t border-border-color pt-3">
+                <button className={BTN_SECONDARY} onClick={() => setActiveBreakdownJob(null)}>Close Breakdown</button>
               </div>
             </div>
           </div>

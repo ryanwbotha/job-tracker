@@ -65,6 +65,12 @@ export function analyzeEmailInteraction(emailContent, senderHint = '', subject =
     kindOfContact = 'LinkedIn Message';
   } else if (lowerText.includes('call') || lowerText.includes('phone')) {
     kindOfContact = 'Employer Call';
+  } else if (lowerText.includes('friend') || lowerText.includes('family')) {
+    kindOfContact = 'Friend/Family';
+  } else if (lowerText.includes('coworker') || lowerText.includes('colleague')) {
+    kindOfContact = 'Former Coworker';
+  } else if (lowerText.includes('group') || lowerText.includes('networking group')) {
+    kindOfContact = 'Networking Group';
   }
 
   // Determine sentiment & interest level

@@ -6,7 +6,7 @@ import re
 import urllib.request
 
 # Default model
-MODEL_NAME = "gemini-2.0-flash"
+MODEL_NAME = "gemini-2.5-flash"
 
 def extract_text_from_pdf(pdf_path):
     """Try to extract text from a PDF file using pypdf."""
@@ -73,12 +73,22 @@ def find_api_key():
 
 def main():
     if len(sys.argv) < 3:
-        print("Usage: python3 compare_resume.py <resume_file_path> <job_desc_file_path>", file=sys.stderr)
+        print("Usage: python3 compare_resume.py <resume_file_path> <job_desc_file_path> [atsMatch|eval|improve]", file=sys.stderr)
         sys.exit(1)
         
     resume_path = sys.argv[1]
     job_desc_path = sys.argv[2]
     
+    mode = "atsMatch"
+    if len(sys.argv) > 3:
+        val = sys.argv[3].lower()
+        if "eval" in val:
+            mode = "professionalEvaluation"
+        elif "improve" in val or "coach" in val:
+            mode = "skillsImprovement"
+        else:
+            mode = "atsMatch"
+            
     api_key = find_api_key()
     if not api_key:
         print("Error: Gemini API key not found in environment, .env, or test_gemini.sh", file=sys.stderr)
@@ -94,23 +104,58 @@ def main():
         print("Error: Resume or job description content is empty.", file=sys.stderr)
         sys.exit(1)
         
-    print("Comparing resume with job description using Gemini API...")
+    print(f"Comparing resume with job description using Gemini API (Mode: {mode})...")
     
-    prompt = (
-        "You are an expert ATS (Applicant Tracking System) parser and optimizer.\n"
-        "Compare the following resume text to the job description text.\n"
-        "Analyze the matching skills, missing critical keywords, and provide recommendations.\n\n"
-        "Return a JSON response matching this structure exactly:\n"
-        "{\n"
-        "  \"match_percentage\": <number between 0 and 100>,\n"
-        "  \"matching_skills\": [<list of skills present in both>],\n"
-        "  \"missing_keywords\": [<list of important skills/keywords from job description missing in resume>],\n"
-        "  \"improvements\": [<list of clear action points to make resume match better>]\n"
-        "}\n\n"
-        f"Resume:\n{resume_text}\n\n"
-        f"Job Description:\n{job_desc_text}\n"
-    )
-    
+    prompt = ""
+    if mode == "atsMatch":
+        prompt = (
+            "You are a skilled and very experienced ATS (Application Tracking System) parser and optimizer with a deep understanding of the tech field, software engineering, data science, data analyst, and big data engineer. Your task is to evaluate the resume based on the given job description.\n"
+            "You must consider the job market is very competitive and you should provide the best assistance for improving the resumes.\n"
+            "Assign the percentage matching based on the job description and the missing keywords with high accuracy.\n\n"
+            "Return a JSON response matching this structure exactly:\n"
+            "{\n"
+            "  \"match_percentage\": <number between 0 and 100>,\n"
+            "  \"matching_skills\": [<list of technical skills present in both>],\n"
+            "  \"missing_keywords\": [<list of important technical skills/keywords from job description missing in resume>],\n"
+            "  \"profile_summary\": \"<brief professional analysis of the candidate's strengths and weaknesses in 3-4 sentences>\"\n"
+            "}\n\n"
+            f"Resume:\n{resume_text}\n\n"
+            f"Job Description:\n{job_desc_text}\n"
+        )
+    elif mode == "professionalEvaluation":
+        prompt = (
+            "You are an experienced Technical Human Resource Manager specializing in the tech field, software engineering, data science, data analyst, and big data engineer roles. Your task is to review the provided resume against the job description.\n"
+            "Please share your professional evaluation on whether the candidate's profile aligns with the role. Highlight the strengths and weaknesses of the applicant against the specified job requirements.\n\n"
+            "Return a JSON response matching this structure exactly:\n"
+            "{\n"
+            "  \"alignment_score\": <number between 0 and 100>,\n"
+            "  \"strengths\": [<list of candidate's key strengths for this role>],\n"
+            "  \"weaknesses\": [<list of candidate's key weaknesses or alignment gaps for this role>],\n"
+            "  \"evaluation_summary\": \"<detailed HR evaluation statement, about 4-6 sentences, highlighting candidate's overall suitability>\"\n"
+            "}\n\n"
+            f"Resume:\n{resume_text}\n\n"
+            f"Job Description:\n{job_desc_text}\n"
+        )
+    elif mode == "skillsImprovement":
+        prompt = (
+            "You are an experienced Technical Recruiter and Career Coach specializing in the tech field, software engineering, data science, data analyst, and big data engineer roles. Your task is to review the provided resume against the job description.\n"
+            "Please share your professional evaluation on how the candidate can improve their skills. Highlight the specific areas of improvement and provide concrete, actionable recommendations on how to acquire these skills or represent them better.\n\n"
+            "Return a JSON response matching this structure exactly:\n"
+            "{\n"
+            "  \"priority_skills_to_add\": [<list of key technical skills/tools the candidate lacks from the JD>],\n"
+            "  \"certifications_recommendations\": [<list of recommended certifications, courses, or study areas>],\n"
+            "  \"bullet_point_improvements\": [\n"
+            "    {\n"
+            "      \"original\": \"<original text or concept from resume to improve>\",\n"
+            "      \"improved\": \"<improved version incorporating keywords, action verbs, or impact metrics>\"\n"
+            "    }\n"
+            "  ],\n"
+            "  \"general_advice\": \"<general career coaching advice for landing this role, about 3-4 sentences>\"\n"
+            "}\n\n"
+            f"Resume:\n{resume_text}\n\n"
+            f"Job Description:\n{job_desc_text}\n"
+        )
+        
     url = f"https://generativelanguage.googleapis.com/v1beta/models/{MODEL_NAME}:generateContent?key={api_key}"
     
     payload = {
@@ -140,23 +185,64 @@ def main():
             # Parse the inner JSON
             result = json.loads(text_response)
             
-            # Print beautiful output
-            print("\n" + "="*50)
-            print(f"ATS MATCH SCORE: {result.get('match_percentage', 0)}%")
-            print("="*50)
-            
-            print("\nMatching Skills:")
-            for skill in result.get('matching_skills', []):
-                print(f" ✅ {skill}")
+            # Print beautiful output based on mode
+            if mode == "atsMatch":
+                print("\n" + "="*50)
+                print(f"ATS MATCH SCORE: {result.get('match_percentage', 0)}%")
+                print("="*50)
                 
-            print("\nMissing Keywords / Gaps:")
-            for keyword in result.get('missing_keywords', []):
-                print(f" ❌ {keyword}")
+                print("\nMatching Keywords:")
+                for skill in result.get('matching_skills', []):
+                    print(f" ✅ {skill}")
+                    
+                print("\nMissing Keywords / Gaps:")
+                for keyword in result.get('missing_keywords', []):
+                    print(f" ❌ {keyword}")
+                    
+                print("\nProfile Summary:")
+                print(result.get('profile_summary', ''))
+                print("="*50 + "\n")
                 
-            print("\nRecommendations for Improvement:")
-            for imp in result.get('improvements', []):
-                print(f" 💡 {imp}")
-            print("="*50 + "\n")
+            elif mode == "professionalEvaluation":
+                print("\n" + "="*50)
+                print(f"HR ALIGNMENT SCORE: {result.get('alignment_score', 0)}%")
+                print("="*50)
+                
+                print("\nKey Strengths:")
+                for strength in result.get('strengths', []):
+                    print(f" ✓ {strength}")
+                    
+                print("\nAlignment Gaps / Weaknesses:")
+                for weakness in result.get('weaknesses', []):
+                    print(f" ⚠ {weakness}")
+                    
+                print("\nProfessional HR Statement:")
+                print(result.get('evaluation_summary', ''))
+                print("="*50 + "\n")
+                
+            elif mode == "skillsImprovement":
+                print("\n" + "="*50)
+                print("SKILLS COACH RECOMMENDATIONS")
+                print("="*50)
+                
+                print("\nPriority Skills to Add:")
+                for skill in result.get('priority_skills_to_add', []):
+                    print(f" 🔵 {skill}")
+                    
+                print("\nRecommended Certifications / Training:")
+                for cert in result.get('certifications_recommendations', []):
+                    print(f" 🎓 {cert}")
+                    
+                print("\nSuggested Resume Bullet Point Refinements:")
+                for item in result.get('bullet_point_improvements', []):
+                    print("-"*50)
+                    print(f" [Original]: {item.get('original', '')}")
+                    print(f" [Optimized]: {item.get('improved', '')}")
+                print("-"*50)
+                
+                print("\nCareer Coaching Advice:")
+                print(result.get('general_advice', ''))
+                print("="*50 + "\n")
             
     except urllib.error.HTTPError as e:
         print(f"\nAPI Error (HTTP {e.code}): {e.reason}", file=sys.stderr)

@@ -3,6 +3,11 @@ import { useTracker } from '../context/TrackerContext';
 import { formatFriendlyDate } from '../utils/followUpRules';
 import { X, FileText } from 'lucide-react';
 
+// Tailwind CSS styling constants for v4 migration
+const BTN_BASE = "inline-flex items-center justify-center gap-2 rounded-full border border-transparent text-sm font-semibold shadow-sm transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-4";
+const BTN_SECONDARY = `${BTN_BASE} border-border-color bg-bg-card px-5 py-2.5 text-text-primary hover:bg-bg-elevated focus-visible:ring-slate-200`;
+const CLOSE_BTN = "inline-flex items-center justify-center rounded-full p-1.5 text-text-muted transition-colors hover:bg-bg-elevated hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-300 cursor-pointer border-none bg-transparent";
+
 export default function PaperFormModal({ isOpen, onClose }) {
   const { selectedDate, resources, contacts, meetings, targets } = useTracker();
 
@@ -18,42 +23,42 @@ export default function PaperFormModal({ isOpen, onClose }) {
   const meetingSlots = Array.from({ length: 2 }, (_, i) => meetings[i] || null);
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" style={{ maxWidth: '960px', width: '95%', background: '#ffffff', color: '#0f172a', padding: '1.75rem' }} onClick={(e) => e.stopPropagation()}>
+    <div className="fixed inset-0 bg-[#0f172a]/40 backdrop-blur-[4px] z-[100] flex items-center justify-center p-5 animate-fadeIn" onClick={onClose}>
+      <div className="bg-bg-card border border-border-color rounded-xl w-[95%] max-w-[960px] max-h-[90vh] overflow-y-auto p-7 shadow-[0_20px_25px_-5px_rgba(0,0,0,0.1),0_10px_10px_-5px_rgba(0,0,0,0.04)] flex flex-col gap-4.5 animate-fadeIn text-text-primary" onClick={(e) => e.stopPropagation()}>
         {/* Modal Controls Header */}
-        <div className="modal-header" style={{ borderBottom: '1px solid #e2e8f0', paddingBottom: '0.75rem', marginBottom: '1rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-            <FileText color="#2563eb" size={22} />
-            <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#0f172a' }}>Official 15-10-2 Paper Form Web Replica</h2>
+        <div className="flex items-center justify-between border-b border-border-color pb-3 mb-4">
+          <div className="flex items-center gap-2.5">
+            <FileText color="var(--accent-blue)" size={22} />
+            <h2 className="text-[1.2rem] font-bold text-text-primary">Official 15-10-2 Paper Form Web Replica</h2>
           </div>
-          <button className="modal-close-btn" onClick={onClose}>
+          <button className={CLOSE_BTN} onClick={onClose}>
             <X size={20} />
           </button>
         </div>
 
         {/* Paper Sheet Container (Mirrors Form PD10048654) */}
-        <div style={{ border: '2px solid #0f172a', padding: '1.25rem', fontFamily: 'sans-serif', fontSize: '0.825rem', background: '#ffffff' }}>
+        <div className="border-2 border-[#0f172a] p-5 font-sans text-[0.825rem] bg-white text-[#0f172a]">
           {/* Paper Title Header */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid #0f172a', paddingBottom: '0.5rem', marginBottom: '0.75rem' }}>
-            <h2 style={{ fontSize: '1.35rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.02em', margin: 0, color: '#0f172a' }}>
+          <div className="flex justify-between items-center border-b-2 border-[#0f172a] pb-2 mb-3">
+            <h2 className="text-[1.35rem] font-extrabold uppercase tracking-wide m-0 text-[#0f172a]">
               Daily Activity Tracking Form
             </h2>
-            <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#475569' }}>
+            <div className="text-[0.8rem] font-bold text-slate-600">
               PD10048654
             </div>
           </div>
 
           {/* Date Row */}
-          <div style={{ borderBottom: '1px solid #0f172a', paddingBottom: '0.4rem', marginBottom: '0.75rem', fontWeight: 700 }}>
-            Date: <span style={{ textDecoration: 'underline', color: '#1d4ed8' }}>{selectedDate}</span>
+          <div className="border-b border-[#0f172a] pb-1.5 mb-3 font-bold">
+            Date: <span className="underline text-blue-700">{selectedDate}</span>
           </div>
 
           {/* Instructions & Daily Resources Identified Split Section */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', border: '1px solid #0f172a', marginBottom: '1rem' }}>
+          <div className="grid grid-cols-2 border border-[#0f172a] mb-4">
             {/* Left Instructions Box */}
-            <div style={{ padding: '0.65rem', borderRight: '1px solid #0f172a', background: '#f8fafc' }}>
-              <h4 style={{ fontSize: '0.85rem', fontWeight: 800, marginBottom: '0.35rem' }}>Instructions</h4>
-              <ul style={{ paddingLeft: '1.1rem', margin: 0, lineHeight: 1.4, fontSize: '0.775rem', color: '#334155' }}>
+            <div className="p-2.5 border-r border-[#0f172a] bg-slate-50">
+              <h4 className="text-[0.85rem] font-extrabold mb-1.5">Instructions</h4>
+              <ul className="pl-4.5 m-0 leading-relaxed text-[0.775rem] text-slate-700">
                 <li><strong>Contact name:</strong> Record the contact's name.</li>
                 <li><strong>Organization:</strong> Record company or organization name.</li>
                 <li><strong>Email and phone:</strong> Record email address and phone number.</li>
@@ -65,13 +70,13 @@ export default function PaperFormModal({ isOpen, onClose }) {
             </div>
 
             {/* Right 15 Daily Resources Box */}
-            <div style={{ padding: '0.65rem' }}>
-              <h4 style={{ fontSize: '0.85rem', fontWeight: 800, marginBottom: '0.35rem' }}>Daily Resources Identified (Goal: 15)</h4>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
+            <div className="p-2.5">
+              <h4 className="text-[0.85rem] font-extrabold mb-1.5">Daily Resources Identified (Goal: 15)</h4>
+              <div className="flex flex-col gap-1">
                 {resourceSlots.map((res, i) => (
-                  <div key={i} style={{ borderBottom: '1px solid #e2e8f0', fontSize: '0.75rem', padding: '0.15rem 0', display: 'flex', gap: '0.35rem' }}>
-                    <span style={{ fontWeight: 700, color: '#94a3b8', width: '20px' }}>{i + 1}.</span>
-                    <span style={{ color: res ? '#0f172a' : '#cbd5e1', fontWeight: res ? 600 : 400 }}>
+                  <div key={i} className="border-b border-slate-200 text-[0.75rem] py-0.5 flex gap-1.5">
+                    <span className="font-bold text-slate-400 w-5">{i + 1}.</span>
+                    <span className={res ? 'text-[#0f172a] font-semibold' : 'text-slate-300 font-normal'}>
                       {res ? `${res.name} (${res.category})` : '____________________________________________'}
                     </span>
                   </div>
@@ -81,30 +86,30 @@ export default function PaperFormModal({ isOpen, onClose }) {
           </div>
 
           {/* Contacts Section (Goal: 10) */}
-          <div style={{ marginBottom: '1rem' }}>
-            <h3 style={{ fontSize: '0.95rem', fontWeight: 800, borderBottom: '2px solid #0f172a', paddingBottom: '0.25rem', marginBottom: '0.4rem' }}>
+          <div className="mb-4">
+            <h3 className="text-[0.95rem] font-extrabold border-b-2 border-[#0f172a] pb-1 mb-1.5">
               Contacts Made (Goal: 10)
             </h3>
-            <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #0f172a', fontSize: '0.775rem' }}>
+            <table className="w-full border-collapse border border-[#0f172a] text-[0.775rem]">
               <thead>
-                <tr style={{ background: '#f1f5f9' }}>
-                  <th style={{ border: '1px solid #0f172a', padding: '0.4rem', textAlign: 'left' }}>Contact name</th>
-                  <th style={{ border: '1px solid #0f172a', padding: '0.4rem', textAlign: 'left' }}>Organization</th>
-                  <th style={{ border: '1px solid #0f172a', padding: '0.4rem', textAlign: 'left' }}>Email / Phone / LinkedIn</th>
-                  <th style={{ border: '1px solid #0f172a', padding: '0.4rem', textAlign: 'left' }}>Comments</th>
-                  <th style={{ border: '1px solid #0f172a', padding: '0.4rem', textAlign: 'left' }}>Kind of contact</th>
-                  <th style={{ border: '1px solid #0f172a', padding: '0.4rem', textAlign: 'left' }}>Follow-up date</th>
+                <tr className="bg-slate-100">
+                  <th className="border border-[#0f172a] p-1.5 text-left">Contact name</th>
+                  <th className="border border-[#0f172a] p-1.5 text-left">Organization</th>
+                  <th className="border border-[#0f172a] p-1.5 text-left">Email / Phone / LinkedIn</th>
+                  <th className="border border-[#0f172a] p-1.5 text-left">Comments</th>
+                  <th className="border border-[#0f172a] p-1.5 text-left">Kind of contact</th>
+                  <th className="border border-[#0f172a] p-1.5 text-left">Follow-up date</th>
                 </tr>
               </thead>
               <tbody>
                 {contactSlots.map((c, i) => (
                   <tr key={i}>
-                    <td style={{ border: '1px solid #0f172a', padding: '0.35rem', fontWeight: 600 }}>{c ? c.name : ' '}</td>
-                    <td style={{ border: '1px solid #0f172a', padding: '0.35rem' }}>{c ? c.organization : ' '}</td>
-                    <td style={{ border: '1px solid #0f172a', padding: '0.35rem' }}>{c ? c.emailPhone : ' '}</td>
-                    <td style={{ border: '1px solid #0f172a', padding: '0.35rem', color: '#475569' }}>{c ? c.comments : ' '}</td>
-                    <td style={{ border: '1px solid #0f172a', padding: '0.35rem', fontWeight: 600 }}>{c ? c.kindOfContact : ' '}</td>
-                    <td style={{ border: '1px solid #0f172a', padding: '0.35rem', fontWeight: 700, color: '#1d4ed8' }}>{c ? formatFriendlyDate(c.followUpDate) : ' '}</td>
+                    <td className="border border-[#0f172a] p-1.5 font-semibold">{c ? c.name : ' '}</td>
+                    <td className="border border-[#0f172a] p-1.5">{c ? c.organization : ' '}</td>
+                    <td className="border border-[#0f172a] p-1.5">{c ? c.emailPhone : ' '}</td>
+                    <td className="border border-[#0f172a] p-1.5 text-slate-600">{c ? c.comments : ' '}</td>
+                    <td className="border border-[#0f172a] p-1.5 font-semibold">{c ? c.kindOfContact : ' '}</td>
+                    <td className="border border-[#0f172a] p-1.5 font-bold text-blue-700">{c ? formatFriendlyDate(c.followUpDate) : ' '}</td>
                   </tr>
                 ))}
               </tbody>
@@ -112,30 +117,30 @@ export default function PaperFormModal({ isOpen, onClose }) {
           </div>
 
           {/* Face-to-Face Meetings Section (Goal: 2) */}
-          <div style={{ marginBottom: '1rem' }}>
-            <h3 style={{ fontSize: '0.95rem', fontWeight: 800, borderBottom: '2px solid #0f172a', paddingBottom: '0.25rem', marginBottom: '0.4rem' }}>
+          <div className="mb-4">
+            <h3 className="text-[0.95rem] font-extrabold border-b-2 border-[#0f172a] pb-1 mb-1.5">
               Face-to-Face Meetings (Goal: 2)
             </h3>
-            <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #0f172a', fontSize: '0.775rem' }}>
+            <table className="w-full border-collapse border border-[#0f172a] text-[0.775rem]">
               <thead>
-                <tr style={{ background: '#f1f5f9' }}>
-                  <th style={{ border: '1px solid #0f172a', padding: '0.4rem', textAlign: 'left' }}>Contact name</th>
-                  <th style={{ border: '1px solid #0f172a', padding: '0.4rem', textAlign: 'left' }}>Organization</th>
-                  <th style={{ border: '1px solid #0f172a', padding: '0.4rem', textAlign: 'left' }}>Email / Phone / LinkedIn</th>
-                  <th style={{ border: '1px solid #0f172a', padding: '0.4rem', textAlign: 'left' }}>Comments</th>
-                  <th style={{ border: '1px solid #0f172a', padding: '0.4rem', textAlign: 'left' }}>Kind of meeting</th>
-                  <th style={{ border: '1px solid #0f172a', padding: '0.4rem', textAlign: 'left' }}>Follow-up date</th>
+                <tr className="bg-slate-100">
+                  <th className="border border-[#0f172a] p-1.5 text-left">Contact name</th>
+                  <th className="border border-[#0f172a] p-1.5 text-left">Organization</th>
+                  <th className="border border-[#0f172a] p-1.5 text-left">Email / Phone / LinkedIn</th>
+                  <th className="border border-[#0f172a] p-1.5 text-left">Comments</th>
+                  <th className="border border-[#0f172a] p-1.5 text-left">Kind of meeting</th>
+                  <th className="border border-[#0f172a] p-1.5 text-left">Follow-up date</th>
                 </tr>
               </thead>
               <tbody>
                 {meetingSlots.map((m, i) => (
                   <tr key={i}>
-                    <td style={{ border: '1px solid #0f172a', padding: '0.35rem', fontWeight: 600 }}>{m ? m.name : ' '}</td>
-                    <td style={{ border: '1px solid #0f172a', padding: '0.35rem' }}>{m ? m.organization : ' '}</td>
-                    <td style={{ border: '1px solid #0f172a', padding: '0.35rem' }}>{m ? m.emailPhone : ' '}</td>
-                    <td style={{ border: '1px solid #0f172a', padding: '0.35rem', color: '#475569' }}>{m ? m.comments : ' '}</td>
-                    <td style={{ border: '1px solid #0f172a', padding: '0.35rem', fontWeight: 600 }}>{m ? m.kindOfMeeting : ' '}</td>
-                    <td style={{ border: '1px solid #0f172a', padding: '0.35rem', fontWeight: 700, color: '#1d4ed8' }}>{m ? formatFriendlyDate(m.followUpDate) : ' '}</td>
+                    <td className="border border-[#0f172a] p-1.5 font-semibold">{m ? m.name : ' '}</td>
+                    <td className="border border-[#0f172a] p-1.5">{m ? m.organization : ' '}</td>
+                    <td className="border border-[#0f172a] p-1.5">{m ? m.emailPhone : ' '}</td>
+                    <td className="border border-[#0f172a] p-1.5 text-slate-600">{m ? m.comments : ' '}</td>
+                    <td className="border border-[#0f172a] p-1.5 font-semibold">{m ? m.kindOfMeeting : ' '}</td>
+                    <td className="border border-[#0f172a] p-1.5 font-bold text-blue-700">{m ? formatFriendlyDate(m.followUpDate) : ' '}</td>
                   </tr>
                 ))}
               </tbody>
@@ -143,19 +148,19 @@ export default function PaperFormModal({ isOpen, onClose }) {
           </div>
 
           {/* Target Companies Footer Box */}
-          <div style={{ border: '1px solid #0f172a', padding: '0.65rem', fontWeight: 700, fontSize: '0.85rem', marginBottom: '0.75rem', background: '#f8fafc' }}>
-            TARGET COMPANIES: <span style={{ color: '#1d4ed8' }}>{targets.join(' • ') || 'ANCESTRY.COM • ADOBE.COM • FINTECHS'}</span>
+          <div className="border border-[#0f172a] p-2.5 font-bold text-[0.85rem] mb-3 bg-slate-50">
+            TARGET COMPANIES: <span className="text-blue-700">{targets.join(' • ') || 'ANCESTRY.COM • ADOBE.COM • FINTECHS'}</span>
           </div>
 
           {/* Official Copyright Footer Line */}
-          <div style={{ fontSize: '0.7rem', color: '#64748b', textAlign: 'right' }}>
+          <div className="text-[0.7rem] text-slate-500 text-right">
             © 2013 by Intellectual Reserve, Inc. All rights reserved. Printed in the USA. English approval: 6/13 PD10048654
           </div>
         </div>
 
         {/* Modal Close Footer */}
-        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem' }}>
-          <button className="btn btn-secondary" onClick={onClose}>Close Paper Form View</button>
+        <div className="flex justify-end mt-4">
+          <button className={BTN_SECONDARY} onClick={onClose}>Close Paper Form View</button>
         </div>
       </div>
     </div>

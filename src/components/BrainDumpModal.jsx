@@ -18,6 +18,16 @@ import {
   AlertCircle 
 } from 'lucide-react';
 
+// Tailwind CSS styling constants for v4 migration
+const BTN_BASE = "inline-flex items-center justify-center gap-2 rounded-full border border-transparent text-sm font-semibold shadow-sm transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-4";
+const BTN_PRIMARY = `${BTN_BASE} border-indigo-600 bg-indigo-600 px-5 py-2.5 text-white hover:bg-indigo-700 focus-visible:ring-indigo-200`;
+const BTN_SECONDARY = `${BTN_BASE} border-border-color bg-bg-card px-5 py-2.5 text-text-primary hover:bg-bg-elevated focus-visible:ring-slate-200`;
+const BTN_EMERALD = `${BTN_BASE} border-emerald-600 bg-emerald-600 px-5 py-2.5 text-white hover:bg-emerald-700 focus-visible:ring-emerald-200`;
+const BTN_PURPLE = `${BTN_BASE} border-violet-600 bg-violet-600 px-5 py-2.5 text-white hover:bg-violet-700 focus-visible:ring-violet-200`;
+
+const INPUT_FIELD = "w-full rounded-lg border border-border-color bg-bg-input px-3 py-2.5 text-sm text-text-primary placeholder-text-muted shadow-sm outline-none transition focus:border-accent-blue focus:ring-4 focus:ring-accent-blue/10";
+const CLOSE_BTN = "inline-flex items-center justify-center rounded-full p-1.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-300 cursor-pointer border-none bg-transparent";
+
 export default function BrainDumpModal({ isOpen, onClose }) {
   const { addResource, addContact, addMeeting, addTarget, setSelectedDate } = useTracker();
 
@@ -217,10 +227,10 @@ export default function BrainDumpModal({ isOpen, onClose }) {
                   {
                     "selectedDate": "YYYY-MM-DD",
                     "resources": [
-                      { "name": "Resource Name / Description", "category": "Company Directory|Professional Association|Industry Publication|Target Employer|Network Community|General Notes", "notes": "Any handwritten notes" }
+                      { "name": "Resource Name / Description", "category": "Company Directory|Job Board|Professional Association|Industry Publication|Target Employer|Network Community|General Notes", "notes": "Any handwritten notes" }
                     ],
                     "contacts": [
-                      { "name": "Contact Name", "organization": "Organization", "emailPhone": "Email/Phone/LinkedIn info", "comments": "Written details/comments", "kindOfContact": "Network Call|LinkedIn Message|Résumé|Application|Thank-you note|Referral Reachout", "followUpDate": "YYYY-MM-DD" }
+                      { "name": "Contact Name", "organization": "Organization", "emailPhone": "Email/Phone/LinkedIn info", "comments": "Written details/comments", "kindOfContact": "Network Call|LinkedIn Message|Résumé|Application|Thank-you note|Referral Reachout|Networking Group|Friend/Family|Former Coworker", "followUpDate": "YYYY-MM-DD" }
                     ],
                     "meetings": [
                       { "name": "Contact Name", "organization": "Organization", "emailPhone": "Email/Phone/LinkedIn info", "comments": "Written meeting details/notes", "kindOfMeeting": "Informational Interview|Job Interview|Networking Coffee / Call", "followUpDate": "YYYY-MM-DD" }
@@ -361,53 +371,37 @@ export default function BrainDumpModal({ isOpen, onClose }) {
   };
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" style={{ maxWidth: '800px', width: '90%' }} onClick={(e) => e.stopPropagation()}>
+    <div className="fixed inset-0 bg-[#0f172a]/40 backdrop-blur-[4px] z-[100] flex items-center justify-center p-5 animate-fadeIn" onClick={onClose}>
+      <div className="bg-bg-card border border-border-color rounded-xl w-full max-w-[800px] max-h-[90vh] overflow-y-auto p-6 shadow-[0_20px_25px_-5px_rgba(0,0,0,0.1),0_10px_10px_-5px_rgba(0,0,0,0.04)] flex flex-col gap-4.5 animate-fadeIn" onClick={(e) => e.stopPropagation()}>
         
         {/* Modal Header */}
-        <div className="modal-header">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
             <Sparkles color="var(--accent-purple)" size={22} />
-            <h2 style={{ fontSize: '1.2rem', fontWeight: 700 }}>Daily Activity Sorter (Voice/Text/Photo)</h2>
+            <h2 className="text-[1.25rem] font-bold text-text-primary">AI Daily Journal Scraper (Brain Dump)</h2>
           </div>
-          <button className="modal-close-btn" onClick={onClose} aria-label="Close modal">
+          <button className={CLOSE_BTN} onClick={onClose} aria-label="Close modal">
             <X size={18} />
           </button>
         </div>
 
         {/* Tab Toggle Bar */}
-        <div style={{ display: 'flex', borderBottom: '1px solid var(--border-color)', marginBottom: '1.25rem', gap: '0.25rem' }}>
+        <div className="flex border-b border-border-color mb-5 gap-1">
           <button
             type="button"
             onClick={() => { setActiveTab('text'); setParsedResult(null); setErrorMsg(''); }}
-            style={{
-              padding: '0.65rem 1.25rem',
-              fontSize: '0.85rem',
-              fontWeight: 700,
-              background: 'transparent',
-              border: 'none',
-              borderBottom: activeTab === 'text' ? '3px solid var(--accent-purple)' : '3px solid transparent',
-              color: activeTab === 'text' ? 'var(--accent-purple)' : 'var(--text-secondary)',
-              cursor: 'pointer',
-              transition: 'all 0.15s ease'
-            }}
+            className={`py-2.5 px-5 text-[0.85rem] font-bold bg-transparent border-none border-b-3 cursor-pointer transition-all duration-150 ${
+              activeTab === 'text' ? 'border-accent-purple text-accent-purple' : 'border-transparent text-text-secondary'
+            }`}
           >
             Voice & Text Dump
           </button>
           <button
             type="button"
             onClick={() => { setActiveTab('photo'); setParsedResult(null); setErrorMsg(''); }}
-            style={{
-              padding: '0.65rem 1.25rem',
-              fontSize: '0.85rem',
-              fontWeight: 700,
-              background: 'transparent',
-              border: 'none',
-              borderBottom: activeTab === 'photo' ? '3px solid var(--accent-purple)' : '3px solid transparent',
-              color: activeTab === 'photo' ? 'var(--accent-purple)' : 'var(--text-secondary)',
-              cursor: 'pointer',
-              transition: 'all 0.15s ease'
-            }}
+            className={`py-2.5 px-5 text-[0.85rem] font-bold bg-transparent border-none border-b-3 cursor-pointer transition-all duration-150 ${
+              activeTab === 'photo' ? 'border-accent-purple text-accent-purple' : 'border-transparent text-text-secondary'
+            }`}
           >
             Physical Form Photo
           </button>
@@ -415,35 +409,35 @@ export default function BrainDumpModal({ isOpen, onClose }) {
 
         {/* TAB 1: Voice & Text Sorter */}
         {activeTab === 'text' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <p style={{ fontSize: '0.825rem', color: 'var(--text-secondary)' }}>
+          <div className="flex flex-col gap-4">
+            <p className="text-[0.825rem] text-text-secondary">
               Dump chaotic thoughts, unorganized daily updates, or speak voice notes out loud. The local parser automatically categorizes everything into your 15-10-2 tracker!
             </p>
 
             {/* Voice Recording Control */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', background: '#f8fafc', padding: '0.75rem 1rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
+            <div className="flex items-center gap-3.5 bg-slate-50 p-[0.75rem_1rem] rounded-md border border-border-color">
               <button
                 type="button"
-                className={`btn ${isRecording ? 'btn-emerald' : 'btn-primary'}`}
+                className={isRecording ? BTN_EMERALD : BTN_PRIMARY}
                 onClick={toggleRecording}
               >
                 {isRecording ? <MicOff size={16} /> : <Mic size={16} />}
                 <span>{isRecording ? 'Stop Recording' : 'Record Voice Note'}</span>
               </button>
 
-              <span style={{ fontSize: '0.8rem', color: isRecording ? '#047857' : 'var(--text-muted)', fontWeight: 500 }}>
+              <span className={`text-[0.8rem] font-medium ${isRecording ? 'text-emerald-700' : 'text-text-muted'}`}>
                 {speechStatus || 'Tap mic to speak notes, or type below.'}
               </span>
             </div>
 
             {/* Text Area Input */}
             <div>
-              <label htmlFor="brain-dump-input" style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem', fontWeight: 600 }}>
+              <label htmlFor="brain-dump-input" className="text-[0.75rem] text-text-secondary block mb-1.5 font-semibold">
                 Raw Unorganized Notes / Voice Transcript
               </label>
               <textarea
                 id="brain-dump-input"
-                className="textarea-field"
+                className={INPUT_FIELD}
                 rows={5}
                 placeholder="e.g. Met Rob Jex at church today for an informational chat about self reliance leadership. Also found Ancestry.com engineering job post and messaged Dave North on LinkedIn..."
                 value={rawText}
@@ -451,9 +445,9 @@ export default function BrainDumpModal({ isOpen, onClose }) {
               />
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
-              <button type="button" className="btn btn-secondary" onClick={() => setRawText('')}>Clear Text</button>
-              <button type="button" className="btn btn-primary" onClick={handleParseText}>
+            <div className="flex justify-end gap-3">
+              <button type="button" className={BTN_SECONDARY} onClick={() => setRawText('')}>Clear Text</button>
+              <button type="button" className={BTN_PRIMARY} onClick={handleParseText}>
                 <Sparkles size={16} />
                 <span>Sort Chaos Locally</span>
               </button>
@@ -463,39 +457,39 @@ export default function BrainDumpModal({ isOpen, onClose }) {
 
         {/* TAB 2: Photo Form Import */}
         {activeTab === 'photo' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <p style={{ fontSize: '0.825rem', color: 'var(--text-secondary)' }}>
+          <div className="flex flex-col gap-4">
+            <p className="text-[0.825rem] text-text-secondary">
               Take photo of printed Form PD10048654 daily tracker, copy it, and hit <strong>Cmd+V / Ctrl+V</strong> here to paste! Or drag and drop file below.
             </p>
 
             {/* Gemini API Key Block */}
             {!isEditingKey ? (
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#f0fdf4', border: '1px solid #bbf7d0', color: '#166534', padding: '0.65rem 1rem', borderRadius: 'var(--radius-md)', fontSize: '0.8rem', fontWeight: 500 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                  <Check size={15} color="#166534" />
+              <div className="flex items-center justify-between bg-emerald-50 border border-emerald-200 text-emerald-800 p-[0.65rem_1rem] rounded-md text-[0.8rem] font-medium">
+                <div className="flex items-center gap-1.5">
+                  <Check size={15} className="text-emerald-800" />
                   <span>Gemini API Key configured and stored locally.</span>
                 </div>
                 <button 
                   type="button" 
                   onClick={() => setIsEditingKey(true)} 
-                  style={{ background: 'transparent', border: 'none', color: '#1d4ed8', fontWeight: 700, cursor: 'pointer', padding: 0 }}
+                  className="bg-transparent border-none text-blue-700 font-bold cursor-pointer p-0"
                 >
                   Change Key
                 </button>
               </div>
             ) : (
-              <div style={{ background: '#f8fafc', padding: '0.75rem 1rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
-                  <label htmlFor="gemini-key-input" style={{ fontSize: '0.75rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.35rem', color: 'var(--text-primary)' }}>
+              <div className="bg-slate-50 p-[0.75rem_1rem] rounded-md border border-border-color">
+                <div className="flex items-center justify-between mb-1.5">
+                  <label htmlFor="gemini-key-input" className="text-[0.75rem] font-bold flex items-center gap-1.5 text-text-primary">
                     <Key size={14} color="var(--accent-blue)" />
                     <span>Gemini API Key (Local Setup)</span>
                   </label>
-                  <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                  <div className="flex gap-3 items-center">
                     <a 
                       href="https://aistudio.google.com/" 
                       target="_blank" 
                       rel="noopener noreferrer" 
-                      style={{ fontSize: '0.725rem', color: '#1d4ed8', fontWeight: 600, textDecoration: 'none' }}
+                      className="text-[0.725rem] text-blue-700 font-semibold no-underline"
                       title="Get free API Key from Google AI Studio"
                     >
                       Get Free Key ↗
@@ -504,7 +498,7 @@ export default function BrainDumpModal({ isOpen, onClose }) {
                       <button 
                         type="button" 
                         onClick={() => setIsEditingKey(false)} 
-                        style={{ background: 'transparent', border: 'none', color: '#166534', fontWeight: 700, cursor: 'pointer', fontSize: '0.725rem', padding: 0 }}
+                        className="bg-transparent border-none text-emerald-800 font-bold cursor-pointer text-[0.725rem] p-0"
                       >
                         Done
                       </button>
@@ -512,20 +506,12 @@ export default function BrainDumpModal({ isOpen, onClose }) {
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', gap: '0.5rem', position: 'relative' }}>
+                <div className="flex gap-2 relative">
                   <input
                     id="gemini-key-input"
                     type={showKey ? 'text' : 'password'}
                     placeholder="Paste your AI Studio API key here..."
-                    style={{
-                      flex: 1,
-                      padding: '0.45rem 2.25rem 0.45rem 0.65rem',
-                      fontSize: '0.8rem',
-                      border: '1px solid var(--border-color)',
-                      borderRadius: '4px',
-                      outline: 'none',
-                      background: '#ffffff'
-                    }}
+                    className="flex-1 p-[0.45rem_2.25rem_0.45rem_0.65rem] text-[0.8rem] border border-border-color rounded-sm outline-none bg-bg-input text-text-primary"
                     value={apiKey}
                     onChange={(e) => setApiKey(e.target.value)}
                   />
@@ -533,17 +519,7 @@ export default function BrainDumpModal({ isOpen, onClose }) {
                     type="button"
                     onClick={() => setShowKey(!showKey)}
                     aria-label={showKey ? 'Hide API key' : 'Show API key'}
-                    style={{
-                      position: 'absolute',
-                      right: '10px',
-                      top: '50%',
-                      transform: 'translateY(-50%)',
-                      background: 'transparent',
-                      border: 'none',
-                      color: 'var(--text-muted)',
-                      cursor: 'pointer',
-                      padding: 0
-                    }}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 bg-transparent border-none text-text-muted cursor-pointer p-0"
                   >
                     {showKey ? <EyeOff size={15} /> : <Eye size={15} />}
                   </button>
@@ -556,45 +532,38 @@ export default function BrainDumpModal({ isOpen, onClose }) {
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
-              style={{
-                border: isDragging ? '2px dashed var(--accent-purple)' : '2px dashed var(--border-color)',
-                background: isDragging ? '#faf5ff' : '#ffffff',
-                borderRadius: 'var(--radius-lg)',
-                padding: '2rem 1.5rem',
-                textAlign: 'center',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                position: 'relative'
-              }}
+              className={`border-2 rounded-lg p-[2rem_1.5rem] text-center cursor-pointer transition-all duration-200 relative ${
+                isDragging ? 'border-dashed border-accent-purple bg-bg-elevated' : 'border-dashed border-border-color bg-bg-card'
+              }`}
               onClick={() => document.getElementById('form-file-picker').click()}
             >
               <input
                 id="form-file-picker"
                 type="file"
                 accept="image/*"
-                style={{ display: 'none' }}
+                className="hidden"
                 onChange={handleFileChange}
               />
               
               {imagePreviewUrl ? (
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
+                <div className="flex flex-col items-center gap-2">
                   <img 
                     src={imagePreviewUrl} 
                     alt="Pasted Form Preview" 
-                    style={{ maxHeight: '180px', maxWidth: '100%', borderRadius: '4px', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm)' }}
+                    className="max-h-[180px] max-w-full rounded-sm border border-border-color shadow-sm"
                   />
-                  <span style={{ fontSize: '0.725rem', color: 'var(--text-secondary)', fontWeight: 500 }}>
+                  <span className="text-[0.725rem] text-text-secondary font-medium">
                     {imageFile ? `${imageFile.name} loaded.` : 'Pasted photo loaded.'} Click to replace.
                   </span>
                 </div>
               ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.65rem' }}>
-                  <div style={{ background: '#f5f3ff', padding: '0.65rem', borderRadius: '50%', color: 'var(--accent-purple)' }}>
+                <div className="flex flex-col items-center gap-2.5">
+                  <div className="bg-[#f5f3ff] p-2.5 rounded-full text-accent-purple">
                     <Upload size={24} />
                   </div>
                   <div>
-                    <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-primary)' }}>Drag & drop form photo here</span>
-                    <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'block', marginTop: '0.2rem' }}>
+                    <span className="text-[0.85rem] font-bold text-text-primary">Drag & drop form photo here</span>
+                    <span className="text-[0.8rem] text-text-muted block mt-1">
                       or click to select photo, or copy image & hit <strong>Cmd+V / Ctrl+V</strong> anywhere!
                     </span>
                   </div>
@@ -603,12 +572,12 @@ export default function BrainDumpModal({ isOpen, onClose }) {
             </div>
 
             {/* Photo Sorter Controls */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', gap: '0.75rem', flexWrap: 'wrap' }}>
+            <div className="flex justify-between gap-3 flex-wrap">
               <div>
                 {imagePreviewUrl && (
                   <button 
                     type="button" 
-                    className="btn btn-secondary" 
+                    className={BTN_SECONDARY} 
                     onClick={() => {
                       setImagePreviewUrl('');
                       setImageFile(null);
@@ -621,10 +590,10 @@ export default function BrainDumpModal({ isOpen, onClose }) {
                 )}
               </div>
               
-              <div style={{ display: 'flex', gap: '0.75rem' }}>
+              <div className="flex gap-3">
                 <button 
                   type="button" 
-                  className="btn btn-secondary" 
+                  className={BTN_SECONDARY} 
                   onClick={handleSimulatePhoto}
                   disabled={isExtracting}
                 >
@@ -633,10 +602,9 @@ export default function BrainDumpModal({ isOpen, onClose }) {
                 
                 <button 
                   type="button" 
-                  className="btn btn-primary" 
                   onClick={handleExtractPhoto}
                   disabled={isExtracting || !imagePreviewUrl}
-                  style={{ background: 'var(--accent-purple)', display: 'flex', alignItems: 'center', gap: '0.35rem' }}
+                  className={`${BTN_PURPLE} flex items-center gap-1.5`}
                 >
                   {isExtracting ? (
                     <>
@@ -657,7 +625,7 @@ export default function BrainDumpModal({ isOpen, onClose }) {
 
         {/* Error message */}
         {errorMsg && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: '#fef2f2', border: '1px solid #fee2e2', color: '#b91c1c', padding: '0.75rem', borderRadius: 'var(--radius-md)', fontSize: '0.8rem', marginTop: '1rem', fontWeight: 600 }}>
+          <div className="flex items-center gap-2 bg-red-50 border border-red-200 text-red-700 p-3 rounded-md text-[0.8rem] mt-4 font-semibold">
             <AlertCircle size={16} />
             <span>{errorMsg}</span>
           </div>
@@ -665,15 +633,15 @@ export default function BrainDumpModal({ isOpen, onClose }) {
 
         {/* Unified Parsing Preview Panel */}
         {parsedResult && (
-          <div style={{ background: '#f8fafc', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.85rem', maxHeight: '320px', overflowY: 'auto', marginTop: '1.15rem' }}>
+          <div className="bg-slate-50 border border-border-color rounded-md p-5 flex flex-col gap-3.5 max-h-[320px] overflow-y-auto mt-[1.15rem]">
             
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>
-              <h4 style={{ fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 800, textTransform: 'uppercase' }}>
+            <div className="flex items-center justify-between border-b border-border-color pb-2">
+              <h4 className="text-[0.9rem] flex items-center gap-2 font-extrabold uppercase">
                 <Check color="#047857" size={16} />
                 <span>AI Sorter Results Preview</span>
               </h4>
               {parsedResult.selectedDate && (
-                <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)' }}>
+                <span className="text-[0.75rem] font-bold text-text-muted">
                   Form Date: {parsedResult.selectedDate}
                 </span>
               )}
@@ -682,13 +650,13 @@ export default function BrainDumpModal({ isOpen, onClose }) {
             {/* Resources list */}
             {parsedResult.resources.length > 0 && (
               <div>
-                <h5 style={{ fontSize: '0.75rem', fontWeight: 800, color: '#1d4ed8', textTransform: 'uppercase', marginBottom: '0.25rem' }}>
+                <h5 className="text-[0.75rem] font-extrabold text-blue-700 uppercase mb-1">
                   Daily Resources ({parsedResult.resources.length})
                 </h5>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem', paddingLeft: '0.35rem' }}>
+                <div className="flex flex-col gap-1 pl-1.5">
                   {parsedResult.resources.map((r, i) => (
-                    <div key={`ext_r_${i}`} style={{ fontSize: '0.775rem', color: 'var(--text-primary)' }}>
-                      • {r.name} <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>({r.category})</span>
+                    <div key={`ext_r_${i}`} className="text-[0.775rem] text-text-primary">
+                      • {r.name} <span className="text-[0.7rem] text-text-muted">({r.category})</span>
                     </div>
                   ))}
                 </div>
@@ -698,15 +666,15 @@ export default function BrainDumpModal({ isOpen, onClose }) {
             {/* Contacts list */}
             {parsedResult.contacts.length > 0 && (
               <div>
-                <h5 style={{ fontSize: '0.75rem', fontWeight: 800, color: '#047857', textTransform: 'uppercase', marginBottom: '0.25rem' }}>
+                <h5 className="text-[0.75rem] font-extrabold text-emerald-800 uppercase mb-1">
                   Contacts Made ({parsedResult.contacts.length})
                 </h5>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem', paddingLeft: '0.35rem' }}>
+                <div className="flex flex-col gap-1.5 pl-1.5">
                   {parsedResult.contacts.map((c, i) => (
-                    <div key={`ext_c_${i}`} style={{ fontSize: '0.775rem', borderBottom: '1px dashed #e2e8f0', paddingBottom: '0.2rem' }}>
-                      <div style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{c.name} ({c.organization || 'No Org'})</div>
-                      <div style={{ color: 'var(--text-secondary)', fontSize: '0.725rem' }}>{c.emailPhone || 'No contact details'} | {c.kindOfContact} | Follow-up: {c.followUpDate}</div>
-                      {c.comments && <div style={{ fontStyle: 'italic', fontSize: '0.7rem', color: 'var(--text-muted)' }}>"{c.comments}"</div>}
+                    <div key={`ext_c_${i}`} className="text-[0.775rem] border-b border-dashed border-slate-200 pb-1">
+                      <div className="font-bold text-text-primary">{c.name} ({c.organization || 'No Org'})</div>
+                      <div className="text-text-secondary text-[0.725rem]">{c.emailPhone || 'No contact details'} | {c.kindOfContact} | Follow-up: {c.followUpDate}</div>
+                      {c.comments && <div className="italic text-[0.7rem] text-text-muted">"{c.comments}"</div>}
                     </div>
                   ))}
                 </div>
@@ -716,15 +684,15 @@ export default function BrainDumpModal({ isOpen, onClose }) {
             {/* Meetings list */}
             {parsedResult.meetings.length > 0 && (
               <div>
-                <h5 style={{ fontSize: '0.75rem', fontWeight: 800, color: '#6d28d9', textTransform: 'uppercase', marginBottom: '0.25rem' }}>
+                <h5 className="text-[0.75rem] font-extrabold text-purple-700 uppercase mb-1">
                   Meetings scheduled ({parsedResult.meetings.length})
                 </h5>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', paddingLeft: '0.35rem' }}>
+                <div className="flex flex-col gap-1.5 pl-1.5">
                   {parsedResult.meetings.map((m, i) => (
-                    <div key={`ext_m_${i}`} style={{ fontSize: '0.775rem', borderBottom: '1px dashed #e2e8f0', paddingBottom: '0.2rem' }}>
-                      <div style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{m.name} ({m.organization || 'No Org'})</div>
-                      <div style={{ color: 'var(--text-secondary)', fontSize: '0.725rem' }}>{m.emailPhone || 'No contact details'} | {m.kindOfMeeting} | Follow-up: {m.followUpDate}</div>
-                      {m.comments && <div style={{ fontStyle: 'italic', fontSize: '0.7rem', color: 'var(--text-muted)' }}>"{m.comments}"</div>}
+                    <div key={`ext_m_${i}`} className="text-[0.775rem] border-b border-dashed border-slate-200 pb-1">
+                      <div className="font-bold text-text-primary">{m.name} ({m.organization || 'No Org'})</div>
+                      <div className="text-text-secondary text-[0.725rem]">{m.emailPhone || 'No contact details'} | {m.kindOfMeeting} | Follow-up: {m.followUpDate}</div>
+                      {m.comments && <div className="italic text-[0.7rem] text-text-muted">"{m.comments}"</div>}
                     </div>
                   ))}
                 </div>
@@ -734,12 +702,12 @@ export default function BrainDumpModal({ isOpen, onClose }) {
             {/* Targets list */}
             {parsedResult.targets.length > 0 && (
               <div>
-                <h5 style={{ fontSize: '0.75rem', fontWeight: 800, color: '#be123c', textTransform: 'uppercase', marginBottom: '0.25rem' }}>
+                <h5 className="text-[0.75rem] font-extrabold text-rose-700 uppercase mb-1">
                   Target Companies Added ({parsedResult.targets.length})
                 </h5>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem' }}>
+                <div className="flex flex-wrap gap-1.5">
                   {parsedResult.targets.map((t, i) => (
-                    <span key={`ext_t_${i}`} style={{ fontSize: '0.7rem', background: '#fff1f2', color: '#be123c', border: '1px solid #ffe4e6', borderRadius: '4px', padding: '0.15rem 0.4rem', fontWeight: 700 }}>
+                    <span key={`ext_t_${i}`} className="text-[0.7rem] bg-rose-50 text-rose-700 border border-rose-200 rounded-sm p-[0.15rem_0.4rem] font-bold">
                       {t}
                     </span>
                   ))}
@@ -747,12 +715,11 @@ export default function BrainDumpModal({ isOpen, onClose }) {
               </div>
             )}
 
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '0.5rem', borderTop: '1px solid var(--border-color)', paddingTop: '0.75rem' }}>
+            <div className="flex justify-end mt-2 border-t border-border-color pt-3">
               <button 
                 type="button" 
-                className="btn btn-emerald" 
                 onClick={handleApplyAll}
-                style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}
+                className={`${BTN_EMERALD} flex items-center gap-1.5`}
               >
                 {applied ? <Check size={16} /> : <ArrowRight size={16} />}
                 <span>{applied ? 'Ugh! Items Added!' : 'Apply All to Activity Tracker'}</span>

@@ -1,8 +1,15 @@
 import React, { useState } from 'react';
 import { useTracker } from '../context/TrackerContext';
 import { formatFriendlyDate } from '../utils/followUpRules';
-import { Database, Search, Users, Video, Compass, Trash2, CheckCircle2 } from 'lucide-react';
+import { Database, Search, Users, Video, Compass, Trash2, CheckCircle2, ExternalLink } from 'lucide-react';
 import Linkedin from './LinkedinIcon';
+
+// Tailwind CSS styling constants for v4 migration
+const INPUT_FIELD = "w-full rounded-lg border border-border-color bg-bg-input px-3 py-2.5 text-sm text-text-primary placeholder-text-muted shadow-sm outline-none transition focus:border-accent-blue focus:ring-4 focus:ring-accent-blue/10";
+const BADGE_BASE = "inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-medium";
+const TH_CLASS = "px-3 py-2 text-left text-sm font-medium text-gray-900 whitespace-nowrap";
+const TD_CLASS = "px-3 py-2 text-sm text-gray-700 whitespace-nowrap";
+const LINK_CLASS = "inline-flex items-center gap-1 text-sm text-indigo-600 font-medium underline-offset-2 hover:underline hover:text-indigo-700";
 
 export default function AllMasterView() {
   const { allContacts: contacts, allResources: resources, allMeetings: meetings, deleteContact, deleteResource, deleteMeeting, updateContact } = useTracker();
@@ -38,20 +45,20 @@ export default function AllMasterView() {
   };
 
   return (
-    <div className="section-card">
-      <div className="section-header">
-        <div className="section-title-group">
+    <div className="section-card p-6 md:p-8">
+      <div className="flex items-center justify-between mb-5 flex-wrap gap-3">
+        <div className="flex items-center gap-3">
           <Database size={22} color="var(--accent-blue)" />
           <div>
-            <h3 style={{ fontSize: '1.1rem' }}>All Contacts & Resources Master Database</h3>
-            <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+            <h3 className="text-[1.1rem] font-bold text-text-primary">All Contacts & Resources Master Database</h3>
+            <p className="text-[0.8rem] text-text-secondary">
               Unified master view of all recorded contacts, resources, and meetings across your job search.
             </p>
           </div>
         </div>
 
         {/* Filter Chips */}
-        <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap' }}>
+        <div className="flex gap-1.5 flex-wrap">
           {[
             { id: 'all', label: 'All Items' },
             { id: 'contacts', label: 'Contacts' },
@@ -61,16 +68,9 @@ export default function AllMasterView() {
             <button
               key={f.id}
               onClick={() => setTypeFilter(f.id)}
-              style={{
-                background: typeFilter === f.id ? 'var(--text-primary)' : '#ffffff',
-                color: typeFilter === f.id ? '#ffffff' : 'var(--text-secondary)',
-                border: '1px solid var(--border-color)',
-                borderRadius: '6px',
-                padding: '0.3rem 0.65rem',
-                fontSize: '0.775rem',
-                fontWeight: 600,
-                cursor: 'pointer'
-              }}
+              className={`border border-border-color rounded-md p-[0.3rem_0.65rem] text-[0.775rem] font-semibold cursor-pointer transition-colors ${
+                typeFilter === f.id ? 'bg-text-primary text-text-invert border-transparent' : 'bg-bg-card text-text-secondary hover:bg-bg-elevated'
+              }`}
             >
               {f.label}
             </button>
@@ -79,68 +79,73 @@ export default function AllMasterView() {
       </div>
 
       {/* Search Input Bar */}
-      <div style={{ marginBottom: '1.15rem', position: 'relative' }}>
-        <Search size={16} color="var(--text-muted)" style={{ position: 'absolute', left: '12px', top: '10px' }} />
+      <div className="mb-[1.15rem] relative">
+        <Search size={16} color="var(--text-muted)" className="absolute left-3 top-2.5" />
         <input
           type="text"
-          className="input-field"
           placeholder="Search by name, organization, notes, or contact type..."
-          style={{ paddingLeft: '36px' }}
+          className={`${INPUT_FIELD} pl-9`}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
       </div>
 
       {combined.length === 0 ? (
-        <div className="empty-state">
-          <Database className="empty-state-icon" />
+        <div className="text-center py-10 px-5 text-text-muted flex flex-col items-center gap-2.5">
+          <Database className="w-11 h-11 text-text-muted opacity-50" />
           <p>No items found matching your filter or search query.</p>
         </div>
       ) : (
-        <div className="table-responsive">
-          <table className="data-table">
+        <div className="w-full overflow-x-auto">
+          <table className="w-full border-separate border-spacing-0">
             <thead>
               <tr>
-                <th>Type</th>
-                <th>Name / Resource</th>
-                <th>Organization / Category</th>
-                <th>Details / Notes</th>
-                <th>Follow-up Date</th>
-                <th style={{ textAlign: 'right' }}>Actions</th>
+                <th className={TH_CLASS}>Type</th>
+                <th className={TH_CLASS}>Name / Resource</th>
+                <th className={TH_CLASS}>Organization / Category</th>
+                <th className={TH_CLASS}>Details / Notes</th>
+                <th className={TH_CLASS}>Follow-up Date</th>
+                <th className={`${TH_CLASS} text-right`}>Actions</th>
               </tr>
             </thead>
             <tbody>
               {combined.map(item => (
-                <tr key={item.id}>
-                  <td>
-                    <span className={`badge ${item.itemType === 'Contact' ? 'badge-emerald' : item.itemType === 'Meeting' ? 'badge-purple' : 'badge-blue'}`}>
+                <tr key={item.id} className="group">
+                  <td className={TD_CLASS}>
+                    <span className={`${BADGE_BASE} ${item.itemType === 'Contact' ? 'bg-accent-emerald/8 text-accent-emerald' : item.itemType === 'Meeting' ? 'bg-accent-purple/8 text-accent-purple' : 'bg-accent-blue/8 text-accent-blue'}`}>
                       {item.itemType}
                     </span>
                   </td>
-                  <td style={{ fontWeight: 600 }}>
+                  <td className={`${TD_CLASS} font-semibold`}>
                     <div>{item.name}</div>
                     {item.linkedinUrl && (
-                      <a href={item.linkedinUrl} target="_blank" rel="noopener noreferrer" className="linkedin-link">
+                      <a href={item.linkedinUrl} target="_blank" rel="noopener noreferrer" className={LINK_CLASS}>
                         <Linkedin size={12} />
                         <span>LinkedIn</span>
                       </a>
                     )}
+                    {item.itemType === 'Resource' && item.url && (
+                      <a href={item.url} target="_blank" rel="noopener noreferrer" className={`${LINK_CLASS} mt-1`}>
+                        <ExternalLink size={12} />
+                        <span className="ml-1">Link</span>
+                      </a>
+                    )}
                   </td>
-                  <td>{item.organization || item.category || '—'}</td>
-                  <td style={{ color: 'var(--text-secondary)', fontSize: '0.825rem', maxWidth: '280px' }}>
+                  <td className={TD_CLASS}>{item.organization || item.category || '—'}</td>
+                  <td className={`${TD_CLASS} text-text-secondary text-[0.825rem] max-w-[280px]`}>
                     {item.comments || item.notes || '—'}
                   </td>
-                  <td>
+                  <td className={TD_CLASS}>
                     {item.followUpDate ? (
-                      <span style={{ fontSize: '0.825rem', fontWeight: 600, color: '#b45309' }}>
+                      <span className="text-[0.825rem] font-semibold text-[#b45309]">
                         {formatFriendlyDate(item.followUpDate)}
                       </span>
                     ) : '—'}
                   </td>
-                  <td style={{ textAlign: 'right' }}>
+                  <td className={`${TD_CLASS} text-right`}>
                     <button
                       onClick={() => handleDelete(item)}
-                      style={{ background: 'transparent', border: 'none', color: 'var(--accent-rose)', cursor: 'pointer', padding: '0.2rem' }}
+                      className="bg-transparent border-none text-accent-rose cursor-pointer p-1 rounded-sm hover:bg-rose-50"
                       title="Delete item"
                     >
                       <Trash2 size={15} />

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Sparkles, FileText, CheckCircle2, AlertTriangle, Lightbulb, Key, RefreshCw, Trash2, ArrowUpRight, Upload, X } from 'lucide-react';
+import { Sparkles, FileText, CheckCircle2, AlertTriangle, Lightbulb, Key, RefreshCw, Trash2, ArrowUpRight, Upload, X, Award, BookOpen } from 'lucide-react';
 
 export default function AtsMatcher() {
   const [apiKey, setApiKey] = useState('');
@@ -8,7 +8,12 @@ export default function AtsMatcher() {
   const [jobDescription, setJobDescription] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [result, setResult] = useState(null);
+  const [activeMode, setActiveMode] = useState('atsMatch'); // 'atsMatch' | 'professionalEvaluation' | 'skillsImprovement'
+  const [results, setResults] = useState({
+    atsMatch: null,
+    professionalEvaluation: null,
+    skillsImprovement: null
+  });
   const [isUploading, setIsUploading] = useState(false);
   const [showBreakdownModal, setShowBreakdownModal] = useState(false);
 
@@ -100,12 +105,22 @@ export default function AtsMatcher() {
   const handleSaveResume = (text) => {
     setResumeText(text);
     localStorage.setItem('ats_resume_text', text);
+    setResults({
+      atsMatch: null,
+      professionalEvaluation: null,
+      skillsImprovement: null
+    });
   };
 
   const handleClearResume = () => {
     if (window.confirm('Are you sure you want to clear your saved resume?')) {
       setResumeText('');
       localStorage.removeItem('ats_resume_text');
+      setResults({
+        atsMatch: null,
+        professionalEvaluation: null,
+        skillsImprovement: null
+      });
     }
   };
 
@@ -126,18 +141,19 @@ export default function AtsMatcher() {
 
     setLoading(true);
     setError(null);
-    setResult(null);
 
-    const prompt = `You are an expert ATS (Applicant Tracking System) parser and optimizer.
-Compare the following resume text to the job description text.
-Analyze the matching skills, missing critical keywords, and provide recommendations.
+    let prompt = '';
+    if (activeMode === 'atsMatch') {
+      prompt = `You are a skilled and very experienced ATS (Application Tracking System) parser and optimizer with a deep understanding of the tech field, software engineering, data science, data analyst, and big data engineer. Your task is to evaluate the resume based on the given job description.
+You must consider the job market is very competitive and you should provide the best assistance for improving the resumes.
+Assign the percentage matching based on the job description and the missing keywords with high accuracy.
 
 Return a JSON response matching this structure exactly:
 {
   "match_percentage": <number between 0 and 100>,
-  "matching_skills": [<list of skills present in both>],
-  "missing_keywords": [<list of important skills/keywords from job description missing in resume>],
-  "improvements": [<list of clear action points to make resume match better>]
+  "matching_skills": [<list of technical skills present in both>],
+  "missing_keywords": [<list of important technical skills/keywords from job description missing in resume>],
+  "profile_summary": "<brief professional analysis of the candidate's strengths and weaknesses in 3-4 sentences>"
 }
 
 Resume:
@@ -145,10 +161,50 @@ ${resumeText}
 
 Job Description:
 ${jobDescription}`;
+    } else if (activeMode === 'professionalEvaluation') {
+      prompt = `You are an experienced Technical Human Resource Manager specializing in the tech field, software engineering, data science, data analyst, and big data engineer roles. Your task is to review the provided resume against the job description.
+Please share your professional evaluation on whether the candidate's profile aligns with the role. Highlight the strengths and weaknesses of the applicant against the specified job requirements.
+
+Return a JSON response matching this structure exactly:
+{
+  "alignment_score": <number between 0 and 100>,
+  "strengths": [<list of candidate's key strengths for this role>],
+  "weaknesses": [<list of candidate's key weaknesses or alignment gaps for this role>],
+  "evaluation_summary": "<detailed HR evaluation statement, about 4-6 sentences, highlighting candidate's overall suitability>"
+}
+
+Resume:
+${resumeText}
+
+Job Description:
+${jobDescription}`;
+    } else if (activeMode === 'skillsImprovement') {
+      prompt = `You are an experienced Technical Recruiter and Career Coach specializing in the tech field, software engineering, data science, data analyst, and big data engineer roles. Your task is to review the provided resume against the job description.
+Please share your professional evaluation on how the candidate can improve their skills. Highlight the specific areas of improvement and provide concrete, actionable recommendations on how to acquire these skills or represent them better.
+
+Return a JSON response matching this structure exactly:
+{
+  "priority_skills_to_add": [<list of key technical skills/tools the candidate lacks from the JD>],
+  "certifications_recommendations": [<list of recommended certifications, courses, or study areas>],
+  "bullet_point_improvements": [
+    {
+      "original": "<original text or concept from resume to improve>",
+      "improved": "<improved version incorporating keywords, action verbs, or impact metrics>"
+    }
+  ],
+  "general_advice": "<general career coaching advice for landing this role, about 3-4 sentences>"
+}
+
+Resume:
+${resumeText}
+
+Job Description:
+${jobDescription}`;
+    }
 
     try {
       const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey.trim()}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey.trim()}`,
         {
           method: 'POST',
           headers: {
@@ -177,7 +233,10 @@ ${jobDescription}`;
       }
 
       const parsedResult = JSON.parse(textResponse);
-      setResult(parsedResult);
+      setResults(prev => ({
+        ...prev,
+        [activeMode]: parsedResult
+      }));
     } catch (err) {
       console.error(err);
       setError(err.message || 'An error occurred during comparison.');
@@ -194,32 +253,22 @@ ${jobDescription}`;
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+    <div className="flex flex-col gap-5">
       
       {/* Top Banner & API Key Setup */}
-      <div style={{ 
-        background: '#ffffff', 
-        border: '1px solid var(--border-color)', 
-        borderRadius: 'var(--radius-lg)', 
-        padding: '1.25rem', 
-        boxShadow: 'var(--shadow-subtle)',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '0.75rem'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+      <div className="section-card p-6 md:p-8 flex flex-col gap-3 font-body">
+        <div className="flex items-center justify-between flex-wrap gap-4">
+          <div className="flex items-center gap-2.5">
             <Sparkles size={22} color="var(--accent-blue)" />
             <div>
-              <h3 style={{ fontSize: '1.1rem', fontWeight: 700 }}>ATS Resume Matcher</h3>
-              <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Compare your resume to any job application instantly using Gemini AI</p>
+              <h3 className="text-[1.1rem] font-bold text-text-primary font-heading">ATS Resume Matcher</h3>
+              <p className="text-[0.85rem] text-text-secondary">Compare your resume to any job application instantly using Gemini AI</p>
             </div>
           </div>
           
           <button 
             onClick={() => setShowKeyInput(!showKeyInput)} 
-            className="btn btn-secondary btn-sm"
-            style={{ fontSize: '0.85rem', minHeight: '36px', padding: '0.35rem 0.75rem' }}
+            className="inline-flex items-center justify-center gap-1.5 font-body font-semibold text-sm min-h-[36px] px-3 py-1.5 rounded-sm border border-border-color bg-bg-card text-text-primary hover:bg-bg-elevated cursor-pointer transition-all duration-150 active:opacity-85"
           >
             <Key size={14} />
             <span>{apiKey ? 'Manage API Key' : 'Setup API Key'}</span>
@@ -228,103 +277,102 @@ ${jobDescription}`;
 
         {/* API Key Form */}
         {showKeyInput && (
-          <form onSubmit={handleSaveKey} style={{ 
-            marginTop: '0.5rem', 
-            background: '#f8fafc', 
-            padding: '1rem', 
-            borderRadius: 'var(--radius-md)', 
-            border: '1px solid var(--border-color)',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '0.75rem'
-          }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-              <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Gemini API Key</label>
+          <form onSubmit={handleSaveKey} className="mt-2 bg-bg-elevated p-4 rounded-md border border-border-color flex flex-col gap-3 font-body">
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[0.85rem] font-semibold text-text-secondary">Gemini API Key</label>
               <input 
                 type="password" 
                 value={apiKey} 
                 onChange={(e) => setApiKey(e.target.value)} 
                 placeholder="Paste your API key here (AIzaSy...)" 
-                style={{
-                  padding: '0.6rem 0.85rem',
-                  borderRadius: 'var(--radius-sm)',
-                  border: '1px solid var(--border-color)',
-                  fontFamily: 'monospace',
-                  fontSize: '0.9rem',
-                  width: '100%'
-                }}
+                className="bg-bg-input border border-border-color rounded-sm px-3.5 py-2.5 text-text-primary font-mono text-sm min-h-[44px] outline-none w-full hover:border-[#cbd5e1] focus:border-border-focus focus:outline-2 focus:outline-border-focus focus:outline-offset-[1px]"
               />
             </div>
-            <div style={{ display: 'flex', gap: '0.5rem' }}>
-              <button type="submit" className="btn btn-primary" style={{ minHeight: '36px', padding: '0.35rem 1rem', fontSize: '0.85rem' }}>
+            <div className="flex gap-2">
+              <button type="submit" className="inline-flex items-center justify-center gap-1.5 font-body font-semibold text-sm min-h-[36px] px-4 py-1.5 rounded-sm border border-transparent bg-accent-blue text-white hover:bg-[#1d4ed8] cursor-pointer transition-all duration-150 active:opacity-85">
                 Save Key
               </button>
               <button 
                 type="button" 
                 onClick={() => setShowKeyInput(false)} 
-                className="btn btn-secondary" 
-                style={{ minHeight: '36px', padding: '0.35rem 1rem', fontSize: '0.85rem' }}
+                className="inline-flex items-center justify-center gap-1.5 font-body font-semibold text-sm min-h-[36px] px-4 py-1.5 rounded-sm border border-border-color bg-bg-card text-text-primary hover:bg-bg-elevated cursor-pointer transition-all duration-150 active:opacity-85"
               >
                 Cancel
               </button>
             </div>
-            <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+            <p className="text-[0.75rem] text-text-muted">
               Your key is saved locally in your browser and never sent anywhere else. 
-              Get a free key from <a href="https://aistudio.google.com/" target="_blank" rel="noreferrer" style={{ color: 'var(--accent-blue)', textDecoration: 'underline' }}>Google AI Studio</a>.
+              Get a free key from <a href="https://aistudio.google.com/" target="_blank" rel="noreferrer" className="text-accent-blue underline">Google AI Studio</a>.
             </p>
           </form>
         )}
       </div>
 
+      {/* Mode Selector Tab Bar */}
+      <div className="flex border-b-2 border-border-color pb-1 gap-6 mt-2 mb-4 font-body">
+        <button
+          onClick={() => setActiveMode('atsMatch')}
+          className={`bg-transparent border-none pb-2 text-[0.95rem] cursor-pointer flex items-center gap-1.5 transition-all duration-200 ${
+            activeMode === 'atsMatch'
+              ? 'border-b-[3px] border-accent-blue text-accent-blue font-bold'
+              : 'border-b-[3px] border-transparent text-text-secondary font-medium'
+          }`}
+        >
+          <Sparkles size={16} />
+          <span>ATS Percentage Match</span>
+        </button>
+        
+        <button
+          onClick={() => setActiveMode('professionalEvaluation')}
+          className={`bg-transparent border-none pb-2 text-[0.95rem] cursor-pointer flex items-center gap-1.5 transition-all duration-200 ${
+            activeMode === 'professionalEvaluation'
+              ? 'border-b-[3px] border-accent-blue text-accent-blue font-bold'
+              : 'border-b-[3px] border-transparent text-text-secondary font-medium'
+          }`}
+        >
+          <FileText size={16} />
+          <span>Professional HR Evaluation</span>
+        </button>
+        
+        <button
+          onClick={() => setActiveMode('skillsImprovement')}
+          className={`bg-transparent border-none pb-2 text-[0.95rem] cursor-pointer flex items-center gap-1.5 transition-all duration-200 ${
+            activeMode === 'skillsImprovement'
+              ? 'border-b-[3px] border-accent-blue text-accent-blue font-bold'
+              : 'border-b-[3px] border-transparent text-text-secondary font-medium'
+          }`}
+        >
+          <Lightbulb size={16} />
+          <span>Skills Coach Recommendations</span>
+        </button>
+      </div>
+
       {/* Editor Columns */}
-      <div style={{ 
-        display: 'grid', 
-        gridTemplateColumns: '1fr 1fr', 
-        gap: '1.25rem',
-        alignItems: 'stretch'
-      }}>
+      <div className="grid grid-cols-2 max-[900px]:grid-cols-1 gap-5 items-stretch">
         
         {/* Left Column: Resume Input */}
-        <div style={{ 
-          background: '#ffffff', 
-          border: '1px solid var(--border-color)', 
-          borderRadius: 'var(--radius-lg)', 
-          padding: '1.25rem', 
-          boxShadow: 'var(--shadow-subtle)',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '0.85rem'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        <div className="section-card p-6 flex flex-col gap-3.5 font-body">
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <div className="flex items-center gap-2">
               <FileText size={18} color="var(--accent-blue)" />
-              <strong style={{ fontSize: '1rem', fontWeight: 700 }}>Your Resume</strong>
+              <strong className="text-base font-bold text-text-primary font-heading">Your Resume</strong>
             </div>
             
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <div className="flex items-center gap-2">
               <input 
                 type="file" 
                 accept=".txt,.pdf" 
                 onChange={handleFileUpload} 
-                style={{ display: 'none' }} 
+                className="hidden" 
                 id="resume-file-upload" 
               />
               <label 
                 htmlFor="resume-file-upload" 
-                className="btn btn-secondary btn-sm"
-                style={{ 
-                  cursor: 'pointer', 
-                  fontSize: '0.75rem', 
-                  minHeight: '30px', 
-                  padding: '0.2rem 0.6rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.3rem'
-                }}
+                className="inline-flex items-center justify-center gap-1 font-body font-semibold text-xs min-h-[30px] px-2.5 py-1 rounded-sm border border-border-color bg-bg-card text-text-primary hover:bg-bg-elevated cursor-pointer transition-all duration-150 active:opacity-85"
               >
                 {isUploading ? (
                   <>
-                    <RefreshCw className="spin-animation" size={12} />
+                    <RefreshCw className="animate-spin" size={12} />
                     <span>Parsing...</span>
                   </>
                 ) : (
@@ -338,17 +386,7 @@ ${jobDescription}`;
               {resumeText && (
                 <button 
                   onClick={handleClearResume} 
-                  style={{ 
-                    background: 'none', 
-                    border: 'none', 
-                    color: 'var(--accent-rose)', 
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.3rem',
-                    fontSize: '0.8rem',
-                    fontWeight: 600
-                  }}
+                  className="bg-none border-none text-accent-rose cursor-pointer flex items-center gap-1 text-xs font-semibold"
                 >
                   <Trash2 size={14} />
                   <span>Clear</span>
@@ -361,74 +399,46 @@ ${jobDescription}`;
             value={resumeText}
             onChange={(e) => handleSaveResume(e.target.value)}
             placeholder="Paste your plain text resume content here... It will save automatically."
-            style={{
-              width: '100%',
-              minHeight: '280px',
-              padding: '0.85rem',
-              borderRadius: 'var(--radius-md)',
-              border: '1px solid var(--border-color)',
-              fontFamily: 'var(--font-body)',
-              fontSize: '0.9rem',
-              resize: 'vertical',
-              lineHeight: 1.4,
-              flexGrow: 1
-            }}
+            className="w-full min-h-[280px] p-3.5 rounded-md border border-border-color font-body text-sm resize-y leading-normal flex-grow hover:border-[#cbd5e1] focus:border-border-focus focus:outline-2 focus:outline-border-focus focus:outline-offset-[1px]"
           />
         </div>
 
         {/* Right Column: Job Description Input */}
-        <div style={{ 
-          background: '#ffffff', 
-          border: '1px solid var(--border-color)', 
-          borderRadius: 'var(--radius-lg)', 
-          padding: '1.25rem', 
-          boxShadow: 'var(--shadow-subtle)',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '0.85rem'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        <div className="section-card p-6 flex flex-col gap-3.5 font-body">
+          <div className="flex items-center gap-2">
             <ArrowUpRight size={18} color="var(--accent-blue)" />
-            <strong style={{ fontSize: '1rem', fontWeight: 700 }}>Job Description</strong>
+            <strong className="text-base font-bold text-text-primary font-heading">Job Description</strong>
           </div>
 
           <textarea
             value={jobDescription}
             onChange={(e) => setJobDescription(e.target.value)}
             placeholder="Paste the full job posting description here..."
-            style={{
-              width: '100%',
-              minHeight: '280px',
-              padding: '0.85rem',
-              borderRadius: 'var(--radius-md)',
-              border: '1px solid var(--border-color)',
-              fontFamily: 'var(--font-body)',
-              fontSize: '0.9rem',
-              resize: 'vertical',
-              lineHeight: 1.4,
-              flexGrow: 1
-            }}
+            className="w-full min-h-[280px] p-3.5 rounded-md border border-border-color font-body text-sm resize-y leading-normal flex-grow hover:border-[#cbd5e1] focus:border-border-focus focus:outline-2 focus:outline-border-focus focus:outline-offset-[1px]"
           />
         </div>
       </div>
 
       {/* Actions */}
-      <div style={{ display: 'flex', justifyContent: 'center', marginTop: '0.5rem' }}>
+      <div className="flex justify-center mt-2">
         <button 
           onClick={handleCompare} 
           disabled={loading}
-          className="btn btn-primary"
-          style={{ minWidth: '200px', display: 'flex', gap: '0.5rem', justifyContent: 'center' }}
+          className="inline-flex items-center justify-center gap-2 font-body font-semibold text-base min-h-[44px] px-5 py-2.5 rounded-md border border-transparent bg-accent-blue text-white hover:bg-[#1d4ed8] cursor-pointer transition-all duration-150 active:opacity-85 min-w-[260px]"
         >
           {loading ? (
             <>
-              <RefreshCw className="spin-animation" size={18} />
-              <span>Analyzing Match...</span>
+              <RefreshCw className="animate-spin" size={18} />
+              <span>Analyzing...</span>
             </>
           ) : (
             <>
               <Sparkles size={18} />
-              <span>Analyze Match Percentage</span>
+              <span>
+                {activeMode === 'atsMatch' && 'Run ATS Percentage Match'}
+                {activeMode === 'professionalEvaluation' && 'Run HR Evaluation'}
+                {activeMode === 'skillsImprovement' && 'Run Skills Coach'}
+              </span>
             </>
           )}
         </button>
@@ -436,109 +446,42 @@ ${jobDescription}`;
 
       {/* Error Message */}
       {error && (
-        <div style={{ 
-          background: 'rgba(244, 63, 94, 0.05)', 
-          border: '1px solid var(--accent-rose)', 
-          color: 'var(--accent-rose)', 
-          borderRadius: 'var(--radius-md)', 
-          padding: '0.85rem 1.25rem',
-          fontSize: '0.9rem',
-          fontWeight: 500
-        }}>
+        <div className="bg-accent-rose/5 border border-accent-rose text-accent-rose rounded-md py-3.5 px-5 text-sm font-medium">
           {error}
         </div>
       )}
 
-      {/* Result Panel */}
-      {result && (
-        <div style={{ 
-          background: '#ffffff', 
-          border: '1px solid var(--border-color)', 
-          borderRadius: 'var(--radius-lg)', 
-          padding: '1.5rem', 
-          boxShadow: 'var(--shadow-card)',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '1.25rem'
-        }}>
+      {/* Result Panel - ATS Match */}
+      {activeMode === 'atsMatch' && results.atsMatch && (
+        <div className="section-card p-6 md:p-8 flex flex-col gap-5 font-body">
           
           {/* Header Score Display */}
-          <div style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: '1.5rem', 
-            borderBottom: '1px solid var(--border-color)', 
-            paddingBottom: '1.25rem',
-            flexWrap: 'wrap'
-          }}>
+          <div className="flex items-center gap-6 border-b border-border-color pb-5 flex-wrap">
             {/* Circular score visualizer */}
             <div 
               onClick={() => setShowBreakdownModal(true)}
-              style={{
-                width: '80px',
-                height: '80px',
-                borderRadius: '50%',
-                border: `6px solid ${getScoreColor(result.match_percentage)}`,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '1.5rem',
-                fontWeight: 800,
-                color: getScoreColor(result.match_percentage),
-                background: '#f8fafc',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-              }}
+              className="w-20 h-20 rounded-full border-[6px] flex items-center justify-center text-2xl font-extrabold bg-[#f8fafc] cursor-pointer transition-all duration-200 hover:scale-105 hover:shadow-subtle"
+              style={{ borderColor: getScoreColor(results.atsMatch.match_percentage), color: getScoreColor(results.atsMatch.match_percentage) }}
               title="Click to view details breakdown"
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'scale(1.05)';
-                e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.05)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'scale(1)';
-                e.currentTarget.style.boxShadow = 'none';
-              }}
             >
-              {result.match_percentage}%
+              {results.atsMatch.match_percentage}%
             </div>
             
             <div 
               onClick={() => setShowBreakdownModal(true)} 
-              style={{ 
-                cursor: 'pointer',
-                flex: 1,
-                minWidth: '200px',
-                transition: 'opacity 0.2s ease'
-              }}
+              className="cursor-pointer flex-1 min-w-[200px] transition-opacity duration-200 hover:opacity-85"
               title="Click to view details breakdown"
-              onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.85'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.opacity = '1'; }}
             >
-              <h4 style={{ 
-                fontSize: '1.25rem', 
-                fontWeight: 800,
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                flexWrap: 'wrap'
-              }}>
-                <span>ATS Match Score: {result.match_percentage}%</span>
-                <span style={{ 
-                  fontSize: '0.75rem', 
-                  color: 'var(--accent-blue)', 
-                  fontWeight: 600,
-                  background: 'rgba(59, 130, 246, 0.08)',
-                  padding: '0.15rem 0.45rem',
-                  borderRadius: '4px',
-                  border: '1px solid rgba(59, 130, 246, 0.15)'
-                }}>
+              <h4 className="text-xl font-extrabold flex items-center gap-2 flex-wrap font-heading">
+                <span>ATS Match Score: {results.atsMatch.match_percentage}%</span>
+                <span className="text-xs text-accent-blue font-semibold bg-accent-blue/8 px-2 py-0.5 rounded-sm border border-accent-blue/15">
                   View Details Breakdown ↗
                 </span>
               </h4>
-              <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '0.2rem' }}>
-                {result.match_percentage >= 80 
+              <p className="text-[0.85rem] text-text-secondary mt-1">
+                {results.atsMatch.match_percentage >= 80 
                   ? 'Excellent fit! Your resume contains a high density of target keywords.'
-                  : result.match_percentage >= 50
+                  : results.atsMatch.match_percentage >= 50
                   ? 'Decent fit, but there are notable keyword gaps you should close before applying.'
                   : 'Low keywords match. Tailor your resume before submitting to avoid ATS filtering.'}
               </p>
@@ -546,177 +489,309 @@ ${jobDescription}`;
           </div>
 
           {/* Breakdown Sections */}
-          <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
-            gap: '1.25rem' 
-          }}>
+          <div className="grid grid-cols-2 max-[768px]:grid-cols-1 gap-5">
             
             {/* Matching Skills */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--accent-emerald)' }}>
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center gap-1.5 text-accent-emerald font-heading">
                 <CheckCircle2 size={18} />
-                <strong style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--text-primary)' }}>Matching Keywords</strong>
+                <strong className="text-[0.95rem] font-bold text-text-primary">Matching Keywords</strong>
               </div>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem' }}>
-                {result.matching_skills?.length > 0 ? (
-                  result.matching_skills.map((skill, i) => (
-                    <span key={i} className="badge badge-emerald" style={{ padding: '0.35rem 0.6rem', fontSize: '0.8rem', fontWeight: 600 }}>
+              <div className="flex flex-wrap gap-1.5">
+                {results.atsMatch.matching_skills?.length > 0 ? (
+                  results.atsMatch.matching_skills.map((skill, i) => (
+                    <span key={i} className="inline-flex items-center gap-1.5 py-1 px-3 rounded-full text-xs font-semibold leading-normal border-none bg-accent-emerald/8 text-accent-emerald">
+                      <span className="w-1.5 h-1.5 rounded-full bg-current" />
                       {skill}
                     </span>
                   ))
                 ) : (
-                  <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>No matching keywords identified.</span>
+                  <span className="text-[0.85rem] text-text-muted font-body">No matching keywords identified.</span>
                 )}
               </div>
             </div>
 
             {/* Missing Keywords */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--accent-rose)' }}>
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center gap-1.5 text-accent-rose font-heading">
                 <AlertTriangle size={18} />
-                <strong style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--text-primary)' }}>Missing Target Keywords</strong>
+                <strong className="text-[0.95rem] font-bold text-text-primary">Missing Target Keywords</strong>
               </div>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem' }}>
-                {result.missing_keywords?.length > 0 ? (
-                  result.missing_keywords.map((kw, i) => (
-                    <span key={i} className="badge badge-rose" style={{ padding: '0.35rem 0.6rem', fontSize: '0.8rem', fontWeight: 600 }}>
+              <div className="flex flex-wrap gap-1.5">
+                {results.atsMatch.missing_keywords?.length > 0 ? (
+                  results.atsMatch.missing_keywords.map((kw, i) => (
+                    <span key={i} className="inline-flex items-center gap-1.5 py-1 px-3 rounded-full text-xs font-semibold leading-normal border-none bg-accent-rose/8 text-[#e11d48]">
+                      <span className="w-1.5 h-1.5 rounded-full bg-current" />
                       {kw}
                     </span>
                   ))
                 ) : (
-                  <span style={{ fontSize: '0.85rem', color: 'var(--accent-emerald)', fontWeight: 600 }}>No missing target keywords found! Excellent density.</span>
+                  <span className="text-[0.85rem] text-accent-emerald font-semibold font-body">No missing target keywords found! Excellent density.</span>
                 )}
               </div>
             </div>
           </div>
 
-          {/* Recommendations List */}
-          {result.improvements?.length > 0 && (
-            <div style={{ 
-              marginTop: '0.5rem', 
-              background: '#f8fafc', 
-              border: '1px solid var(--border-color)', 
-              borderRadius: 'var(--radius-md)', 
-              padding: '1rem' 
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.65rem', color: 'var(--accent-blue)' }}>
-                <Lightbulb size={18} />
-                <strong style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--text-primary)' }}>Actionable Recommendations</strong>
+          {/* Profile Summary List */}
+          {results.atsMatch.profile_summary && (
+            <div className="mt-2 bg-[#f8fafc] border border-border-color rounded-md p-4">
+              <div className="flex items-center gap-1.5 mb-2.5 text-accent-blue font-bold text-[0.95rem] font-heading">
+                <Sparkles size={18} />
+                <strong className="text-text-primary">ATS Profile Summary</strong>
               </div>
-              <ul style={{ listStyleType: 'none', display: 'flex', flexDirection: 'column', gap: '0.5rem', paddingLeft: 0 }}>
-                {result.improvements.map((imp, i) => (
-                  <li key={i} style={{ 
-                    fontSize: '0.85rem', 
-                    color: 'var(--text-secondary)',
-                    lineHeight: 1.45,
-                    display: 'flex',
-                    alignItems: 'flex-start',
-                    gap: '0.4rem'
-                  }}>
-                    <span style={{ color: 'var(--accent-blue)', fontWeight: 700 }}>•</span>
-                    <span>{imp}</span>
-                  </li>
-                ))}
-              </ul>
+              <p className="text-sm text-text-secondary leading-relaxed m-0">
+                {results.atsMatch.profile_summary}
+              </p>
             </div>
           )}
         </div>
       )}
 
-      {showBreakdownModal && (
-        <div className="modal-overlay" onClick={() => setShowBreakdownModal(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '600px', width: '90%' }}>
-            <div className="modal-header">
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-                <Sparkles color="var(--accent-blue)" size={22} />
-                <h2 style={{ fontSize: '1.2rem', fontWeight: 700 }}>ATS Match Details Breakdown</h2>
+      {/* Result Panel - HR Evaluation */}
+      {activeMode === 'professionalEvaluation' && results.professionalEvaluation && (
+        <div className="section-card p-6 md:p-8 flex flex-col gap-5 font-body">
+          
+          {/* Header Score Display */}
+          <div className="flex items-center gap-6 border-b border-border-color pb-5 flex-wrap">
+            {/* Circular score visualizer */}
+            <div 
+              className="w-20 h-20 rounded-full border-[6px] flex items-center justify-center text-2xl font-extrabold bg-[#f8fafc]"
+              style={{ borderColor: getScoreColor(results.professionalEvaluation.alignment_score), color: getScoreColor(results.professionalEvaluation.alignment_score) }}
+            >
+              {results.professionalEvaluation.alignment_score}%
+            </div>
+            
+            <div className="flex-1 min-w-[200px]">
+              <h4 className="text-xl font-extrabold font-heading text-text-primary">
+                HR Alignment Review
+              </h4>
+              <p className="text-[0.85rem] text-text-secondary mt-1">
+                {results.professionalEvaluation.alignment_score >= 80 
+                  ? 'Strong alignment! Your professional background closely fits this technical role.'
+                  : results.professionalEvaluation.alignment_score >= 50
+                  ? 'Moderate alignment, some experience gaps or missing details to address.'
+                  : 'Weak alignment, significant skill or role level disconnect.'}
+              </p>
+            </div>
+          </div>
+
+          {/* Breakdown Sections */}
+          <div className="grid grid-cols-2 max-[768px]:grid-cols-1 gap-5">
+            
+            {/* Strengths */}
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center gap-1.5 text-accent-emerald font-heading">
+                <CheckCircle2 size={18} />
+                <strong className="text-[0.95rem] font-bold text-text-primary">Key Strengths</strong>
               </div>
-              <button className="modal-close-btn" onClick={() => setShowBreakdownModal(false)}>
+              <ul className="list-none flex flex-col gap-2 pl-0">
+                {results.professionalEvaluation.strengths?.map((strength, i) => (
+                  <li key={i} className="flex items-start gap-1.5 text-sm text-text-secondary font-body">
+                    <span className="text-accent-emerald font-bold">✓</span>
+                    <span>{strength}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Weaknesses */}
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center gap-1.5 text-accent-rose font-heading">
+                <AlertTriangle size={18} />
+                <strong className="text-[0.95rem] font-bold text-text-primary">Alignment Gaps / Weaknesses</strong>
+              </div>
+              <ul className="list-none flex flex-col gap-2 pl-0">
+                {results.professionalEvaluation.weaknesses?.map((weakness, i) => (
+                  <li key={i} className="flex items-start gap-1.5 text-sm text-text-secondary font-body">
+                    <span className="text-accent-rose font-bold">⚠</span>
+                    <span>{weakness}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          {/* HR Evaluation Summary */}
+          {results.professionalEvaluation.evaluation_summary && (
+            <div className="mt-2 bg-[#f8fafc] border border-border-color rounded-md p-4">
+              <div className="flex items-center gap-1.5 mb-2.5 text-accent-blue font-bold text-[0.95rem] font-heading">
+                <FileText size={18} />
+                <strong className="text-text-primary">Professional HR Statement</strong>
+              </div>
+              <p className="text-sm text-text-secondary leading-relaxed m-0 italic">
+                "{results.professionalEvaluation.evaluation_summary}"
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Result Panel - Skills Improvement */}
+      {activeMode === 'skillsImprovement' && results.skillsImprovement && (
+        <div className="section-card p-6 md:p-8 flex flex-col gap-5 font-body">
+          
+          <div className="grid grid-cols-2 max-[768px]:grid-cols-1 gap-5">
+            {/* Priority Skills to Add */}
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center gap-1.5 text-accent-blue font-heading">
+                <Sparkles size={18} />
+                <strong className="text-[0.95rem] font-bold text-text-primary">Priority Skills to Add</strong>
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {results.skillsImprovement.priority_skills_to_add?.length > 0 ? (
+                  results.skillsImprovement.priority_skills_to_add.map((skill, i) => (
+                    <span key={i} className="inline-flex items-center gap-1.5 py-1 px-3 rounded-full text-xs font-semibold leading-normal border border-accent-blue/15 bg-accent-blue/8 text-accent-blue font-body">
+                      <span className="w-1.5 h-1.5 rounded-full bg-current" />
+                      {skill}
+                    </span>
+                  ))
+                ) : (
+                  <span className="text-[0.85rem] text-text-muted font-body">No high-priority missing skills detected.</span>
+                )}
+              </div>
+            </div>
+
+            {/* Certifications Recommendations */}
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center gap-1.5 text-accent-blue font-heading">
+                <Award size={18} />
+                <strong className="text-[0.95rem] font-bold text-text-primary">Recommended Certifications / Training</strong>
+              </div>
+              <ul className="list-none flex flex-col gap-2 pl-0">
+                {results.skillsImprovement.certifications_recommendations?.map((cert, i) => (
+                  <li key={i} className="flex items-center gap-1.5 text-sm text-text-secondary font-body">
+                    <span className="text-accent-blue font-bold">•</span>
+                    <span>{cert}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          {/* Bullet Point Improvements */}
+          {results.skillsImprovement.bullet_point_improvements?.length > 0 && (
+            <div className="mt-2 bg-[#f8fafc] border border-border-color rounded-md p-5 flex flex-col gap-3">
+              <div className="flex items-center gap-1.5 text-accent-amber font-heading mb-1">
+                <Lightbulb size={18} />
+                <strong className="text-[0.95rem] font-bold text-text-primary">Suggested Resume Bullet Point Refinements</strong>
+              </div>
+              <div className="flex flex-col gap-4">
+                {results.skillsImprovement.bullet_point_improvements.map((item, i) => (
+                  <div key={i} className={`grid grid-cols-2 max-[600px]:grid-cols-1 gap-4 ${
+                    i < results.skillsImprovement.bullet_point_improvements.length - 1 ? 'border-b border-border-color pb-4' : ''
+                  }`}>
+                    <div className="bg-[#fffbeb] border border-[#fef3c7] p-3 rounded-sm">
+                      <div className="text-[0.725rem] font-bold text-accent-amber mb-1">ORIGINAL CONCEPT:</div>
+                      <div className="text-sm text-text-secondary leading-relaxed italic">"{item.original}"</div>
+                    </div>
+                    <div className="bg-[#ecfdf5] border border-[#d1fae5] p-3 rounded-sm">
+                      <div className="text-[0.725rem] font-bold text-accent-emerald mb-1">ATS-OPTIMIZED REWRITE:</div>
+                      <div className="text-sm text-text-secondary leading-relaxed font-medium">"{item.improved}"</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* General Coach Advice */}
+          {results.skillsImprovement.general_advice && (
+            <div className="mt-2 bg-[#f8fafc] border border-border-color rounded-md p-4">
+              <div className="flex items-center gap-1.5 mb-2.5 text-accent-blue font-bold text-[0.95rem] font-heading">
+                <BookOpen size={18} />
+                <strong className="text-text-primary">Career Coaching Advice</strong>
+              </div>
+              <p className="text-sm text-text-secondary leading-relaxed m-0">
+                {results.skillsImprovement.general_advice}
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {showBreakdownModal && results.atsMatch && (
+        <div className="fixed inset-0 bg-[#0f172a]/40 backdrop-blur-[4px] z-[100] flex items-center justify-center p-5" onClick={() => setShowBreakdownModal(false)}>
+          <div className="bg-bg-card border border-border-color rounded-xl w-full max-h-[90vh] overflow-y-auto p-6 shadow-2xl flex flex-col gap-4.5 max-w-[600px] w-90%" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <Sparkles color="var(--accent-blue)" size={22} />
+                <h2 className="text-[1.2rem] font-bold text-text-primary font-heading">ATS Match Details Breakdown</h2>
+              </div>
+              <button className="bg-transparent border-none text-text-secondary cursor-pointer p-1.5 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-sm hover:bg-[#f1f5f9] hover:text-text-primary" onClick={() => setShowBreakdownModal(false)}>
                 <X size={18} />
               </button>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', marginTop: '0.5rem' }}>
+            <div className="flex flex-col gap-5 mt-2 font-body">
               {/* Score summary */}
-              <div style={{
-                background: '#f8fafc',
-                border: '1px solid var(--border-color)',
-                borderRadius: 'var(--radius-md)',
-                padding: '1rem',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between'
-              }}>
+              <div className="bg-[#f8fafc] border border-border-color rounded-md p-4 flex items-center justify-between">
                 <div>
-                  <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Overall Match Quality</div>
-                  <div style={{ fontSize: '1.1rem', fontWeight: 800, color: getScoreColor(result.match_percentage) }}>
-                    {result.match_percentage >= 80 
+                  <div className="text-xs text-text-secondary font-semibold">Overall Match Quality</div>
+                  <div className="text-[1.1rem] font-extrabold" style={{ color: getScoreColor(results.atsMatch.match_percentage) }}>
+                    {results.atsMatch.match_percentage >= 80 
                       ? 'High Match (Good to Go!)'
-                      : result.match_percentage >= 50
+                      : results.atsMatch.match_percentage >= 50
                       ? 'Moderate Match (Needs Tweaks)'
                       : 'Low Match (Needs Focus)'}
                   </div>
                 </div>
-                <div style={{
-                  fontSize: '2rem',
-                  fontWeight: 900,
-                  color: getScoreColor(result.match_percentage)
-                }}>
-                  {result.match_percentage}%
+                <div className="text-[2rem] font-black" style={{ color: getScoreColor(results.atsMatch.match_percentage) }}>
+                  {results.atsMatch.match_percentage}%
                 </div>
               </div>
 
               {/* Flex columns for matching and unmatched points */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+              <div className="flex flex-col gap-5">
                 {/* Matching Points */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--accent-emerald)' }}>
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center gap-1.5 text-accent-emerald">
                     <CheckCircle2 size={18} />
-                    <strong style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--text-primary)' }}>Matched Points ({result.matching_skills?.length || 0})</strong>
+                    <strong className="text-[0.95rem] font-bold text-text-primary font-heading">Matched Points ({results.atsMatch.matching_skills?.length || 0})</strong>
                   </div>
-                  <p style={{ fontSize: '0.775rem', color: 'var(--text-secondary)' }}>
+                  <p className="text-xs text-text-secondary">
                     These skills or keywords are successfully aligned between your resume and the job description:
                   </p>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem', background: '#fafdfb', border: '1px solid #e6f6ec', borderRadius: 'var(--radius-md)', padding: '0.75rem' }}>
-                    {result.matching_skills?.length > 0 ? (
-                      result.matching_skills.map((skill, i) => (
-                        <span key={i} className="badge badge-emerald" style={{ padding: '0.35rem 0.6rem', fontSize: '0.8rem', fontWeight: 600 }}>
+                  <div className="flex flex-wrap gap-1.5 bg-[#fafdfb] border border-[#e6f6ec] rounded-md p-3">
+                    {results.atsMatch.matching_skills?.length > 0 ? (
+                      results.atsMatch.matching_skills.map((skill, i) => (
+                        <span key={i} className="inline-flex items-center gap-1.5 py-1 px-3 rounded-full text-xs font-semibold leading-normal border-none bg-accent-emerald/8 text-accent-emerald">
+                          <span className="w-1.5 h-1.5 rounded-full bg-current" />
                           {skill}
                         </span>
                       ))
                     ) : (
-                      <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>No matching keywords identified.</span>
+                      <span className="text-[0.85rem] text-text-muted">No matching keywords identified.</span>
                     )}
                   </div>
                 </div>
 
                 {/* Unmatched / Missing Points */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--accent-rose)' }}>
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center gap-1.5 text-accent-rose">
                     <AlertTriangle size={18} />
-                    <strong style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--text-primary)' }}>Unmatched Points ({result.missing_keywords?.length || 0})</strong>
+                    <strong className="text-[0.95rem] font-bold text-text-primary font-heading">Unmatched Points ({results.atsMatch.missing_keywords?.length || 0})</strong>
                   </div>
-                  <p style={{ fontSize: '0.775rem', color: 'var(--text-secondary)' }}>
+                  <p className="text-xs text-text-secondary">
                     These are key requirements from the job description that were not found in your resume:
                   </p>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem', background: '#fffbfa', border: '1px solid #fdeee9', borderRadius: 'var(--radius-md)', padding: '0.75rem' }}>
-                    {result.missing_keywords?.length > 0 ? (
-                      result.missing_keywords.map((kw, i) => (
-                        <span key={i} className="badge badge-rose" style={{ padding: '0.35rem 0.6rem', fontSize: '0.8rem', fontWeight: 600 }}>
+                  <div className="flex flex-wrap gap-1.5 bg-[#fffbfa] border border-[#fdeee9] rounded-md p-3">
+                    {results.atsMatch.missing_keywords?.length > 0 ? (
+                      results.atsMatch.missing_keywords.map((kw, i) => (
+                        <span key={i} className="inline-flex items-center gap-1.5 py-1 px-3 rounded-full text-xs font-semibold leading-normal border-none bg-accent-rose/8 text-[#e11d48]">
+                          <span className="w-1.5 h-1.5 rounded-full bg-current" />
                           {kw}
                         </span>
                       ))
                     ) : (
-                      <span style={{ fontSize: '0.85rem', color: 'var(--accent-emerald)', fontWeight: 600 }}>No missing target keywords found! Excellent density.</span>
+                      <span className="text-[0.85rem] text-accent-emerald font-semibold">No missing target keywords found! Excellent density.</span>
                     )}
                   </div>
                 </div>
               </div>
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1.25rem', borderTop: '1px solid var(--border-color)', paddingTop: '0.75rem' }}>
-              <button className="btn btn-secondary" onClick={() => setShowBreakdownModal(false)}>Close Breakdown</button>
+            <div className="flex justify-end mt-5 border-t border-border-color pt-3">
+              <button className="inline-flex items-center justify-center gap-1.5 font-body font-semibold text-base min-h-[44px] px-5 py-2.5 rounded-md border border-border-color bg-bg-card text-text-primary hover:bg-bg-elevated cursor-pointer transition-all duration-150 active:opacity-85" onClick={() => setShowBreakdownModal(false)}>Close Breakdown</button>
             </div>
           </div>
         </div>

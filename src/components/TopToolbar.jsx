@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTracker } from '../context/TrackerContext';
-import { Share2, Sparkles, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Share2, Sparkles, ChevronLeft, ChevronRight, CalendarDays } from 'lucide-react';
 import DatePickerPopover from './DatePickerPopover';
 
 export default function TopToolbar({ viewTitle, viewSubtitle, onOpenBrainDump, onOpenAccountability }) {
@@ -33,74 +33,102 @@ export default function TopToolbar({ viewTitle, viewSubtitle, onOpenBrainDump, o
   };
 
   return (
-    <div className="top-toolbar">
+    <div
+      style={{
+        background: 'var(--bg-card)',
+        border: '1px solid var(--border)',
+        borderRadius: 'var(--radius-lg)',
+        boxShadow: 'var(--shadow-sm)',
+      }}
+      className="flex flex-wrap items-center justify-between gap-4 px-5 py-3.5 w-full"
+    >
+      {/* Title block */}
       <div>
-        <h1 style={{ fontSize: '1.75rem', fontWeight: 800, lineHeight: 1.2, letterSpacing: '-0.02em', color: 'var(--text-primary)' }}>{viewTitle}</h1>
-        <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginTop: '0.2rem' }}>{viewSubtitle}</p>
+        <h1
+          style={{ color: 'var(--text-primary)' }}
+          className="text-base font-semibold tracking-tight leading-tight"
+        >
+          {viewTitle}
+        </h1>
+        <p style={{ color: 'var(--text-muted)' }} className="mt-1 text-xs">
+          {viewSubtitle}
+        </p>
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
-        {/* Date Navigator Block */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
-          <label style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Select Date</label>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-            
-            {/* Prev button */}
-            <button
-              type="button"
-              className="btn btn-secondary btn-sm"
-              onClick={handlePrevDay}
-              style={{ padding: '0.4rem 0.5rem', minWidth: '32px', minHeight: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-              title="Previous Day"
-            >
-              <ChevronLeft size={14} />
-            </button>
+      {/* Actions */}
+      <div className="flex flex-wrap items-center gap-3">
 
-            {/* Custom Calendar Popover */}
+        {/* Date navigator */}
+        <div
+          style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)' }}
+          className="flex items-center gap-0 overflow-hidden h-10 min-h-[40px]"
+        >
+          <button
+            type="button"
+            onClick={handlePrevDay}
+            title="Previous Day"
+            style={{ color: 'var(--text-secondary)' }}
+            className="inline-flex items-center justify-center w-10 h-10 cursor-pointer border-none bg-transparent transition-colors hover:!text-[var(--text-primary)] hover:bg-[var(--bg-elevated)]"
+          >
+            <ChevronLeft size={15} />
+          </button>
+
+          <div
+            style={{ borderLeft: '1px solid var(--border)', borderRight: '1px solid var(--border)' }}
+            className="flex items-center gap-2 px-3 h-full"
+          >
+            <CalendarDays size={13} style={{ color: 'var(--text-muted)' }} />
             <DatePickerPopover selectedDate={selectedDate} setSelectedDate={setSelectedDate} />
-
-            {/* Next button */}
-            <button
-              type="button"
-              className="btn btn-secondary btn-sm"
-              onClick={handleNextDay}
-              style={{ padding: '0.4rem 0.5rem', minWidth: '32px', minHeight: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-              title="Next Day"
-            >
-              <ChevronRight size={14} />
-            </button>
-
-            {/* All toggle button */}
-            <button
-              type="button"
-              className={`btn btn-sm ${selectedDate === 'ALL' ? 'btn-primary' : 'btn-secondary'}`}
-              onClick={handleSetAll}
-              style={{ padding: '0.4rem 0.65rem', minHeight: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700 }}
-              title="Toggle All Dates"
-            >
-              All
-            </button>
-
           </div>
-        </div>
 
-        {/* Unified Sorter Button */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
-          <label style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Daily Activity Sorter</label>
-          <button className="btn btn-secondary" onClick={onOpenBrainDump} style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-            <Sparkles size={15} color="var(--accent-purple)" />
-            <span>Import Voice/Text/Photo</span>
+          <button
+            type="button"
+            onClick={handleNextDay}
+            title="Next Day"
+            style={{ color: 'var(--text-secondary)' }}
+            className="inline-flex items-center justify-center w-10 h-10 cursor-pointer border-none bg-transparent transition-colors hover:!text-[var(--text-primary)]"
+          >
+            <ChevronRight size={15} />
+          </button>
+
+          <button
+            type="button"
+            onClick={handleSetAll}
+            title="Toggle All Dates"
+            style={selectedDate === 'ALL'
+              ? { background: '#3b82f6', color: '#fff', borderLeft: '1px solid var(--border)' }
+              : { background: 'transparent', color: 'var(--text-secondary)', borderLeft: '1px solid var(--border)' }
+            }
+            className="inline-flex items-center justify-center px-3.5 h-10 text-xs font-semibold cursor-pointer border-none transition-colors hover:!text-[var(--text-primary)]"
+          >
+            All
           </button>
         </div>
 
-        {/* Accountability Update Action Button */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
-          <label style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Share Summary</label>
-          <button className="btn btn-emerald" onClick={onOpenAccountability}>
-            <Share2 size={15} />
-            <span>Accountability Update</span>
-          </button>
-        </div>
+        {/* Brain dump / activity sorter */}
+        <button
+          onClick={onOpenBrainDump}
+          style={{
+            background: 'transparent',
+            border: '1px solid var(--border)',
+            color: 'var(--text-primary)',
+            borderRadius: 'var(--radius-md)',
+          }}
+          className="btn btn-sm btn-ghost gap-2 min-h-[40px] px-4"
+        >
+          <Sparkles size={14} color="#8b5cf6" />
+          <span>Import Activity</span>
+        </button>
+
+        {/* Accountability share */}
+        <button
+          onClick={onOpenAccountability}
+          className="btn btn-sm btn-success min-h-[40px] px-4 gap-2"
+        >
+          <Share2 size={14} />
+          <span>Share Update</span>
+        </button>
+
       </div>
     </div>
   );

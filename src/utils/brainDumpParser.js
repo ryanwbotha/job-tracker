@@ -76,6 +76,12 @@ export function parseBrainDumpText(rawText) {
         kindOfContact = 'Referral Reachout';
       } else if (lower.includes('linkedin') || linkedinUrl) {
         kindOfContact = 'LinkedIn Message';
+      } else if (lower.includes('friend') || lower.includes('family')) {
+        kindOfContact = 'Friend/Family';
+      } else if (lower.includes('coworker') || lower.includes('colleague') || lower.includes('ex-worker')) {
+        kindOfContact = 'Former Coworker';
+      } else if (lower.includes('group') || lower.includes('association') || lower.includes('networking group')) {
+        kindOfContact = 'Networking Group';
       }
 
       // Infer name
@@ -108,6 +114,8 @@ export function parseBrainDumpText(rawText) {
         category = 'Industry Publication';
       } else if (lower.includes('employer') || lower.includes('careers')) {
         category = 'Target Employer';
+      } else if (lower.includes('job board') || lower.includes('board')) {
+        category = 'Job Board';
       }
 
       parsedResources.push({
