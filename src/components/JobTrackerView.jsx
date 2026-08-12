@@ -34,52 +34,9 @@ const INPUT_FIELD = "w-full rounded-lg border border-border-color bg-bg-input px
 const BADGE_BASE = "inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-medium";
 const CLOSE_BTN = "inline-flex items-center justify-center rounded-full p-1.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-300 cursor-pointer border-none bg-transparent";
 
-// Heuristic word-overlap matching algorithm for local resume match calculation
-function calculateLocalMatch(resumeText, job) {
-  if (!resumeText || !job) return 0;
-  
-  const resume = resumeText.toLowerCase();
-  const jobTitle = (job.role || '').toLowerCase();
-  const jobNotes = (job.notesText || '').toLowerCase();
-  const jobCompany = (job.company || '').toLowerCase();
-  
-  const cleanWords = (text) => {
-    const words = text.match(/\b[a-z0-9+#.-]{3,25}\b/g) || [];
-    const stopWords = new Set([
-      'the', 'and', 'for', 'you', 'this', 'that', 'with', 'from', 'have', 'are', 'your', 'will', 'our', 'their', 'about',
-      'some', 'than', 'them', 'then', 'into', 'only', 'over', 'other', 'been', 'were', 'also', 'more', 'work', 'team',
-      'role', 'job', 'application', 'status', 'with', 'from', 'when', 'who', 'how', 'why', 'what', 'which', 'where',
-      'has', 'had', 'have', 'having', 'should', 'could', 'would', 'must', 'will', 'shall'
-    ]);
-    return words.filter(w => !stopWords.has(w));
-  };
-  
-  const resumeWordSet = new Set(cleanWords(resume));
-  const jobWordSet = new Set(cleanWords(`${jobTitle} ${jobNotes} ${jobCompany}`));
-  
-  if (jobWordSet.size === 0) return 0;
-  
-  let matches = 0;
-  jobWordSet.forEach(word => {
-    if (resumeWordSet.has(word)) {
-      matches++;
-    }
-  });
-  
-  let matchPercentage = Math.round((matches / jobWordSet.size) * 100);
-  
-  const titleWords = cleanWords(jobTitle);
-  let titleMatchCount = 0;
-  titleWords.forEach(word => {
-    if (resumeWordSet.has(word)) titleMatchCount++;
-  });
-  if (titleWords.length > 0 && titleMatchCount > 0) {
-    matchPercentage += Math.round((titleMatchCount / titleWords.length) * 15);
-  }
-  
-  if (matches === 0) return 0;
-  return Math.min(98, Math.max(15, matchPercentage));
-}
+
+
+
 
 function getMatchBadgeClass(score) {
   if (score >= 80) return `${BADGE_BASE} bg-accent-emerald/8 text-accent-emerald`;
@@ -122,74 +79,6 @@ export function checkLinkStatus(url) {
   return 'valid';
 }
 
-function getLocalMatchBreakdown(resumeText, job) {
-  if (!resumeText || !job) {
-    return {
-      score: 0,
-      matchingWords: [],
-      missingWords: []
-    };
-  }
-
-  const resume = resumeText.toLowerCase();
-  const jobTitle = (job.role || '').toLowerCase();
-  const jobNotes = (job.notesText || '').toLowerCase();
-  const jobCompany = (job.company || '').toLowerCase();
-  
-  const cleanWords = (text) => {
-    const words = text.match(/\b[a-z0-9+#.-]{3,25}\b/g) || [];
-    const stopWords = new Set([
-      'the', 'and', 'for', 'you', 'this', 'that', 'with', 'from', 'have', 'are', 'your', 'will', 'our', 'their', 'about',
-      'some', 'than', 'them', 'then', 'into', 'only', 'over', 'other', 'been', 'were', 'also', 'more', 'work', 'team',
-      'role', 'job', 'application', 'status', 'with', 'from', 'when', 'who', 'how', 'why', 'what', 'which', 'where',
-      'has', 'had', 'have', 'having', 'should', 'could', 'would', 'must', 'will', 'shall'
-    ]);
-    return words.filter(w => !stopWords.has(w));
-  };
-  
-  const resumeWordSet = new Set(cleanWords(resume));
-  const jobWords = cleanWords(`${jobTitle} ${jobNotes} ${jobCompany}`);
-  const jobWordSet = new Set(jobWords);
-  
-  if (jobWordSet.size === 0) {
-    return {
-      score: 0,
-      matchingWords: [],
-      missingWords: []
-    };
-  }
-  
-  const matchingWords = [];
-  const missingWords = [];
-  
-  jobWordSet.forEach(word => {
-    if (resumeWordSet.has(word)) {
-      matchingWords.push(word);
-    } else {
-      missingWords.push(word);
-    }
-  });
-  
-  let matches = matchingWords.length;
-  let matchPercentage = Math.round((matches / jobWordSet.size) * 100);
-  
-  const titleWords = cleanWords(jobTitle);
-  let titleMatchCount = 0;
-  titleWords.forEach(word => {
-    if (resumeWordSet.has(word)) titleMatchCount++;
-  });
-  if (titleWords.length > 0 && titleMatchCount > 0) {
-    matchPercentage += Math.round((titleMatchCount / titleWords.length) * 15);
-  }
-  
-  const score = matches === 0 ? 0 : Math.min(98, Math.max(15, matchPercentage));
-  
-  return {
-    score,
-    matchingWords,
-    missingWords
-  };
-}
 
 export default function JobTrackerView({ setActiveView }) {
   const { allResources, addResource, deleteResource, updateResource, allContacts, addContact } = useTracker();
@@ -222,6 +111,74 @@ export default function JobTrackerView({ setActiveView }) {
   const [newContactName, setNewContactName] = useState('');
   const [newContactLinkedin, setNewContactLinkedin] = useState('');
   const [isPullingDesc, setIsPullingDesc] = useState(false);
+
+  const [isRunningMatchId, setIsRunningMatchId] = useState(null);
+  
+  const runAtsMatch = async (jobId, jobObj, silent = false) => {
+    if (!resumeText.trim() || !(jobObj.notesText || '').trim()) return;
+    
+    let apiKey = localStorage.getItem('GEMINI_API_KEY');
+    if (!apiKey) {
+      apiKey = localStorage.getItem('ats_gemini_api_key') || localStorage.getItem('gemini_api_key') || '';
+    }
+    if (!apiKey) {
+      if (!silent) alert('Please set your Gemini API key in the ATS Matcher tab first.');
+      return;
+    }
+
+    setIsRunningMatchId(jobId);
+    try {
+      const prompt = `You are a skilled and very experienced ATS (Application Tracking System) parser and optimizer. Evaluate this resume against the job description.
+Return a JSON response matching this structure exactly:
+{
+  "match_percentage": <number between 0 and 100>,
+  "matching_skills": [<list of technical skills present in both>],
+  "missing_keywords": [<list of important technical skills/keywords from job description missing in resume>],
+  "profile_summary": "<brief professional analysis in 3-4 sentences>"
+}
+
+Resume:
+${resumeText}
+
+Job Description:
+${jobObj.notesText}`;
+
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey.trim()}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: { responseMimeType: 'application/json' }
+          })
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error?.message || `API error (${response.status})`);
+      }
+      
+      const data = await response.json();
+      const textResponse = data.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (textResponse) {
+        let cleanJson = textResponse.trim();
+        if (cleanJson.startsWith('```')) {
+          cleanJson = cleanJson.replace(/^```(?:json)?\s*/i, '').replace(/```$/, '').trim();
+        }
+        const parsed = JSON.parse(cleanJson);
+        updateResource(jobId, { atsMatch: parsed });
+        if (!silent) alert('ATS Match completed successfully!');
+      }
+    } catch (err) {
+      console.error(err);
+      if (!silent) alert('Failed to run ATS Match: ' + err.message);
+    } finally {
+      setIsRunningMatchId(null);
+    }
+  };
+
 
   const pullJobDescription = async (jobId, jobUrl, silent = false) => {
     if (!jobUrl) return;
@@ -1035,7 +992,7 @@ Product Designer - metacareers.com/jobs/1397212694826926"
           {filteredJobs.map(job => {
             const linkedContacts = (allContacts || []).filter(c => (job.linkedContactIds || []).includes(c.id));
             const availableContacts = (allContacts || []).filter(c => !(job.linkedContactIds || []).includes(c.id));
-            const matchScore = calculateLocalMatch(resumeText, job);
+            const atsMatch = job.atsMatch;
             
             // Stepper variables
             const steps = ['Wishlist', 'Applied', 'Interviewing', job.status === 'Rejected' ? 'Rejected' : 'Offer'];
@@ -1098,10 +1055,17 @@ Product Designer - metacareers.com/jobs/1397212694826926"
                     </span>
                   )}
                   {hasMasterResume && !!(job.notesText || '').trim() && (
-                    <span className={`${getMatchBadgeClass(matchScore)} text-[0.65rem] inline-flex items-center gap-1`}>
-                      <Sparkles size={8} />
-                      <span>Match: {matchScore}%</span>
-                    </span>
+                    atsMatch ? (
+                      <span className={`${getMatchBadgeClass(atsMatch.match_percentage)} text-[0.65rem] inline-flex items-center gap-1`}>
+                        <Sparkles size={8} />
+                        <span>Match: {atsMatch.match_percentage}%</span>
+                      </span>
+                    ) : (
+                      <span className={`${BADGE_BASE} bg-slate-100 text-slate-500 text-[0.65rem] inline-flex items-center gap-1`}>
+                        <Sparkles size={8} />
+                        <span>Not Scored</span>
+                      </span>
+                    )
                   )}
                   <span className={`${getStatusColorClass(job.status || 'Wishlist')} text-[0.65rem]`}>
                     {job.status || 'Wishlist'}
@@ -1125,7 +1089,7 @@ Product Designer - metacareers.com/jobs/1397212694826926"
         /* List View */
         <div className="flex flex-col gap-3">
           {filteredJobs.map(job => {
-            const matchScore = calculateLocalMatch(resumeText, job);
+            const atsMatch = job.atsMatch;
             const isSelected = selectedJobs.includes(job.id);
             const isActiveJob = selectedDescriptionJob && selectedDescriptionJob.id === job.id;
 
@@ -1217,7 +1181,7 @@ Product Designer - metacareers.com/jobs/1397212694826926"
         const activeJob = jobApplications.find(j => j.id === selectedDescriptionJob.id);
         if (!activeJob) return null;
 
-        const matchScore = calculateLocalMatch(resumeText, activeJob);
+        const atsMatch = activeJob.atsMatch;
         const linkedContacts = (allContacts || []).filter(c => (activeJob.linkedContactIds || []).includes(c.id));
         const availableContacts = (allContacts || []).filter(c => !(activeJob.linkedContactIds || []).includes(c.id));
         const steps = ['Wishlist', 'Applied', 'Interviewing', activeJob.status === 'Rejected' ? 'Rejected' : 'Offer'];
@@ -1419,32 +1383,60 @@ Product Designer - metacareers.com/jobs/1397212694826926"
                     ATS Resume Match Quality
                   </label>
                   <div className="flex items-center justify-between p-3.5 border border-border-color rounded-md bg-bg-elevated">
-                    <div className="flex items-center gap-2.5">
-                      <div 
-                        className="w-9 h-9 rounded-full border-[3px] flex items-center justify-center font-extrabold text-[0.85rem]"
-                        style={{
-                          borderColor: getScoreColor(matchScore),
-                          color: getScoreColor(matchScore)
-                        }}
-                      >
-                        {matchScore}%
-                      </div>
-                      <div>
-                        <div className="text-[0.8rem] font-bold">Keyword Overlap</div>
-                        <div className="text-[0.7rem] text-text-secondary">
-                          {matchScore}% matched with master resume
+                    {atsMatch ? (
+                      <>
+                        <div className="flex items-center gap-2.5">
+                          <div 
+                            className="w-9 h-9 rounded-full border-[3px] flex items-center justify-center font-extrabold text-[0.85rem]"
+                            style={{
+                              borderColor: getScoreColor(atsMatch.match_percentage),
+                              color: getScoreColor(atsMatch.match_percentage)
+                            }}
+                          >
+                            {atsMatch.match_percentage}%
+                          </div>
+                          <div>
+                            <div className="text-[0.8rem] font-bold">ATS Match Score</div>
+                            <div className="text-[0.7rem] text-text-secondary">
+                              Evaluated with Gemini AI
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                    </div>
-                    <button 
-                      className={`${BTN_SM_SECONDARY} min-h-[28px] p-[0.15rem_0.45rem] text-[0.725rem]`}
-                      onClick={() => {
-                        setSelectedDescriptionJob(null);
-                        setActiveBreakdownJob(activeJob);
-                      }}
-                    >
-                      Breakdown
-                    </button>
+                        <button 
+                          className={`${BTN_SM_SECONDARY} min-h-[28px] p-[0.15rem_0.45rem] text-[0.725rem]`}
+                          onClick={() => {
+                            setSelectedDescriptionJob(null);
+                            setActiveBreakdownJob(activeJob);
+                          }}
+                        >
+                          Breakdown
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-9 h-9 rounded-full border-[3px] border-slate-200 flex items-center justify-center text-slate-400">
+                            <Sparkles size={14} />
+                          </div>
+                          <div>
+                            <div className="text-[0.8rem] font-bold">ATS Match Score</div>
+                            <div className="text-[0.7rem] text-text-secondary">
+                              Not evaluated yet
+                            </div>
+                          </div>
+                        </div>
+                        <button 
+                          className={`${BTN_SM_EMERALD} min-h-[28px] p-[0.15rem_0.45rem] text-[0.725rem]`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            runAtsMatch(activeJob.id, activeJob);
+                          }}
+                          disabled={isRunningMatchId === activeJob.id}
+                        >
+                          {isRunningMatchId === activeJob.id ? 'Running...' : 'Run Match'}
+                        </button>
+                      </>
+                    )}
                   </div>
                 </div>
               )}
@@ -1696,14 +1688,14 @@ Product Designer - metacareers.com/jobs/1397212694826926"
       </div>
 
       {activeBreakdownJob && (() => {
-        const breakdown = getLocalMatchBreakdown(resumeText, activeBreakdownJob);
+        const breakdown = activeBreakdownJob.atsMatch;
         return (
           <div className="fixed inset-0 bg-[#0f172a]/40 backdrop-blur-[4px] z-[100] flex items-center justify-center p-5 animate-fadeIn" onClick={() => setActiveBreakdownJob(null)}>
             <div className="bg-bg-card border border-border-color rounded-xl w-full max-w-[600px] max-h-[90vh] overflow-y-auto p-6 shadow-[0_20px_25px_-5px_rgba(0,0,0,0.1),0_10px_10px_-5px_rgba(0,0,0,0.04)] flex flex-col gap-4.5 animate-fadeIn" onClick={(e) => e.stopPropagation()}>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
                   <Sparkles color="var(--accent-blue)" size={22} />
-                  <h2 className="text-[1.2rem] font-bold text-text-primary">Keyword Match Breakdown</h2>
+                  <h2 className="text-[1.2rem] font-bold text-text-primary">ATS Match Breakdown</h2>
                 </div>
                 <button className={CLOSE_BTN} onClick={() => setActiveBreakdownJob(null)}>
                   <X size={18} />
@@ -1716,73 +1708,87 @@ Product Designer - metacareers.com/jobs/1397212694826926"
                   <div className="text-[0.9rem] text-text-secondary">{activeBreakdownJob.role}</div>
                 </div>
 
-                {/* Score summary */}
-                <div className="bg-slate-50 border border-border-color rounded-md p-4 flex items-center justify-between">
-                  <div>
-                    <div className="text-[0.8rem] text-text-secondary font-semibold">Local Keyword Match</div>
-                    <div className="text-[1.1rem] font-extrabold" style={{ color: getScoreColor(breakdown.score) }}>
-                      {breakdown.score >= 80 
-                        ? 'Strong Match'
-                        : breakdown.score >= 50
-                        ? 'Good Keyword Overlap'
-                        : 'Low Keyword Overlap'}
+                {!breakdown ? (
+                  <div className="flex flex-col items-center justify-center py-10 gap-3 text-center">
+                    <Sparkles size={32} className="text-text-muted" />
+                    <p className="text-sm text-text-secondary">Run the ATS Matcher to see a detailed breakdown of matching keywords and suggestions.</p>
+                    <button 
+                      className={BTN_PRIMARY}
+                      onClick={() => runAtsMatch(activeBreakdownJob.id, activeBreakdownJob)}
+                      disabled={isRunningMatchId === activeBreakdownJob.id}
+                    >
+                      {isRunningMatchId === activeBreakdownJob.id ? 'Analyzing...' : 'Run ATS Match'}
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <div className="bg-slate-50 border border-border-color rounded-md p-4 flex items-center justify-between">
+                      <div>
+                        <div className="text-[0.8rem] text-text-secondary font-semibold">AI Match Score</div>
+                        <div className="text-[1.1rem] font-extrabold" style={{ color: getScoreColor(breakdown.match_percentage) }}>
+                          {breakdown.match_percentage >= 80 
+                            ? 'Strong Match'
+                            : breakdown.match_percentage >= 50
+                            ? 'Good Match'
+                            : 'Low Match'}
+                        </div>
+                      </div>
+                      <div className="text-[2rem] font-black" style={{ color: getScoreColor(breakdown.match_percentage) }}>
+                        {breakdown.match_percentage}%
+                      </div>
                     </div>
-                  </div>
-                  <div className="text-[2rem] font-black" style={{ color: getScoreColor(breakdown.score) }}>
-                    {breakdown.score}%
-                  </div>
-                </div>
 
-                {/* Breakdown lists */}
-                <div className="flex flex-col gap-5">
-                  {/* Matching Words */}
-                  <div className="flex flex-col gap-2">
-                    <div className="flex items-center gap-1.5 text-accent-emerald">
-                      <CheckCircle2 size={18} />
-                      <strong className="text-[0.95rem] font-bold text-text-primary">Matched Words ({breakdown.matchingWords.length})</strong>
-                    </div>
-                    <p className="text-[0.775rem] text-text-secondary">
-                      Words from this job listing description/title found in your resume:
-                    </p>
-                    <div className="flex flex-wrap gap-1.5 bg-[#fafdfb] border border-[#e6f6ec] rounded-md p-3 max-h-[150px] overflow-y-auto">
-                      {breakdown.matchingWords.length > 0 ? (
-                        breakdown.matchingWords.map((word, i) => (
-                          <span key={i} className={`${BADGE_BASE} bg-accent-emerald/8 text-accent-emerald p-[0.2rem_0.45rem] text-[0.75rem] font-semibold`}>
-                            {word}
-                          </span>
-                        ))
-                      ) : (
-                        <span className="text-[0.85rem] text-text-muted">No matching keywords.</span>
+                    <div className="flex flex-col gap-5">
+                      <div className="flex flex-col gap-2">
+                        <div className="flex items-center gap-1.5 text-accent-emerald">
+                          <CheckCircle2 size={18} />
+                          <strong className="text-[0.95rem] font-bold text-text-primary">Matched Skills ({breakdown.matching_skills?.length || 0})</strong>
+                        </div>
+                        <div className="flex flex-wrap gap-1.5 bg-[#fafdfb] border border-[#e6f6ec] rounded-md p-3 max-h-[150px] overflow-y-auto">
+                          {breakdown.matching_skills?.length > 0 ? (
+                            breakdown.matching_skills.map((word, i) => (
+                              <span key={i} className={`${BADGE_BASE} bg-accent-emerald/8 text-accent-emerald p-[0.2rem_0.45rem] text-[0.75rem] font-semibold`}>
+                                {word}
+                              </span>
+                            ))
+                          ) : (
+                            <span className="text-[0.8rem] text-text-muted">No matching skills found.</span>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="flex flex-col gap-2">
+                        <div className="flex items-center gap-1.5 text-accent-rose">
+                          <AlertTriangle size={18} />
+                          <strong className="text-[0.95rem] font-bold text-text-primary">Missing Keywords ({breakdown.missing_keywords?.length || 0})</strong>
+                        </div>
+                        <div className="flex flex-wrap gap-1.5 bg-[#fffbfa] border border-[#fdeee9] rounded-md p-3 max-h-[150px] overflow-y-auto">
+                          {breakdown.missing_keywords?.length > 0 ? (
+                            breakdown.missing_keywords.map((word, i) => (
+                              <span key={i} className={`${BADGE_BASE} bg-accent-rose/8 text-[#e11d48] p-[0.2rem_0.45rem] text-[0.75rem] font-semibold`}>
+                                {word}
+                              </span>
+                            ))
+                          ) : (
+                            <span className="text-[0.8rem] text-text-muted">No missing keywords found!</span>
+                          )}
+                        </div>
+                      </div>
+                      
+                      {breakdown.profile_summary && (
+                        <div className="flex flex-col gap-2">
+                          <div className="flex items-center gap-1.5 text-accent-blue">
+                            <Sparkles size={18} />
+                            <strong className="text-[0.95rem] font-bold text-text-primary">Profile Summary</strong>
+                          </div>
+                          <div className="bg-[#f8fafc] border border-border-color rounded-md p-3 text-sm text-text-secondary leading-relaxed">
+                            {breakdown.profile_summary}
+                          </div>
+                        </div>
                       )}
                     </div>
-                  </div>
-
-                  {/* Missing/Unmatched Words */}
-                  <div className="flex flex-col gap-2">
-                    <div className="flex items-center gap-1.5 text-accent-rose">
-                      <AlertTriangle size={18} />
-                      <strong className="text-[0.95rem] font-bold text-text-primary">Unmatched Words ({breakdown.missingWords.length})</strong>
-                    </div>
-                    <p className="text-[0.775rem] text-text-secondary">
-                      Words in this job listing description/title missing from your resume:
-                    </p>
-                    <div className="flex flex-wrap gap-1.5 bg-[#fffbfa] border border-[#fdeee9] rounded-md p-3 max-h-[150px] overflow-y-auto">
-                      {breakdown.missingWords.length > 0 ? (
-                        breakdown.missingWords.map((word, i) => (
-                          <span key={i} className={`${BADGE_BASE} bg-accent-rose/8 text-accent-rose p-[0.2rem_0.45rem] text-[0.75rem] font-semibold`}>
-                            {word}
-                          </span>
-                        ))
-                      ) : (
-                        <span className="text-[0.85rem] text-accent-emerald font-semibold">All keywords match!</span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex justify-end mt-5 border-t border-border-color pt-3">
-                <button className={BTN_SECONDARY} onClick={() => setActiveBreakdownJob(null)}>Close Breakdown</button>
+                  </>
+                )}
               </div>
             </div>
           </div>
