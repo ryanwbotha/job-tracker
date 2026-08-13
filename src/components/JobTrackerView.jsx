@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useTracker } from '../context/TrackerContext';
+import { httpsCallable } from 'firebase/functions';
+import { functions } from '../firebase';
 import { 
   Briefcase, 
   Plus, 
@@ -114,54 +116,87 @@ export default function JobTrackerView({ setActiveView }) {
 
   const [isRunningMatchId, setIsRunningMatchId] = useState(null);
   
+  // New ATS Matcher states
+  const [atsMatcherMode, setAtsMatcherMode] = useState('atsMatch'); // 'atsMatch' | 'professionalEvaluation' | 'skillsImprovement'
+  const [resumeSource, setResumeSource] = useState('global'); // 'global' | 'job'
+  
   const runAtsMatch = async (jobId, jobObj, silent = false) => {
-    if (!resumeText.trim() || !(jobObj.notesText || '').trim()) return;
+    const isJobResume = resumeSource === 'job';
+    const hasJobResume = jobObj.resume && jobObj.resume.data;
     
-    let apiKey = localStorage.getItem('GEMINI_API_KEY');
-    if (!apiKey) {
-      apiKey = localStorage.getItem('ats_gemini_api_key') || localStorage.getItem('gemini_api_key') || '';
-    }
-    if (!apiKey) {
-      if (!silent) alert('Please set your Gemini API key in the ATS Matcher tab first.');
+    if (!isJobResume && !resumeText.trim()) {
+      if (!silent) alert('Please set your Global Resume in settings first.');
       return;
     }
-
+    if (isJobResume && !hasJobResume) {
+      if (!silent) alert('Please upload a resume for this job first.');
+      return;
+    }
+    if (!(jobObj.notesText || '').trim()) {
+      if (!silent) alert('Please add a job description first.');
+      return;
+    }
+    
     setIsRunningMatchId(jobId);
     try {
-      const prompt = `You are a skilled and very experienced ATS (Application Tracking System) parser and optimizer. Evaluate this resume against the job description.
+      let prompt = '';
+      if (atsMatcherMode === 'atsMatch') {
+        prompt = `You are a skilled and very experienced ATS (Application Tracking System) parser and optimizer with a deep understanding of the tech field, software engineering, data science, data analyst, and big data engineer. Your task is to evaluate the resume based on the given job description.
+Assign the percentage matching based on the job description and the missing keywords with high accuracy.
+
 Return a JSON response matching this structure exactly:
 {
   "match_percentage": <number between 0 and 100>,
   "matching_skills": [<list of technical skills present in both>],
   "missing_keywords": [<list of important technical skills/keywords from job description missing in resume>],
   "profile_summary": "<brief professional analysis in 3-4 sentences>"
-}
+}`;
+      } else if (atsMatcherMode === 'professionalEvaluation') {
+        prompt = `You are an experienced Technical Human Resource Manager. Review the provided resume against the job description.
+Please share your professional evaluation on whether the candidate's profile aligns with the role. Highlight the strengths and weaknesses.
 
-Resume:
-${resumeText}
+Return a JSON response matching this structure exactly:
+{
+  "alignment_score": <number between 0 and 100>,
+  "strengths": [<list of candidate's key strengths for this role>],
+  "weaknesses": [<list of candidate's key weaknesses or alignment gaps>],
+  "evaluation_summary": "<detailed HR evaluation statement, about 4-6 sentences>"
+}`;
+      } else if (atsMatcherMode === 'skillsImprovement') {
+        prompt = `You are an experienced Technical Recruiter and Career Coach. Review the provided resume against the job description.
+Highlight the specific areas of improvement and provide concrete recommendations.
 
-Job Description:
-${jobObj.notesText}`;
-
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey.trim()}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: { responseMimeType: 'application/json' }
-          })
-        }
-      );
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error?.message || `API error (${response.status})`);
+Return a JSON response matching this structure exactly:
+{
+  "priority_skills_to_add": [<list of key technical skills/tools the candidate lacks from the JD>],
+  "certifications_recommendations": [<list of recommended certifications, courses, or study areas>],
+  "bullet_point_improvements": [
+    {
+      "original": "<original text or concept from resume to improve>",
+      "improved": "<improved version incorporating keywords, action verbs, or impact metrics>"
+    }
+  ],
+  "general_advice": "<general career coaching advice for landing this role>"
+}`;
       }
+
+      prompt += `\n\nJob Description:\n${jobObj.notesText}`;
+      if (!isJobResume) {
+        prompt += `\n\nResume:\n${resumeText}`;
+      }
+
+      const generateAtsMatch = httpsCallable(functions, 'generateAtsMatch');
       
-      const data = await response.json();
-      const textResponse = data.candidates?.[0]?.content?.parts?.[0]?.text;
+      const payload = { prompt };
+      if (isJobResume && hasJobResume) {
+        payload.fileData = jobObj.resume.data;
+        payload.fileMimeType = jobObj.resume.type;
+        // Prompt asks for evaluation, the file will be passed as inlineData
+        payload.prompt = prompt + `\n\n(The resume is attached as a file document).`;
+      }
+
+      const response = await generateAtsMatch(payload);
+      const textResponse = response.data.result;
       if (textResponse) {
         let cleanJson = textResponse.trim();
         if (cleanJson.startsWith('```')) {
@@ -172,8 +207,11 @@ ${jobObj.notesText}`;
         if (!silent) alert('ATS Match completed successfully!');
       }
     } catch (err) {
-      console.error(err);
-      if (!silent) alert('Failed to run ATS Match: ' + err.message);
+      console.error("ATS Match Error:", err);
+      let errorMsg = err.message;
+      if (err.code) errorMsg += ` (Code: ${err.code})`;
+      if (err.details) errorMsg += ` (Details: ${JSON.stringify(err.details)})`;
+      if (!silent) alert('Failed to run ATS Match: ' + errorMsg);
     } finally {
       setIsRunningMatchId(null);
     }
@@ -697,10 +735,6 @@ ${importText}`;
         ...job,
         status: 'Wishlist'
       });
-
-      if (newJob && newJob.link && newJob.linkStatus === 'valid') {
-        pullJobDescription(newJob.id, newJob.link, true);
-      }
     });
     setParsedJobs([]);
     setImportText('');
@@ -1000,20 +1034,7 @@ Product Designer - metacareers.com/jobs/1397212694826926"
             const isSelected = selectedJobs.includes(job.id);
             const isActiveJob = selectedDescriptionJob && selectedDescriptionJob.id === job.id;
 
-            const getLabelStyle = (idx, isActive) => {
-              const baseStyle = {
-                position: 'absolute',
-                top: '16px',
-                fontSize: '0.65rem',
-                fontWeight: isActive ? 700 : 500,
-                color: isActive ? 'var(--text-primary)' : 'var(--text-muted)',
-                whiteSpace: 'nowrap',
-                transition: 'color 0.3s ease'
-              };
-              if (idx === 0) return { ...baseStyle, left: '0', transform: 'none' };
-              if (idx === 3) return { ...baseStyle, right: '0', transform: 'none' };
-              return { ...baseStyle, left: '50%', transform: 'translateX(-50%)' };
-            };            return (
+            return (
               <div 
                 key={job.id} 
                 className={`flex flex-col gap-3 p-5 relative rounded-lg cursor-pointer transition-all duration-150 hover:shadow-md ${isActiveJob ? 'border-2 border-accent-blue bg-accent-blue/3' : isSelected ? 'border border-accent-blue bg-bg-card-hover' : 'border border-border-color bg-bg-card hover:border-accent-blue'}`}
@@ -1056,9 +1077,9 @@ Product Designer - metacareers.com/jobs/1397212694826926"
                   )}
                   {hasMasterResume && !!(job.notesText || '').trim() && (
                     atsMatch ? (
-                      <span className={`${getMatchBadgeClass(atsMatch.match_percentage)} text-[0.65rem] inline-flex items-center gap-1`}>
+                      <span className={`${getMatchBadgeClass(atsMatch.match_percentage || atsMatch.alignment_score || 0)} text-[0.65rem] inline-flex items-center gap-1`}>
                         <Sparkles size={8} />
-                        <span>Match: {atsMatch.match_percentage}%</span>
+                        <span>Match: {atsMatch.match_percentage || atsMatch.alignment_score || 0}%</span>
                       </span>
                     ) : (
                       <span className={`${BADGE_BASE} bg-slate-100 text-slate-500 text-[0.65rem] inline-flex items-center gap-1`}>
@@ -1144,9 +1165,9 @@ Product Designer - metacareers.com/jobs/1397212694826926"
                     </span>
                   )}
                   {hasMasterResume && !!(job.notesText || '').trim() && (
-                    <span className={`${getMatchBadgeClass(matchScore)} text-[0.65rem]`}>
+                    <span className={`${getMatchBadgeClass(atsMatch?.match_percentage || atsMatch?.alignment_score || 0)} text-[0.65rem]`}>
                       <Sparkles size={8} />
-                      <span>Match: {matchScore}%</span>
+                      <span>Match: {atsMatch?.match_percentage || atsMatch?.alignment_score || 0}%</span>
                     </span>
                   )}
                   <span className={`${getStatusColorClass(job.status || 'Wishlist')} text-[0.65rem]`}>
@@ -1186,21 +1207,6 @@ Product Designer - metacareers.com/jobs/1397212694826926"
         const availableContacts = (allContacts || []).filter(c => !(activeJob.linkedContactIds || []).includes(c.id));
         const steps = ['Wishlist', 'Applied', 'Interviewing', activeJob.status === 'Rejected' ? 'Rejected' : 'Offer'];
         const currentStepIndex = steps.indexOf(activeJob.status || 'Wishlist') !== -1 ? steps.indexOf(activeJob.status || 'Wishlist') : 0;
-
-        const getLabelStyle = (idx, isActive) => {
-          const baseStyle = {
-            position: 'absolute',
-            top: '16px',
-            fontSize: '0.65rem',
-            fontWeight: isActive ? 700 : 500,
-            color: isActive ? 'var(--text-primary)' : 'var(--text-muted)',
-            whiteSpace: 'nowrap',
-            transition: 'color 0.3s ease'
-          };
-          if (idx === 0) return { ...baseStyle, left: '0', transform: 'none' };
-          if (idx === 3) return { ...baseStyle, right: '0', transform: 'none' };
-          return { ...baseStyle, left: '50%', transform: 'translateX(-50%)' };
-        };
 
         return (
           <div className="w-[400px] shrink-0 bg-bg-card border border-border-color rounded-lg shadow-card flex flex-col fixed top-[100px] right-8 bottom-8 z-[100] overflow-hidden animate-slide-in-right max-lg:fixed max-lg:top-[60px] max-lg:right-0 max-lg:bottom-0 max-lg:left-0 max-lg:w-full max-lg:rounded-none max-lg:z-[9999]">
@@ -1248,7 +1254,6 @@ Product Designer - metacareers.com/jobs/1397212694826926"
                   <select
                     value={activeJob.status || 'Wishlist'}
                     onChange={(e) => handleStatusChange(activeJob.id, e.target.value)}
-                    className={`badge ${getStatusColorClass(activeJob.status || 'Wishlist')}`}
                     className="border-none cursor-pointer outline-none font-bold py-[0.2rem] pr-[1.4rem] pl-[0.5rem] font-body appearance-none bg-[right_0.4rem_center] bg-no-repeat text-[0.7rem] rounded-full uppercase"
                   >
                     <option value="Wishlist">Wishlist</option>
@@ -1330,9 +1335,8 @@ Product Designer - metacareers.com/jobs/1397212694826926"
                   <div className="flex gap-1.5 items-center">
                     <input
                       type="text"
-                      className={INPUT_FIELD}
-                      placeholder="Add job link (e.g. careers.google.com)..."
-                      className="text-[0.8rem] p-[0.35rem_0.55rem] min-h-[32px] flex-1"
+                      className={`${INPUT_FIELD} text-[0.8rem] p-[0.35rem_0.55rem] min-h-[32px] flex-1`}
+                      placeholder="Add job link (e.g. careers.techcorp.com)..."
                       value={activeJob.link || ''}
                       onChange={(e) => {
                         const newLink = e.target.value;
@@ -1342,24 +1346,15 @@ Product Designer - metacareers.com/jobs/1397212694826926"
                         });
                       }}
                     />
-                    <button
-                      type="button"
-                      className={`${BTN_SECONDARY} flex items-center justify-center min-h-[32px] px-2 py-0 text-[0.725rem] gap-1 font-semibold`}
-                      onClick={() => pullJobDescription(activeJob.id, activeJob.link)}
-                      disabled={!activeJob.link || isPullingDesc}
-                      title="Pull details and description from link"
-                    >
-                      <Sparkles size={12} color="var(--accent-blue)" />
-                      <span>{isPullingDesc ? 'Pulling...' : 'Auto-Pull'}</span>
-                    </button>
+
                     {activeJob.link && (
                       <a 
                         href={activeJob.link.startsWith('http') ? activeJob.link : `https://${activeJob.link}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className={`${BTN_SECONDARY} flex items-center justify-center min-h-[32px] w-8 p-0`}
+                        className="flex items-center justify-center min-h-[32px] w-8 h-8 rounded-full border border-slate-200 bg-white text-slate-800 hover:bg-slate-50 transition-colors shadow-sm"
                       >
-                        <ExternalLink size={12} />
+                        <ExternalLink size={14} />
                       </a>
                     )}
                   </div>
@@ -1376,66 +1371,103 @@ Product Designer - metacareers.com/jobs/1397212694826926"
                 </div>
               </div>
 
-              {/* ATS Match Overview */}
-              {hasMasterResume && !!(activeJob.notesText || '').trim() && (
-                <div>
-                  <label className="text-[0.7rem] font-bold text-text-muted block uppercase mb-2">
-                    ATS Resume Match Quality
-                  </label>
-                  <div className="flex items-center justify-between p-3.5 border border-border-color rounded-md bg-bg-elevated">
-                    {atsMatch ? (
-                      <>
-                        <div className="flex items-center gap-2.5">
-                          <div 
-                            className="w-9 h-9 rounded-full border-[3px] flex items-center justify-center font-extrabold text-[0.85rem]"
-                            style={{
-                              borderColor: getScoreColor(atsMatch.match_percentage),
-                              color: getScoreColor(atsMatch.match_percentage)
-                            }}
-                          >
-                            {atsMatch.match_percentage}%
-                          </div>
-                          <div>
-                            <div className="text-[0.8rem] font-bold">ATS Match Score</div>
-                            <div className="text-[0.7rem] text-text-secondary">
-                              Evaluated with Gemini AI
-                            </div>
-                          </div>
-                        </div>
-                        <button 
-                          className={`${BTN_SM_SECONDARY} min-h-[28px] p-[0.15rem_0.45rem] text-[0.725rem]`}
-                          onClick={() => {
-                            setSelectedDescriptionJob(null);
-                            setActiveBreakdownJob(activeJob);
-                          }}
+              {/* ATS Matcher Panel inside Job Listing */}
+              {activeJob.notesText && (
+                <div className="border-t border-black/5 pt-4 mb-4">
+                  <div className="flex justify-between items-center mb-3">
+                    <span className="text-[0.7rem] font-bold text-text-muted uppercase">ATS AI Matcher</span>
+                    {activeJob.atsMatch && (
+                      <button 
+                        className="bg-transparent border-none text-text-muted hover:text-accent-rose transition-colors cursor-pointer p-1"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          updateResource(activeJob.id, { atsMatch: null });
+                        }}
+                        title="Clear Match Results"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    )}
+                  </div>
+                  
+                  <div className="bg-slate-50 border border-border-color rounded-md p-3">
+                    {/* Controls Row */}
+                    <div className="flex flex-col gap-3 mb-4">
+                      <div className="flex flex-wrap gap-1.5 border-b border-border-color pb-2">
+                        <button
+                          className={`text-[0.75rem] px-2 py-1 rounded-sm transition-colors ${atsMatcherMode === 'atsMatch' ? 'bg-accent-blue text-white font-bold' : 'text-text-secondary hover:bg-slate-200'}`}
+                          onClick={() => setAtsMatcherMode('atsMatch')}
                         >
-                          Breakdown
+                          ATS Match
                         </button>
-                      </>
-                    ) : (
-                      <>
-                        <div className="flex items-center gap-2.5">
-                          <div className="w-9 h-9 rounded-full border-[3px] border-slate-200 flex items-center justify-center text-slate-400">
-                            <Sparkles size={14} />
-                          </div>
-                          <div>
-                            <div className="text-[0.8rem] font-bold">ATS Match Score</div>
-                            <div className="text-[0.7rem] text-text-secondary">
-                              Not evaluated yet
-                            </div>
-                          </div>
-                        </div>
+                        <button
+                          className={`text-[0.75rem] px-2 py-1 rounded-sm transition-colors ${atsMatcherMode === 'professionalEvaluation' ? 'bg-accent-blue text-white font-bold' : 'text-text-secondary hover:bg-slate-200'}`}
+                          onClick={() => setAtsMatcherMode('professionalEvaluation')}
+                        >
+                          HR Eval
+                        </button>
+                        <button
+                          className={`text-[0.75rem] px-2 py-1 rounded-sm transition-colors ${atsMatcherMode === 'skillsImprovement' ? 'bg-accent-blue text-white font-bold' : 'text-text-secondary hover:bg-slate-200'}`}
+                          onClick={() => setAtsMatcherMode('skillsImprovement')}
+                        >
+                          Skills Coach
+                        </button>
+                      </div>
+                      
+                      <div className="flex items-center justify-between gap-3 flex-wrap">
+                        <select 
+                          className={`${INPUT_FIELD} text-[0.75rem] p-[0.25rem_0.5rem] min-h-[28px] w-auto inline-block`}
+                          value={resumeSource}
+                          onChange={(e) => setResumeSource(e.target.value)}
+                        >
+                          <option value="global">Global Resume</option>
+                          <option value="job">Uploaded Job Resume</option>
+                        </select>
+                        
                         <button 
-                          className={`${BTN_SM_EMERALD} min-h-[28px] p-[0.15rem_0.45rem] text-[0.725rem]`}
+                          className={`${BTN_SM_EMERALD} min-h-[28px] px-3 text-[0.75rem]`}
                           onClick={(e) => {
                             e.stopPropagation();
                             runAtsMatch(activeJob.id, activeJob);
                           }}
                           disabled={isRunningMatchId === activeJob.id}
                         >
-                          {isRunningMatchId === activeJob.id ? 'Running...' : 'Run Match'}
+                          {isRunningMatchId === activeJob.id ? 'Running...' : 'Run Analysis'}
                         </button>
-                      </>
+                      </div>
+                    </div>
+
+                    {/* Results Display */}
+                    {activeJob.atsMatch ? (
+                      <div className="flex flex-col gap-3 text-[0.8rem] text-text-primary">
+                        {/* Score Indicator */}
+                        <div className="flex items-center gap-2.5 bg-white border border-border-color p-2.5 rounded-sm">
+                          <div className="w-10 h-10 shrink-0 rounded-full border-[4px] flex items-center justify-center font-bold text-[0.85rem]"
+                               style={{ borderColor: activeJob.atsMatch.match_percentage >= 80 || activeJob.atsMatch.alignment_score >= 80 ? 'var(--accent-emerald)' : (activeJob.atsMatch.match_percentage >= 50 || activeJob.atsMatch.alignment_score >= 50 ? 'var(--accent-amber)' : 'var(--accent-rose)') }}>
+                            {activeJob.atsMatch.match_percentage || activeJob.atsMatch.alignment_score || 100}%
+                          </div>
+                          <div>
+                            <div className="font-bold">
+                              {activeJob.atsMatch.match_percentage ? 'Match Score' : activeJob.atsMatch.alignment_score ? 'Alignment Score' : 'Improvement Action Plan'}
+                            </div>
+                            <div className="text-[0.75rem] text-text-secondary line-clamp-2">
+                              {activeJob.atsMatch.profile_summary || activeJob.atsMatch.evaluation_summary || activeJob.atsMatch.general_advice}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Expand full details button */}
+                        <button
+                          className="text-[0.75rem] text-accent-blue font-bold text-center py-1.5 hover:underline"
+                          onClick={() => setActiveBreakdownJob(activeJob)}
+                        >
+                          View Full Detailed Breakdown
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="text-center py-3 text-[0.75rem] text-text-secondary">
+                        Click "Run Analysis" to evaluate this job application.
+                      </div>
                     )}
                   </div>
                 </div>
@@ -1447,10 +1479,9 @@ Product Designer - metacareers.com/jobs/1397212694826926"
                   Job Description & Notes
                 </label>
                 <textarea
-                  className={INPUT_FIELD}
+                  className={`${INPUT_FIELD} text-[0.85rem] p-[0.5rem_0.65rem] leading-relaxed w-full`}
                   rows={6}
                   placeholder="Paste details, requirements, notes, salary info, or interview steps here..."
-                  className="text-[0.85rem] p-[0.5rem_0.65rem] leading-relaxed"
                   value={activeJob.notesText || ''}
                   onChange={(e) => handleNotesChange(activeJob.id, e.target.value)}
                 />
@@ -1652,7 +1683,7 @@ Product Designer - metacareers.com/jobs/1397212694826926"
               id="quick-company"
               type="text"
               className={INPUT_FIELD}
-              placeholder="e.g. Google"
+              placeholder="e.g. TechCorp"
               value={quickCompany}
               onChange={(e) => setQuickCompany(e.target.value)}
               required
@@ -1676,7 +1707,7 @@ Product Designer - metacareers.com/jobs/1397212694826926"
               id="quick-link"
               type="text"
               className={INPUT_FIELD}
-              placeholder="e.g. careers.google.com"
+              placeholder="e.g. careers.techcorp.com"
               value={quickLink}
               onChange={(e) => setQuickLink(e.target.value)}
             />
@@ -1711,78 +1742,142 @@ Product Designer - metacareers.com/jobs/1397212694826926"
                 {!breakdown ? (
                   <div className="flex flex-col items-center justify-center py-10 gap-3 text-center">
                     <Sparkles size={32} className="text-text-muted" />
-                    <p className="text-sm text-text-secondary">Run the ATS Matcher to see a detailed breakdown of matching keywords and suggestions.</p>
-                    <button 
-                      className={BTN_PRIMARY}
-                      onClick={() => runAtsMatch(activeBreakdownJob.id, activeBreakdownJob)}
-                      disabled={isRunningMatchId === activeBreakdownJob.id}
-                    >
-                      {isRunningMatchId === activeBreakdownJob.id ? 'Analyzing...' : 'Run ATS Match'}
-                    </button>
+                    <p className="text-sm text-text-secondary">Run the ATS Matcher to see a detailed breakdown.</p>
                   </div>
                 ) : (
                   <>
-                    <div className="bg-slate-50 border border-border-color rounded-md p-4 flex items-center justify-between">
-                      <div>
-                        <div className="text-[0.8rem] text-text-secondary font-semibold">AI Match Score</div>
-                        <div className="text-[1.1rem] font-extrabold" style={{ color: getScoreColor(breakdown.match_percentage) }}>
-                          {breakdown.match_percentage >= 80 
-                            ? 'Strong Match'
-                            : breakdown.match_percentage >= 50
-                            ? 'Good Match'
-                            : 'Low Match'}
+                    {(breakdown.match_percentage !== undefined || breakdown.alignment_score !== undefined) && (
+                      <div className="bg-slate-50 border border-border-color rounded-md p-4 flex items-center justify-between">
+                        <div>
+                          <div className="text-[0.8rem] text-text-secondary font-semibold">
+                            {breakdown.alignment_score !== undefined ? 'HR Alignment Score' : 'AI Match Score'}
+                          </div>
+                          <div className="text-[1.1rem] font-extrabold" style={{ color: getScoreColor(breakdown.match_percentage || breakdown.alignment_score) }}>
+                            {(breakdown.match_percentage || breakdown.alignment_score) >= 80 
+                              ? 'Strong Match'
+                              : (breakdown.match_percentage || breakdown.alignment_score) >= 50
+                              ? 'Good Match'
+                              : 'Low Match'}
+                          </div>
+                        </div>
+                        <div className="text-[2rem] font-black" style={{ color: getScoreColor(breakdown.match_percentage || breakdown.alignment_score) }}>
+                          {breakdown.match_percentage || breakdown.alignment_score}%
                         </div>
                       </div>
-                      <div className="text-[2rem] font-black" style={{ color: getScoreColor(breakdown.match_percentage) }}>
-                        {breakdown.match_percentage}%
-                      </div>
-                    </div>
+                    )}
 
                     <div className="flex flex-col gap-5">
-                      <div className="flex flex-col gap-2">
-                        <div className="flex items-center gap-1.5 text-accent-emerald">
-                          <CheckCircle2 size={18} />
-                          <strong className="text-[0.95rem] font-bold text-text-primary">Matched Skills ({breakdown.matching_skills?.length || 0})</strong>
+                      {/* ATS Match Mode fields */}
+                      {breakdown.matching_skills && (
+                        <div className="flex flex-col gap-2">
+                          <div className="flex items-center gap-1.5 text-accent-emerald">
+                            <CheckCircle2 size={18} />
+                            <strong className="text-[0.95rem] font-bold text-text-primary">Matched Skills ({breakdown.matching_skills.length})</strong>
+                          </div>
+                          <div className="flex flex-wrap gap-1.5 bg-[#fafdfb] border border-[#e6f6ec] rounded-md p-3 max-h-[150px] overflow-y-auto">
+                            {breakdown.matching_skills.length > 0 ? (
+                              breakdown.matching_skills.map((word, i) => (
+                                <span key={i} className={`${BADGE_BASE} bg-accent-emerald/8 text-accent-emerald p-[0.2rem_0.45rem] text-[0.75rem] font-semibold`}>
+                                  {word}
+                                </span>
+                              ))
+                            ) : (
+                              <span className="text-[0.8rem] text-text-muted">No matching skills found.</span>
+                            )}
+                          </div>
                         </div>
-                        <div className="flex flex-wrap gap-1.5 bg-[#fafdfb] border border-[#e6f6ec] rounded-md p-3 max-h-[150px] overflow-y-auto">
-                          {breakdown.matching_skills?.length > 0 ? (
-                            breakdown.matching_skills.map((word, i) => (
-                              <span key={i} className={`${BADGE_BASE} bg-accent-emerald/8 text-accent-emerald p-[0.2rem_0.45rem] text-[0.75rem] font-semibold`}>
-                                {word}
-                              </span>
-                            ))
-                          ) : (
-                            <span className="text-[0.8rem] text-text-muted">No matching skills found.</span>
-                          )}
-                        </div>
-                      </div>
+                      )}
 
-                      <div className="flex flex-col gap-2">
-                        <div className="flex items-center gap-1.5 text-accent-rose">
-                          <AlertTriangle size={18} />
-                          <strong className="text-[0.95rem] font-bold text-text-primary">Missing Keywords ({breakdown.missing_keywords?.length || 0})</strong>
+                      {breakdown.missing_keywords && (
+                        <div className="flex flex-col gap-2">
+                          <div className="flex items-center gap-1.5 text-accent-rose">
+                            <AlertTriangle size={18} />
+                            <strong className="text-[0.95rem] font-bold text-text-primary">Missing Keywords ({breakdown.missing_keywords.length})</strong>
+                          </div>
+                          <div className="flex flex-wrap gap-1.5 bg-[#fffbfa] border border-[#fdeee9] rounded-md p-3 max-h-[150px] overflow-y-auto">
+                            {breakdown.missing_keywords.length > 0 ? (
+                              breakdown.missing_keywords.map((word, i) => (
+                                <span key={i} className={`${BADGE_BASE} bg-accent-rose/8 text-[#e11d48] p-[0.2rem_0.45rem] text-[0.75rem] font-semibold`}>
+                                  {word}
+                                </span>
+                              ))
+                            ) : (
+                              <span className="text-[0.8rem] text-text-muted">No missing keywords found!</span>
+                            )}
+                          </div>
                         </div>
-                        <div className="flex flex-wrap gap-1.5 bg-[#fffbfa] border border-[#fdeee9] rounded-md p-3 max-h-[150px] overflow-y-auto">
-                          {breakdown.missing_keywords?.length > 0 ? (
-                            breakdown.missing_keywords.map((word, i) => (
-                              <span key={i} className={`${BADGE_BASE} bg-accent-rose/8 text-[#e11d48] p-[0.2rem_0.45rem] text-[0.75rem] font-semibold`}>
-                                {word}
-                              </span>
-                            ))
-                          ) : (
-                            <span className="text-[0.8rem] text-text-muted">No missing keywords found!</span>
-                          )}
+                      )}
+
+                      {/* HR Eval Mode fields */}
+                      {breakdown.strengths && (
+                        <div className="flex flex-col gap-2">
+                          <div className="flex items-center gap-1.5 text-accent-emerald">
+                            <CheckCircle2 size={18} />
+                            <strong className="text-[0.95rem] font-bold text-text-primary">Key Strengths ({breakdown.strengths.length})</strong>
+                          </div>
+                          <ul className="list-disc pl-5 text-[0.85rem] text-text-secondary">
+                            {breakdown.strengths.map((s, i) => <li key={i} className="mb-1">{s}</li>)}
+                          </ul>
                         </div>
-                      </div>
-                      
-                      {breakdown.profile_summary && (
+                      )}
+
+                      {breakdown.weaknesses && (
+                        <div className="flex flex-col gap-2">
+                          <div className="flex items-center gap-1.5 text-accent-rose">
+                            <AlertTriangle size={18} />
+                            <strong className="text-[0.95rem] font-bold text-text-primary">Weaknesses & Gaps ({breakdown.weaknesses.length})</strong>
+                          </div>
+                          <ul className="list-disc pl-5 text-[0.85rem] text-text-secondary">
+                            {breakdown.weaknesses.map((w, i) => <li key={i} className="mb-1">{w}</li>)}
+                          </ul>
+                        </div>
+                      )}
+
+                      {/* Skills Coach Mode fields */}
+                      {breakdown.priority_skills_to_add && (
                         <div className="flex flex-col gap-2">
                           <div className="flex items-center gap-1.5 text-accent-blue">
                             <Sparkles size={18} />
-                            <strong className="text-[0.95rem] font-bold text-text-primary">Profile Summary</strong>
+                            <strong className="text-[0.95rem] font-bold text-text-primary">Priority Skills to Add</strong>
+                          </div>
+                          <div className="flex flex-wrap gap-1.5 bg-slate-50 border border-border-color rounded-md p-3">
+                            {breakdown.priority_skills_to_add.map((word, i) => (
+                              <span key={i} className={`${BADGE_BASE} bg-white border border-border-color text-text-primary p-[0.2rem_0.45rem] text-[0.75rem] font-semibold shadow-sm`}>
+                                {word}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {breakdown.bullet_point_improvements && (
+                        <div className="flex flex-col gap-2">
+                          <div className="flex items-center gap-1.5 text-accent-blue">
+                            <Sparkles size={18} />
+                            <strong className="text-[0.95rem] font-bold text-text-primary">Resume Bullet Improvements</strong>
+                          </div>
+                          <div className="flex flex-col gap-3">
+                            {breakdown.bullet_point_improvements.map((b, i) => (
+                              <div key={i} className="bg-slate-50 border border-border-color rounded-md p-3 text-[0.8rem]">
+                                <div className="text-text-secondary line-through mb-1.5">{b.original}</div>
+                                <div className="text-text-primary font-semibold text-accent-emerald">{b.improved}</div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Summaries (All modes) */}
+                      {(breakdown.profile_summary || breakdown.evaluation_summary || breakdown.general_advice) && (
+                        <div className="flex flex-col gap-2">
+                          <div className="flex items-center gap-1.5 text-accent-blue">
+                            <Sparkles size={18} />
+                            <strong className="text-[0.95rem] font-bold text-text-primary">
+                              {breakdown.profile_summary ? 'Profile Summary' : breakdown.evaluation_summary ? 'HR Evaluation' : 'General Coaching Advice'}
+                            </strong>
                           </div>
                           <div className="bg-[#f8fafc] border border-border-color rounded-md p-3 text-sm text-text-secondary leading-relaxed">
-                            {breakdown.profile_summary}
+                            {breakdown.profile_summary || breakdown.evaluation_summary || breakdown.general_advice}
                           </div>
                         </div>
                       )}

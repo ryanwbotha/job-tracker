@@ -1,0 +1,600 @@
+{
+  "max-h-0": {
+    "$type": "number",
+    "$value": 0,
+    "$description": "Utilities for setting the maximum height of an element.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:336",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:98436b7421c4b369b1e329eb52f4a73fa19716a9/-1:-1",
+        "targetVariableName": "0",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-h-px": {
+    "$type": "number",
+    "$value": 1,
+    "$description": "Utilities for setting the maximum height of an element.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:330",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:834635376cff49dfc205477b4c2bb42f7bcdeb29/-1:-1",
+        "targetVariableName": "1",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-h-0,5": {
+    "$type": "number",
+    "$value": 2,
+    "$description": "Utilities for setting the maximum height of an element.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:322",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:f8f18dd01c33edd4a1f0f0138da540830ca97528/-1:-1",
+        "targetVariableName": "2",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-h-1": {
+    "$type": "number",
+    "$value": 4,
+    "$description": "Utilities for setting the maximum height of an element.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:317",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:4349eace8f00c364ecec74b0971c09a704f363c0/-1:-1",
+        "targetVariableName": "4",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-h-1,5": {
+    "$type": "number",
+    "$value": 6,
+    "$description": "Utilities for setting the maximum height of an element.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:315",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:c418effc15840a866f3359f2bc8571aaba754da1/-1:-1",
+        "targetVariableName": "6",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-h-2": {
+    "$type": "number",
+    "$value": 8,
+    "$description": "Utilities for setting the maximum height of an element.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:329",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:fa8ecc25b4e0eb1dd1c40153bc61e3cff119346e/-1:-1",
+        "targetVariableName": "8",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-h-2,5": {
+    "$type": "number",
+    "$value": 10,
+    "$description": "Utilities for setting the maximum height of an element.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:314",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:c0af8d04c9c055aa683a404a56fb39397ed2b301/-1:-1",
+        "targetVariableName": "10",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-h-3": {
+    "$type": "number",
+    "$value": 12,
+    "$description": "Utilities for setting the maximum height of an element.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:313",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:2fe52057374dd7497039a00ff0b445d293896d07/-1:-1",
+        "targetVariableName": "12",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-h-3,5": {
+    "$type": "number",
+    "$value": 14,
+    "$description": "Utilities for setting the maximum height of an element.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:312",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:91fcce20be346175916c2d83ae31e365aa404890/-1:-1",
+        "targetVariableName": "14",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-h-4": {
+    "$type": "number",
+    "$value": 16,
+    "$description": "Utilities for setting the maximum height of an element.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:311",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:ccc1755212deea37d590922771d1f74fb3326c76/-1:-1",
+        "targetVariableName": "16",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-h-5": {
+    "$type": "number",
+    "$value": 20,
+    "$description": "Utilities for setting the maximum height of an element.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:345",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:fed5f5debc13eeb4e6908a4ea189441d5c23689b/-1:-1",
+        "targetVariableName": "20",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-h-6": {
+    "$type": "number",
+    "$value": 24,
+    "$description": "Utilities for setting the maximum height of an element.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:340",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:4ff0db29f2d0b1557650756fc1ee613c815e2dec/-1:-1",
+        "targetVariableName": "24",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-h-7": {
+    "$type": "number",
+    "$value": 28,
+    "$description": "Utilities for setting the maximum height of an element.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:331",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:445659cd6ea3d30387e36838d6b9d48ec1746857/-1:-1",
+        "targetVariableName": "28",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-h-8": {
+    "$type": "number",
+    "$value": 32,
+    "$description": "Utilities for setting the maximum height of an element.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:339",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:cbf6bf4eb1806e1df296a04ae3fe24788942b655/-1:-1",
+        "targetVariableName": "32",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-h-9": {
+    "$type": "number",
+    "$value": 36,
+    "$description": "Utilities for setting the maximum height of an element.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:341",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:0d7f664b8d1b4c26ecb8215059fb112b58209f50/-1:-1",
+        "targetVariableName": "36",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-h-10": {
+    "$type": "number",
+    "$value": 40,
+    "$description": "Utilities for setting the maximum height of an element.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:333",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:db4d7e98d792a1d9df66bd771e68e461745fef8a/-1:-1",
+        "targetVariableName": "40",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-h-11": {
+    "$type": "number",
+    "$value": 44,
+    "$description": "Utilities for setting the maximum height of an element.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:343",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:b8e7ea3d2b704f3a5bf95ab390d921b6a3b42efc/-1:-1",
+        "targetVariableName": "44",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-h-12": {
+    "$type": "number",
+    "$value": 48,
+    "$description": "Utilities for setting the maximum height of an element.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:332",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:a919dd9254668fdeaa95f58e8a0f4f440a185418/-1:-1",
+        "targetVariableName": "48",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-h-14": {
+    "$type": "number",
+    "$value": 56,
+    "$description": "Utilities for setting the maximum height of an element.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:335",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:1febd275f4956b729e5ee11586d1430a5810203b/-1:-1",
+        "targetVariableName": "56",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-h-16": {
+    "$type": "number",
+    "$value": 64,
+    "$description": "Utilities for setting the maximum height of an element.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:327",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:3944dd246a6306374a356636cde1a6297fe0bf8d/-1:-1",
+        "targetVariableName": "64",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-h-20": {
+    "$type": "number",
+    "$value": 80,
+    "$description": "Utilities for setting the maximum height of an element.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:326",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:616ede3842276faeb5bc68c2685aed11457e7f95/-1:-1",
+        "targetVariableName": "80",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-h-24": {
+    "$type": "number",
+    "$value": 96,
+    "$description": "Utilities for setting the maximum height of an element.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:319",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:10d74972f9532e879e593d17825ede1444045940/-1:-1",
+        "targetVariableName": "96",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-h-28": {
+    "$type": "number",
+    "$value": 112,
+    "$description": "Utilities for setting the maximum height of an element.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:334",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:9d02e2c1450a313e34cfb7fecfb1f05134c392ea/-1:-1",
+        "targetVariableName": "112",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-h-32": {
+    "$type": "number",
+    "$value": 128,
+    "$description": "Utilities for setting the maximum height of an element.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:325",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:f649f8f67773243a3f82c1cf5740e0f0440fefe5/-1:-1",
+        "targetVariableName": "128",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-h-36": {
+    "$type": "number",
+    "$value": 144,
+    "$description": "Utilities for setting the maximum height of an element.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:318",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:71fac47b3279964e0d657529a50ece3ca57d5ce5/-1:-1",
+        "targetVariableName": "144",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-h-40": {
+    "$type": "number",
+    "$value": 160,
+    "$description": "Utilities for setting the maximum height of an element.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:323",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:8c4d6120b30a8468b5f6a870bdb626f01ee57b29/-1:-1",
+        "targetVariableName": "160",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-h-44": {
+    "$type": "number",
+    "$value": 176,
+    "$description": "Utilities for setting the maximum height of an element.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:338",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:03d6533fbc7509b526a2c0934eaeaf7af1488324/-1:-1",
+        "targetVariableName": "176",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-h-48": {
+    "$type": "number",
+    "$value": 192,
+    "$description": "Utilities for setting the maximum height of an element.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:321",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:c6112fac3a2966dd08bdbb67660ff08543eb2f7d/-1:-1",
+        "targetVariableName": "192",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-h-52": {
+    "$type": "number",
+    "$value": 208,
+    "$description": "Utilities for setting the maximum height of an element.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:320",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:07fcfb6e26d549116571f0b38e0627dcd9463515/-1:-1",
+        "targetVariableName": "208",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-h-56": {
+    "$type": "number",
+    "$value": 224,
+    "$description": "Utilities for setting the maximum height of an element.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:328",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:bcfcd964c1f6431a8d3cc5fc18cccd5ad011aa15/-1:-1",
+        "targetVariableName": "224",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-h-60": {
+    "$type": "number",
+    "$value": 240,
+    "$description": "Utilities for setting the maximum height of an element.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:324",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:58b5d8af9f0ad844fa50088de1317a749da7cef1/-1:-1",
+        "targetVariableName": "240",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-h-64": {
+    "$type": "number",
+    "$value": 256,
+    "$description": "Utilities for setting the maximum height of an element.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:316",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:b1dc385af5ccf17ea200e99d8c52eb45aec4b89f/-1:-1",
+        "targetVariableName": "256",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-h-72": {
+    "$type": "number",
+    "$value": 288,
+    "$description": "Utilities for setting the maximum height of an element.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:342",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:bed9c14518fb7d9f664e30262fadef517b2401a2/-1:-1",
+        "targetVariableName": "288",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-h-80": {
+    "$type": "number",
+    "$value": 320,
+    "$description": "Utilities for setting the maximum height of an element.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:344",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:62cce4782d90a3ac8b07c14f7f3229cc07e91153/-1:-1",
+        "targetVariableName": "320",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-h-96": {
+    "$type": "number",
+    "$value": 384,
+    "$description": "Utilities for setting the maximum height of an element.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:337",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:d0cb396372206d43285bd814c5be5b740b1dd995/-1:-1",
+        "targetVariableName": "384",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "$extensions": {
+    "com.figma.modeName": "Mode 1"
+  }
+}

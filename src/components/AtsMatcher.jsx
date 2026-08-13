@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Sparkles, FileText, CheckCircle2, AlertTriangle, Lightbulb, Key, RefreshCw, Trash2, ArrowUpRight, Upload, X, Award, BookOpen } from 'lucide-react';
+import { Sparkles, FileText, CheckCircle2, AlertTriangle, Lightbulb, RefreshCw, Trash2, ArrowUpRight, Upload, X, Award, BookOpen } from 'lucide-react';
+import { httpsCallable } from 'firebase/functions';
+import { functions } from '../firebase';
 
 export default function AtsMatcher() {
-  const [apiKey, setApiKey] = useState('');
-  const [showKeyInput, setShowKeyInput] = useState(false);
   const [resumeText, setResumeText] = useState('');
   const [jobDescription, setJobDescription] = useState('');
   const [loading, setLoading] = useState(false);
@@ -83,24 +83,11 @@ export default function AtsMatcher() {
     }
   };
 
-  // Load saved resume and API key from localStorage or environment on mount
+  // Load saved resume from localStorage on mount
   useEffect(() => {
-    const envKey = import.meta.env.VITE_GEMINI_API_KEY || '';
-    const savedKey = localStorage.getItem('gemini_api_key') || envKey;
     const savedResume = localStorage.getItem('ats_resume_text') || '';
-    setApiKey(savedKey);
     setResumeText(savedResume);
-    if (!savedKey) {
-      setShowKeyInput(true);
-    }
   }, []);
-
-  const handleSaveKey = (e) => {
-    e.preventDefault();
-    localStorage.setItem('gemini_api_key', apiKey.trim());
-    setShowKeyInput(false);
-    setError(null);
-  };
 
   const handleSaveResume = (text) => {
     setResumeText(text);
@@ -125,11 +112,6 @@ export default function AtsMatcher() {
   };
 
   const handleCompare = async () => {
-    if (!apiKey.trim()) {
-      setError('Please provide a Gemini API key.');
-      setShowKeyInput(true);
-      return;
-    }
     if (!resumeText.trim()) {
       setError('Please enter or paste your resume text first.');
       return;
@@ -203,31 +185,10 @@ ${jobDescription}`;
     }
 
     try {
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey.trim()}`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            contents: [{
-              parts: [{ text: prompt }]
-            }],
-            generationConfig: {
-              responseMimeType: 'application/json'
-            }
-          })
-        }
-      );
+      const generateAtsMatch = httpsCallable(functions, 'generateAtsMatch');
+      const response = await generateAtsMatch({ prompt });
+      const textResponse = response.data.result;
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error?.message || `API error (${response.status})`);
-      }
-
-      const data = await response.json();
-      const textResponse = data.candidates?.[0]?.content?.parts?.[0]?.text;
       if (!textResponse) {
         throw new Error('Empty response from Gemini API.');
       }
@@ -265,47 +226,7 @@ ${jobDescription}`;
               <p className="text-[0.85rem] text-text-secondary">Compare your resume to any job application instantly using Gemini AI</p>
             </div>
           </div>
-          
-          <button 
-            onClick={() => setShowKeyInput(!showKeyInput)} 
-            className="inline-flex items-center justify-center gap-1.5 font-body font-semibold text-sm min-h-[36px] px-3 py-1.5 rounded-sm border border-border-color bg-bg-card text-text-primary hover:bg-bg-elevated cursor-pointer transition-all duration-150 active:opacity-85"
-          >
-            <Key size={14} />
-            <span>{apiKey ? 'Manage API Key' : 'Setup API Key'}</span>
-          </button>
         </div>
-
-        {/* API Key Form */}
-        {showKeyInput && (
-          <form onSubmit={handleSaveKey} className="mt-2 bg-bg-elevated p-4 rounded-md border border-border-color flex flex-col gap-3 font-body">
-            <div className="flex flex-col gap-1.5">
-              <label className="text-[0.85rem] font-semibold text-text-secondary">Gemini API Key</label>
-              <input 
-                type="password" 
-                value={apiKey} 
-                onChange={(e) => setApiKey(e.target.value)} 
-                placeholder="Paste your API key here (AIzaSy...)" 
-                className="bg-bg-input border border-border-color rounded-sm px-3.5 py-2.5 text-text-primary font-mono text-sm min-h-[44px] outline-none w-full hover:border-[#cbd5e1] focus:border-border-focus focus:outline-2 focus:outline-border-focus focus:outline-offset-[1px]"
-              />
-            </div>
-            <div className="flex gap-2">
-              <button type="submit" className="inline-flex items-center justify-center gap-1.5 font-body font-semibold text-sm min-h-[36px] px-4 py-1.5 rounded-sm border border-transparent bg-accent-blue text-white hover:bg-[#1d4ed8] cursor-pointer transition-all duration-150 active:opacity-85">
-                Save Key
-              </button>
-              <button 
-                type="button" 
-                onClick={() => setShowKeyInput(false)} 
-                className="inline-flex items-center justify-center gap-1.5 font-body font-semibold text-sm min-h-[36px] px-4 py-1.5 rounded-sm border border-border-color bg-bg-card text-text-primary hover:bg-bg-elevated cursor-pointer transition-all duration-150 active:opacity-85"
-              >
-                Cancel
-              </button>
-            </div>
-            <p className="text-[0.75rem] text-text-muted">
-              Your key is saved locally in your browser and never sent anywhere else. 
-              Get a free key from <a href="https://aistudio.google.com/" target="_blank" rel="noreferrer" className="text-accent-blue underline">Google AI Studio</a>.
-            </p>
-          </form>
-        )}
       </div>
 
       {/* Mode Selector Tab Bar */}
@@ -420,7 +341,7 @@ ${jobDescription}`;
       </div>
 
       {/* Actions */}
-      <div className="flex justify-center mt-2">
+      <div className="flex justify-center gap-3 mt-2 flex-wrap">
         <button 
           onClick={handleCompare} 
           disabled={loading}
@@ -442,6 +363,23 @@ ${jobDescription}`;
             </>
           )}
         </button>
+
+        {(results.atsMatch || results.professionalEvaluation || results.skillsImprovement) && (
+          <button 
+            onClick={() => {
+              setResults({
+                atsMatch: null,
+                professionalEvaluation: null,
+                skillsImprovement: null
+              });
+              setJobDescription('');
+            }}
+            className="inline-flex items-center justify-center gap-2 font-body font-semibold text-base min-h-[44px] px-5 py-2.5 rounded-md border border-border-color bg-bg-card text-text-primary hover:bg-bg-elevated cursor-pointer transition-all duration-150 active:opacity-85"
+          >
+            <Trash2 size={18} />
+            <span>Clear Job & Results</span>
+          </button>
+        )}
       </div>
 
       {/* Error Message */}

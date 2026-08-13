@@ -125,7 +125,7 @@ Leanne`);
               <input
                 type="text"
                 className={INPUT_FIELD}
-                placeholder="e.g. Dave North <d.north@ancestry.com>"
+                placeholder="e.g. John Doe <j.doe@techcorp.com>"
                 value={senderHint}
                 onChange={(e) => setSenderHint(e.target.value)}
               />
@@ -135,7 +135,7 @@ Leanne`);
               <input
                 type="text"
                 className={INPUT_FIELD}
-                placeholder="e.g. Re: Connection via Tyler Jensen"
+                placeholder="e.g. Re: Connection via Jane Doe"
                 value={subjectHint}
                 onChange={(e) => setSubjectHint(e.target.value)}
               />

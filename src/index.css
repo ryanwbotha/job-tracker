@@ -1,5 +1,5 @@
-@import "tailwindcss";
 @import url('https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&family=Geist+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
 
 /* ═══════════════════════════════════════════════════════════════════════════
    JOB SEARCH TRACKER — Professional Design System
@@ -131,37 +131,39 @@
 }
 
 /* ─── Reset ─────────────────────────────────────────────────────────────── */
-*, *::before, *::after {
-  box-sizing: border-box;
-}
+@layer base {
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
 
-body, h1, h2, h3, h4, h5, h6, p, ol, ul, li, figure, blockquote, dl, dd {
-  margin: 0;
-  padding: 0;
-}
+  body, h1, h2, h3, h4, h5, h6, p, ol, ul, li, figure, blockquote, dl, dd {
+    margin: 0;
+    padding: 0;
+  }
 
-html {
-  scroll-behavior: smooth;
-  scrollbar-gutter: stable;
-}
+  html {
+    scroll-behavior: smooth;
+    scrollbar-gutter: stable;
+  }
 
-body {
-  font-family: 'Geist', 'Inter', system-ui, -apple-system, sans-serif;
-  background-color: var(--bg-app);
-  color: var(--text-primary);
-  min-height: 100vh;
-  line-height: 1.6;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
-  transition: background-color 0.2s ease, color 0.2s ease;
-}
+  body {
+    font-family: 'Geist', 'Inter', system-ui, -apple-system, sans-serif;
+    background-color: var(--bg-app);
+    color: var(--text-primary);
+    min-height: 100vh;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
 
-h1, h2, h3, h4, h5, h6 {
-  font-family: 'Geist', 'Inter', system-ui, -apple-system, sans-serif;
-  color: var(--text-primary);
-  letter-spacing: -0.025em;
-  font-weight: 600;
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Geist', 'Inter', system-ui, -apple-system, sans-serif;
+    color: var(--text-primary);
+    letter-spacing: -0.025em;
+    font-weight: 600;
+  }
 }
 
 /* ─── Scrollbar ──────────────────────────────────────────────────────────── */

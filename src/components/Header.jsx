@@ -14,7 +14,7 @@ export default function Header({ onOpenAccountability, onOpenBrainDump, activeTa
         <div>
           <h1 className="text-[1.35rem] font-bold text-text-primary font-heading">Daily Activity Tracker</h1>
           <p className="text-[0.8rem] text-text-secondary">
-            LDS 15-10-2 Job Search Practice • Auto Follow-ups, Voice Notes & Email Tracker
+            WhatsNext • Auto Follow-ups, Voice Notes & Email Tracker
           </p>
         </div>
       </div>

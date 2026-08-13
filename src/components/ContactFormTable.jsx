@@ -114,7 +114,7 @@ export default function ContactFormTable() {
                 id="contact-name-input"
                 type="text"
                 className={INPUT_FIELD}
-                placeholder="e.g. Dave North"
+                placeholder="e.g. John Doe"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
@@ -126,7 +126,7 @@ export default function ContactFormTable() {
                 id="contact-org-input"
                 type="text"
                 className={INPUT_FIELD}
-                placeholder="e.g. Ancestry.com"
+                placeholder="e.g. TechCorp"
                 value={organization}
                 onChange={(e) => setOrganization(e.target.value)}
               />
@@ -137,7 +137,7 @@ export default function ContactFormTable() {
                 id="contact-emailphone-input"
                 type="text"
                 className={INPUT_FIELD}
-                placeholder="d.north@ancestry.com"
+                placeholder="j.doe@techcorp.com"
                 value={emailPhone}
                 onChange={(e) => setEmailPhone(e.target.value)}
               />

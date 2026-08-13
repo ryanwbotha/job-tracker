@@ -1,0 +1,866 @@
+{
+  "max-w-0": {
+    "$type": "number",
+    "$value": 0,
+    "$description": "Utilities for setting the maximum width of an element.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:499",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:98436b7421c4b369b1e329eb52f4a73fa19716a9/-1:-1",
+        "targetVariableName": "0",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-w-px": {
+    "$type": "number",
+    "$value": 1,
+    "$description": "Utilities for setting the maximum width of an element.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:486",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:834635376cff49dfc205477b4c2bb42f7bcdeb29/-1:-1",
+        "targetVariableName": "1",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-w-0,5": {
+    "$type": "number",
+    "$value": 2,
+    "$description": "Utilities for setting the maximum width of an element.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:496",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:f8f18dd01c33edd4a1f0f0138da540830ca97528/-1:-1",
+        "targetVariableName": "2",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-w-1": {
+    "$type": "number",
+    "$value": 4,
+    "$description": "Utilities for setting the maximum width of an element.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:487",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:4349eace8f00c364ecec74b0971c09a704f363c0/-1:-1",
+        "targetVariableName": "4",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-w-1,5": {
+    "$type": "number",
+    "$value": 6,
+    "$description": "Utilities for setting the maximum width of an element.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:478",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:c418effc15840a866f3359f2bc8571aaba754da1/-1:-1",
+        "targetVariableName": "6",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-w-2": {
+    "$type": "number",
+    "$value": 8,
+    "$description": "Utilities for setting the maximum width of an element.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:471",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:fa8ecc25b4e0eb1dd1c40153bc61e3cff119346e/-1:-1",
+        "targetVariableName": "8",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-w-2,5": {
+    "$type": "number",
+    "$value": 10,
+    "$description": "Utilities for setting the maximum width of an element.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:480",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:c0af8d04c9c055aa683a404a56fb39397ed2b301/-1:-1",
+        "targetVariableName": "10",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-w-3": {
+    "$type": "number",
+    "$value": 12,
+    "$description": "Utilities for setting the maximum width of an element.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:465",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:2fe52057374dd7497039a00ff0b445d293896d07/-1:-1",
+        "targetVariableName": "12",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-w-4": {
+    "$type": "number",
+    "$value": 16,
+    "$description": "Utilities for setting the maximum width of an element.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:464",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:ccc1755212deea37d590922771d1f74fb3326c76/-1:-1",
+        "targetVariableName": "16",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-w-5": {
+    "$type": "number",
+    "$value": 20,
+    "$description": "Utilities for setting the maximum width of an element.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:463",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:fed5f5debc13eeb4e6908a4ea189441d5c23689b/-1:-1",
+        "targetVariableName": "20",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-w-6": {
+    "$type": "number",
+    "$value": 24,
+    "$description": "Utilities for setting the maximum width of an element.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:491",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:4ff0db29f2d0b1557650756fc1ee613c815e2dec/-1:-1",
+        "targetVariableName": "24",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-w-7": {
+    "$type": "number",
+    "$value": 28,
+    "$description": "Utilities for setting the maximum width of an element.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:507",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:445659cd6ea3d30387e36838d6b9d48ec1746857/-1:-1",
+        "targetVariableName": "28",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-w-8": {
+    "$type": "number",
+    "$value": 32,
+    "$description": "Utilities for setting the maximum width of an element.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:511",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:cbf6bf4eb1806e1df296a04ae3fe24788942b655/-1:-1",
+        "targetVariableName": "32",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-w-9": {
+    "$type": "number",
+    "$value": 36,
+    "$description": "Utilities for setting the maximum width of an element.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:509",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:0d7f664b8d1b4c26ecb8215059fb112b58209f50/-1:-1",
+        "targetVariableName": "36",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-w-10": {
+    "$type": "number",
+    "$value": 40,
+    "$description": "Utilities for setting the maximum width of an element.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:510",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:db4d7e98d792a1d9df66bd771e68e461745fef8a/-1:-1",
+        "targetVariableName": "40",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-w-11": {
+    "$type": "number",
+    "$value": 44,
+    "$description": "Utilities for setting the maximum width of an element.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:504",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:b8e7ea3d2b704f3a5bf95ab390d921b6a3b42efc/-1:-1",
+        "targetVariableName": "44",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-w-12": {
+    "$type": "number",
+    "$value": 48,
+    "$description": "Utilities for setting the maximum width of an element.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:494",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:a919dd9254668fdeaa95f58e8a0f4f440a185418/-1:-1",
+        "targetVariableName": "48",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-w-14": {
+    "$type": "number",
+    "$value": 56,
+    "$description": "Utilities for setting the maximum width of an element.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:501",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:1febd275f4956b729e5ee11586d1430a5810203b/-1:-1",
+        "targetVariableName": "56",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-w-16": {
+    "$type": "number",
+    "$value": 64,
+    "$description": "Utilities for setting the maximum width of an element.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:508",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:3944dd246a6306374a356636cde1a6297fe0bf8d/-1:-1",
+        "targetVariableName": "64",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-w-20": {
+    "$type": "number",
+    "$value": 80,
+    "$description": "Utilities for setting the maximum width of an element.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:502",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:616ede3842276faeb5bc68c2685aed11457e7f95/-1:-1",
+        "targetVariableName": "80",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-w-24": {
+    "$type": "number",
+    "$value": 96,
+    "$description": "Utilities for setting the maximum width of an element.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:498",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:10d74972f9532e879e593d17825ede1444045940/-1:-1",
+        "targetVariableName": "96",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-w-28": {
+    "$type": "number",
+    "$value": 112,
+    "$description": "Utilities for setting the maximum width of an element.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:497",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:9d02e2c1450a313e34cfb7fecfb1f05134c392ea/-1:-1",
+        "targetVariableName": "112",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-w-32": {
+    "$type": "number",
+    "$value": 128,
+    "$description": "Utilities for setting the maximum width of an element.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:489",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:f649f8f67773243a3f82c1cf5740e0f0440fefe5/-1:-1",
+        "targetVariableName": "128",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-w-36": {
+    "$type": "number",
+    "$value": 144,
+    "$description": "Utilities for setting the maximum width of an element.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:513",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:71fac47b3279964e0d657529a50ece3ca57d5ce5/-1:-1",
+        "targetVariableName": "144",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-w-40": {
+    "$type": "number",
+    "$value": 160,
+    "$description": "Utilities for setting the maximum width of an element.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:503",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:8c4d6120b30a8468b5f6a870bdb626f01ee57b29/-1:-1",
+        "targetVariableName": "160",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-w-44": {
+    "$type": "number",
+    "$value": 176,
+    "$description": "Utilities for setting the maximum width of an element.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:493",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:03d6533fbc7509b526a2c0934eaeaf7af1488324/-1:-1",
+        "targetVariableName": "176",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-w-48": {
+    "$type": "number",
+    "$value": 192,
+    "$description": "Utilities for setting the maximum width of an element.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:495",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:c6112fac3a2966dd08bdbb67660ff08543eb2f7d/-1:-1",
+        "targetVariableName": "192",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-w-52": {
+    "$type": "number",
+    "$value": 208,
+    "$description": "Utilities for setting the maximum width of an element.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:492",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:07fcfb6e26d549116571f0b38e0627dcd9463515/-1:-1",
+        "targetVariableName": "208",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-w-56": {
+    "$type": "number",
+    "$value": 224,
+    "$description": "Utilities for setting the maximum width of an element.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:476",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:bcfcd964c1f6431a8d3cc5fc18cccd5ad011aa15/-1:-1",
+        "targetVariableName": "224",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-w-60": {
+    "$type": "number",
+    "$value": 240,
+    "$description": "Utilities for setting the maximum width of an element.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:490",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:58b5d8af9f0ad844fa50088de1317a749da7cef1/-1:-1",
+        "targetVariableName": "240",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-w-64": {
+    "$type": "number",
+    "$value": 256,
+    "$description": "Utilities for setting the maximum width of an element.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:485",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:b1dc385af5ccf17ea200e99d8c52eb45aec4b89f/-1:-1",
+        "targetVariableName": "256",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-w-72": {
+    "$type": "number",
+    "$value": 288,
+    "$description": "Utilities for setting the maximum width of an element.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:484",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:bed9c14518fb7d9f664e30262fadef517b2401a2/-1:-1",
+        "targetVariableName": "288",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-w-80": {
+    "$type": "number",
+    "$value": 320,
+    "$description": "Utilities for setting the maximum width of an element.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:483",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:62cce4782d90a3ac8b07c14f7f3229cc07e91153/-1:-1",
+        "targetVariableName": "320",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-w-96": {
+    "$type": "number",
+    "$value": 384,
+    "$description": "Utilities for setting the maximum width of an element.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:466",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:d0cb396372206d43285bd814c5be5b740b1dd995/-1:-1",
+        "targetVariableName": "384",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-w-xs": {
+    "$type": "number",
+    "$value": 320,
+    "$description": "Utilities for setting the maximum width of an element.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:500",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:62cce4782d90a3ac8b07c14f7f3229cc07e91153/-1:-1",
+        "targetVariableName": "320",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-w-sm": {
+    "$type": "number",
+    "$value": 384,
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:505",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.codeSyntax": {
+        "WEB": "max-w-sm"
+      },
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:d0cb396372206d43285bd814c5be5b740b1dd995/-1:-1",
+        "targetVariableName": "384",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-w-md": {
+    "$type": "number",
+    "$value": 448,
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:481",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:fe92fb37acc9626c3be9d0fd242ea926669d6e3a/-1:-1",
+        "targetVariableName": "448",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-w-lg": {
+    "$type": "number",
+    "$value": 512,
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:488",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:356ae0d7146f22ff69f4c2a538c483cf0b3f7e53/-1:-1",
+        "targetVariableName": "512",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-w-xl": {
+    "$type": "number",
+    "$value": 576,
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:467",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:ddafd7f5017f7eef15dbb350eefd6dd1bfaf50a5/-1:-1",
+        "targetVariableName": "576",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-w-2xl": {
+    "$type": "number",
+    "$value": 672,
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:479",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:b9af2915f58125a3a5061b16ca26658f2556d202/-1:-1",
+        "targetVariableName": "672",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-w-3xl": {
+    "$type": "number",
+    "$value": 768,
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:475",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:78dd13de3272404f4b63642f1a952842ff6296d8/-1:-1",
+        "targetVariableName": "768",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-w-4xl": {
+    "$type": "number",
+    "$value": 896,
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:477",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:7ddab57e559f1c0c04ce57966c51c04eb7fad62f/-1:-1",
+        "targetVariableName": "896",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-w-5xl": {
+    "$type": "number",
+    "$value": 1024,
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:512",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:ad3403ea5ca4db66fa6ad53e5123a2d51829ebcd/-1:-1",
+        "targetVariableName": "1024",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-w-6xl": {
+    "$type": "number",
+    "$value": 1152,
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:506",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:29eb882689f41a285dcfc6fa2ff7f963e3367320/-1:-1",
+        "targetVariableName": "1152",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-w-7xl": {
+    "$type": "number",
+    "$value": 1280,
+    "$description": "Utilities for setting the maximum width of an element.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:474",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:18d6d24e1aee441628c8585c12c53c8a3310ec07/-1:-1",
+        "targetVariableName": "1280",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-w-none": {
+    "$type": "number",
+    "$value": 0,
+    "$description": "Utilities for setting the maximum width of an element.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:473",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:98436b7421c4b369b1e329eb52f4a73fa19716a9/-1:-1",
+        "targetVariableName": "0",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-w-screen-sm": {
+    "$type": "number",
+    "$value": 640,
+    "$description": "The max-w-screen-{breakpoint} classes can be used to give an element a max-width matching a specific breakpoint. These values are automatically derived from the theme.screens section of your tailwind.config.js file.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:482",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:ee5677298f663d1563cd3079cc194743c74431e4/-1:-1",
+        "targetVariableName": "640",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-w-screen-md": {
+    "$type": "number",
+    "$value": 768,
+    "$description": "The max-w-screen-{breakpoint} classes can be used to give an element a max-width matching a specific breakpoint. These values are automatically derived from the theme.screens section of your tailwind.config.js file.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:472",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:78dd13de3272404f4b63642f1a952842ff6296d8/-1:-1",
+        "targetVariableName": "768",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-w-screen-lg": {
+    "$type": "number",
+    "$value": 1024,
+    "$description": "The max-w-screen-{breakpoint} classes can be used to give an element a max-width matching a specific breakpoint. These values are automatically derived from the theme.screens section of your tailwind.config.js file.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:470",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:ad3403ea5ca4db66fa6ad53e5123a2d51829ebcd/-1:-1",
+        "targetVariableName": "1024",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-w-screen-xl": {
+    "$type": "number",
+    "$value": 1280,
+    "$description": "The max-w-screen-{breakpoint} classes can be used to give an element a max-width matching a specific breakpoint. These values are automatically derived from the theme.screens section of your tailwind.config.js file.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:469",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:18d6d24e1aee441628c8585c12c53c8a3310ec07/-1:-1",
+        "targetVariableName": "1280",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "max-w-screen-2xl": {
+    "$type": "number",
+    "$value": 1536,
+    "$description": "The max-w-screen-{breakpoint} classes can be used to give an element a max-width matching a specific breakpoint. These values are automatically derived from the theme.screens section of your tailwind.config.js file.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:1044:468",
+      "com.figma.scopes": [
+        "WIDTH_HEIGHT"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:61bc1405fdbe2c419c7475f907fb5773cba59fa0/-1:-1",
+        "targetVariableName": "1536",
+        "targetVariableSetId": "VariableCollectionId:2df16337ecb7741b3bfdd1d9e8ab734be877371a/-1:-1",
+        "targetVariableSetName": "tokens"
+      }
+    }
+  },
+  "$extensions": {
+    "com.figma.modeName": "Mode 1"
+  }
+}

@@ -183,7 +183,7 @@ export default function ResourceTracker() {
               <input
                 type="text"
                 className={INPUT_FIELD}
-                placeholder="e.g. Ancestry Careers, Tech Journal"
+                placeholder="e.g. TechCorp Careers, Tech Journal"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
@@ -208,7 +208,7 @@ export default function ResourceTracker() {
               <input
                 type="url"
                 className={INPUT_FIELD}
-                placeholder="e.g. https://careers.ancestry.com"
+                placeholder="e.g. https://careers.techcorp.com"
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
               />
@@ -218,7 +218,7 @@ export default function ResourceTracker() {
               <input
                 type="text"
                 className={INPUT_FIELD}
-                placeholder="e.g. Tyler Jensen"
+                placeholder="e.g. John Doe"
                 value={contactPerson}
                 onChange={(e) => setContactPerson(e.target.value)}
               />

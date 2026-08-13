@@ -1,4 +1,6 @@
 import React, { createContext, useState, useEffect } from 'react';
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from '../firebase';
 import {
   loadTrackerData,
   putContact,
@@ -12,6 +14,7 @@ import {
   removeResource,
   putEmail,
   putTarget,
+  updateTargetInDb,
   removeTarget,
   putHistoryEntry,
   putSetting,
@@ -34,17 +37,32 @@ export function TrackerProvider({ children }) {
   const [isLoading, setIsLoading] = useState(true);
   const [lastDeleted, setLastDeleted] = useState(null); // { item, type, index }
 
-  // Async initial load from IndexedDB (replaces sync localStorage read)
+  // Async initial load from Firestore
   useEffect(() => {
-    loadTrackerData()
-      .then(loadedData => {
-        setData(loadedData);
+    const fallbackData = {
+      contacts: [], meetings: [], resources: [], targets: [], history: [], emails: [],
+      selectedDate: new Date().toISOString().split('T')[0]
+    };
+
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        loadTrackerData()
+          .then(loadedData => {
+            setData(loadedData || fallbackData);
+            setIsLoading(false);
+          })
+          .catch(err => {
+            console.error('Failed to load tracker data:', err);
+            setData(fallbackData);
+            setIsLoading(false);
+          });
+      } else {
+        setData(fallbackData);
         setIsLoading(false);
-      })
-      .catch(err => {
-        console.error('Failed to load tracker data:', err);
-        setIsLoading(false);
-      });
+      }
+    });
+
+    return () => unsubscribe();
   }, []);
 
   // Helper to log history event
@@ -306,25 +324,71 @@ export function TrackerProvider({ children }) {
   };
 
   // Actions for Target Companies
-  const addTarget = (targetName) => {
-    if (!targetName || data.targets.includes(targetName.toUpperCase())) return;
-    const name = targetName.toUpperCase();
+  const addTarget = (targetData) => {
+    // To support old addTarget(string)
+    const newTarget = typeof targetData === 'string' 
+      ? { id: generateUniqueId('t'), name: targetData.toUpperCase(), website: '', summary: '', contacts: '', notes: '' }
+      : { id: generateUniqueId('t'), name: '', website: '', summary: '', contacts: '', notes: '', ...targetData };
+
+    if (!newTarget.name) return;
+    
+    // Avoid duplicate names if needed, but since we are using IDs, it's less critical.
+    // We'll just add it.
     setData(prev => ({
       ...prev,
-      targets: [...prev.targets, name]
+      targets: [...prev.targets, newTarget]
     }));
-    putTarget({ name }).catch(err => console.error('DB: target write failed', err));
-    logActivity(`Added target company "${name}"`, 'Target');
+    putTarget(newTarget).catch(err => console.error('DB: target write failed', err));
+    logActivity(`Added target company "${newTarget.name}"`, 'Target');
   };
 
-  const deleteTarget = (targetName) => {
-    setLastDeleted({ item: targetName, type: 'target' });
+  const updateTarget = (id, updatedFields) => {
     setData(prev => ({
       ...prev,
-      targets: prev.targets.filter(t => t !== targetName)
+      targets: prev.targets.map(t => t.id === id ? { ...t, ...updatedFields } : t)
     }));
-    removeTarget(targetName).catch(err => console.error('DB: target delete failed', err));
-    logActivity(`Deleted target "${targetName}"`, 'Target');
+    updateTargetInDb(id, updatedFields).catch(err => console.error('DB: target update failed', err));
+  };
+
+  const updateTargetSlot = (slotIndex, updatedFields) => {
+    // Targets are global, not filtered by selectedDate
+    const existingItem = data.targets[slotIndex];
+
+    if (existingItem) {
+      setData(prev => ({
+        ...prev,
+        targets: prev.targets.map(t => t.id === existingItem.id ? { ...t, ...updatedFields } : t)
+      }));
+      updateTargetInDb(existingItem.id, updatedFields).catch(err => console.error('DB: target update failed', err));
+    } else {
+      const newTarget = {
+        id: generateUniqueId('t'),
+        name: '',
+        website: '',
+        summary: '',
+        contacts: '',
+        notes: '',
+        ...updatedFields
+      };
+      setData(prev => ({
+        ...prev,
+        targets: [...prev.targets, newTarget]
+      }));
+      putTarget(newTarget).catch(err => console.error('DB: target write failed', err));
+    }
+  };
+
+  const deleteTarget = (id) => {
+    const target = data.targets.find(t => t.id === id) || (typeof data.targets[0] === 'string' ? data.targets.find(t => t === id) : null);
+    if (!target) return;
+    
+    setLastDeleted({ item: target, type: 'target' });
+    setData(prev => ({
+      ...prev,
+      targets: prev.targets.filter(t => (t.id ? t.id !== id : t !== id))
+    }));
+    removeTarget(id).catch(err => console.error('DB: target delete failed', err));
+    logActivity(`Deleted target "${target.name || target}"`, 'Target');
   };
 
   // Undo Restoration Action
@@ -343,7 +407,7 @@ export function TrackerProvider({ children }) {
       putMeeting(item).catch(err => console.error('DB: restore failed', err));
     } else if (type === 'target') {
       setData(prev => ({ ...prev, targets: [...prev.targets, item] }));
-      putTarget({ name: item }).catch(err => console.error('DB: restore failed', err));
+      putTarget(item).catch(err => console.error('DB: restore failed', err));
     }
 
     logActivity(`Restored deleted ${type} "${item.name || item}"`, 'Undo');
@@ -405,7 +469,7 @@ export function TrackerProvider({ children }) {
 
   // Loading guard — don't render children until IndexedDB data is loaded
   if (isLoading || !data) {
-    return null;
+    return <div className="min-h-screen flex items-center justify-center bg-[var(--bg-app)] text-white">Ug is fetching data from the cave...</div>;
   }
 
   // Filter lists by selectedDate for daily views (or bypass if 'ALL')
@@ -444,6 +508,8 @@ export function TrackerProvider({ children }) {
       updateMeetingSlot,
       deleteMeeting,
       addTarget,
+      updateTarget,
+      updateTargetSlot,
       deleteTarget,
       restoreLastDeleted,
       clearLastDeleted,

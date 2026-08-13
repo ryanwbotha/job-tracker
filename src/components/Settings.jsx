@@ -10,11 +10,6 @@ export default function Settings() {
   const [summary, setSummary] = useState('');
   const [resumeText, setResumeText] = useState('');
 
-  // API Key State
-  const [apiKey, setApiKey] = useState('');
-  const [envKeyDetected, setEnvKeyDetected] = useState(false);
-  const [testingKey, setTestingKey] = useState(false);
-  const [testResult, setTestResult] = useState(null); // { success: boolean, message: string }
 
   const [isUploading, setIsUploading] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
@@ -95,11 +90,6 @@ export default function Settings() {
     setSummary(localStorage.getItem('settings_professional_summary') || '');
     setResumeText(localStorage.getItem('ats_resume_text') || '');
 
-    const envKey = import.meta.env.VITE_GEMINI_API_KEY || '';
-    if (envKey) {
-      setEnvKeyDetected(true);
-    }
-    setApiKey(localStorage.getItem('gemini_api_key') || envKey);
   }, []);
 
   const handleSaveSettings = (e) => {
@@ -110,14 +100,6 @@ export default function Settings() {
     localStorage.setItem('settings_target_roles', targetRoles.trim());
     localStorage.setItem('settings_professional_summary', summary.trim());
     localStorage.setItem('ats_resume_text', resumeText.trim());
-
-    // Only save API key to local storage if it differs from the environment key
-    const envKey = import.meta.env.VITE_GEMINI_API_KEY || '';
-    if (apiKey.trim() && apiKey.trim() !== envKey) {
-      localStorage.setItem('gemini_api_key', apiKey.trim());
-    } else if (!apiKey.trim() || apiKey.trim() === envKey) {
-      localStorage.removeItem('gemini_api_key');
-    }
 
     setSaveSuccess(true);
     setTimeout(() => setSaveSuccess(false), 3000);
@@ -131,52 +113,12 @@ export default function Settings() {
       setTargetRoles('');
       setSummary('');
       setResumeText('');
-      setApiKey(import.meta.env.VITE_GEMINI_API_KEY || '');
       localStorage.removeItem('settings_name');
       localStorage.removeItem('settings_email');
       localStorage.removeItem('settings_phone');
       localStorage.removeItem('settings_target_roles');
       localStorage.removeItem('settings_professional_summary');
       localStorage.removeItem('ats_resume_text');
-      localStorage.removeItem('gemini_api_key');
-    }
-  };
-
-  const handleTestApiKey = async () => {
-    if (!apiKey.trim()) {
-      setTestResult({ success: false, message: 'Please enter an API Key first.' });
-      return;
-    }
-
-    setTestingKey(true);
-    setTestResult(null);
-
-    try {
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey.trim()}`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            contents: [{
-              parts: [{ text: 'Hello' }]
-            }]
-          })
-        }
-      );
-
-      if (response.ok) {
-        setTestResult({ success: true, message: 'Connection successful! Your Gemini API key is valid.' });
-      } else {
-        const data = await response.json().catch(() => ({}));
-        throw new Error(data.error?.message || `HTTP Error ${response.status}`);
-      }
-    } catch (err) {
-      setTestResult({ success: false, message: `Connection failed: ${err.message}` });
-    } finally {
-      setTestingKey(false);
     }
   };
 
@@ -199,7 +141,7 @@ export default function Settings() {
                 type="text" 
                 value={name} 
                 onChange={(e) => setName(e.target.value)} 
-                placeholder="e.g. Ryan Botha" 
+                placeholder="e.g. Jane Doe" 
                 className="bg-bg-input border border-border-color rounded-md px-3.5 py-2.5 text-text-primary font-body text-sm min-h-[44px] outline-none w-full hover:border-accent-blue focus:border-accent-blue focus:ring-4 focus:ring-accent-blue/10"
               />
             </div>
@@ -303,67 +245,6 @@ export default function Settings() {
               <span className="text-xs text-accent-rose font-medium">
                 {uploadError}
               </span>
-            )}
-          </div>
-        </div>
-
-        {/* Row 2: API Keys */}
-        <div className="section-card p-6 md:p-8 flex flex-col gap-5">
-          <div className="flex items-center gap-2.5 border-b border-border-color pb-3">
-            <Key size={20} color="var(--accent-blue)" />
-            <h3 className="text-[1.1rem] font-bold text-text-primary font-heading">API Configuration & Credentials</h3>
-          </div>
-
-          <div className="flex flex-col gap-3">
-            <div className="flex flex-col gap-1.5">
-              <div className="flex justify-between items-center">
-                <label className="text-[0.85rem] font-semibold text-text-secondary">Gemini API Key</label>
-                {envKeyDetected && (
-                  <span className="text-[0.75rem] text-accent-emerald flex items-center gap-1 font-semibold">
-                    <ShieldCheck size={12} />
-                    <span>Loaded from environment (.env.local)</span>
-                  </span>
-                )}
-              </div>
-              <input 
-                type="password" 
-                value={apiKey} 
-                onChange={(e) => setApiKey(e.target.value)} 
-                placeholder="Paste key to override configuration (AIzaSy...)" 
-                className="bg-bg-input border border-border-color rounded-md px-3.5 py-2.5 text-text-primary font-mono text-sm min-h-[44px] outline-none w-full hover:border-accent-blue focus:border-accent-blue focus:ring-4 focus:ring-accent-blue/10"
-              />
-            </div>
-
-            <div className="flex gap-2 flex-wrap">
-              <button 
-                type="button" 
-                onClick={handleTestApiKey} 
-                disabled={testingKey}
-                className="inline-flex items-center justify-center gap-2 font-body font-semibold text-sm min-h-[36px] px-4 py-1.5 rounded-sm border border-border-color bg-bg-card text-text-primary hover:bg-bg-elevated cursor-pointer transition-all duration-150 active:opacity-85"
-              >
-                {testingKey ? (
-                  <>
-                    <RefreshCw className="animate-spin" size={14} />
-                    <span>Testing...</span>
-                  </>
-                ) : (
-                  <>
-                    <Sparkles size={14} />
-                    <span>Test API Key Connection</span>
-                  </>
-                )}
-              </button>
-            </div>
-
-            {testResult && (
-              <div className={`border rounded-sm py-2.5 px-3.5 text-[0.85rem] font-medium flex items-center gap-1.5 mt-1 ${
-                testResult.success
-                  ? 'bg-accent-emerald/5 border-accent-emerald text-accent-emerald'
-                  : 'bg-accent-rose/5 border-accent-rose text-accent-rose'
-              }`}>
-                {testResult.success ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
-                <span>{testResult.message}</span>
-              </div>
             )}
           </div>
         </div>

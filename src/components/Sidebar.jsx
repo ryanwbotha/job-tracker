@@ -3,8 +3,10 @@ import { useTracker } from '../context/TrackerContext';
 import {
   Target, LayoutDashboard, Database, Users, Video, Compass,
   Building2, History, MailCheck, FileText, Briefcase, Sparkles,
-  Settings as SettingsIcon, Sun, Moon
+  Settings as SettingsIcon, Sun, Moon, LogOut
 } from 'lucide-react';
+import { auth } from '../firebase';
+import { signOut } from 'firebase/auth';
 
 function useTheme() {
   const [theme, setTheme] = useState(() => {
@@ -80,7 +82,7 @@ export default function Sidebar({ activeView, setActiveView }) {
           <Target size={18} color="#fff" />
         </span>
         <div>
-          <p style={{ color: 'var(--text-primary)' }} className="text-sm font-bold tracking-tight">15-10-2 Practice</p>
+          <p style={{ color: 'var(--text-primary)' }} className="text-sm font-bold tracking-tight">WhatsNext</p>
           <p style={{ color: 'var(--text-muted)' }} className="text-[11px] mt-0.5 font-medium">Job Search Tracker</p>
         </div>
       </div>
@@ -170,6 +172,20 @@ export default function Sidebar({ activeView, setActiveView }) {
           className="inline-flex items-center justify-center w-10 h-10 shrink-0 rounded-lg cursor-pointer transition-all hover:!text-[var(--text-primary)]"
         >
           {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+        </button>
+
+        {/* Sign Out */}
+        <button
+          onClick={() => signOut(auth)}
+          title="Sign out of your cave"
+          style={{
+            background: 'var(--bg-elevated)',
+            border: '1px solid var(--border)',
+            color: 'var(--text-secondary)',
+          }}
+          className="inline-flex items-center justify-center w-10 h-10 shrink-0 rounded-lg cursor-pointer transition-all hover:!text-red-500 hover:!border-red-500/30"
+        >
+          <LogOut size={16} />
         </button>
       </div>
     </aside>

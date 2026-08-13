@@ -26,7 +26,7 @@ export default function FillablePaperFormView() {
     deleteContact,
     updateMeetingSlot,
     deleteMeeting,
-    addTarget,
+    updateTargetSlot,
     deleteTarget
   } = useTracker();
 
@@ -40,6 +40,9 @@ export default function FillablePaperFormView() {
 
   // Ensure 2 slots for Meetings
   const meetingSlots = Array.from({ length: 2 }, (_, i) => meetings[i] || null);
+
+  // Ensure 5 slots for Targets
+  const targetSlots = Array.from({ length: 5 }, (_, i) => targets[i] || null);
 
   const handleResourceChange = (index, field, value) => {
     updateResourceSlot(index, { [field]: value });
@@ -65,18 +68,15 @@ export default function FillablePaperFormView() {
     }
   };
 
-  const handleAddTargetSubmit = (e) => {
-    e.preventDefault();
-    if (newTargetInput.trim()) {
-      addTarget(newTargetInput.trim());
-      setNewTargetInput('');
-    }
+  const handleTargetChange = (index, field, value) => {
+    updateTargetSlot(index, { [field]: value });
   };
 
   // Filter out items with empty names for slot counts
   const filledResourceCount = resources.filter(r => r && r.name && r.name.trim()).length;
   const filledContactCount = contacts.filter(c => c && c.name && c.name.trim()).length;
   const filledMeetingCount = meetings.filter(m => m && m.name && m.name.trim()).length;
+  const filledTargetCount = targets.filter(t => t && (t.name ? t.name.trim() : (typeof t === 'string' && t.trim()))).length;
 
   // Calculate first empty slot indices for sequential unlocking
   const firstEmptyResIdx = resourceSlots.findIndex(r => !r || !r.name || !r.name.trim());
@@ -87,6 +87,9 @@ export default function FillablePaperFormView() {
 
   const firstEmptyMtgIdx = meetingSlots.findIndex(m => !m || !m.name || !m.name.trim());
   const effectiveEmptyMtgIdx = firstEmptyMtgIdx === -1 ? 2 : firstEmptyMtgIdx;
+
+  const firstEmptyTargetIdx = targetSlots.findIndex(t => !t || (!t.name && typeof t !== 'string') || (t.name ? !t.name.trim() : !t.trim()));
+  const effectiveEmptyTargetIdx = firstEmptyTargetIdx === -1 ? 5 : firstEmptyTargetIdx;
 
   return (
     <div className="bg-white rounded-lg p-6 shadow-card transition-all duration-150 border-2 border-[#0f172a] text-[#0f172a]">
@@ -428,45 +431,114 @@ export default function FillablePaperFormView() {
         </div>
       </div>
 
-      {/* Target Companies Footer Box with Interactive Add/Remove Tags */}
-      <div className="border border-[#0f172a] p-3.5 font-semibold text-[16px] mb-3 bg-slate-50 flex flex-col gap-2">
-        <div className="uppercase text-[#0f172a] text-[0.85rem] font-extrabold">
-          Target Companies:
+      {/* Target Companies Table Section (5 Slots) */}
+      <div className="mb-5">
+        <div className="flex items-center justify-between mb-1.5 border-b-2 border-[#0f172a] pb-1">
+          <h3 className="text-[0.95rem] font-extrabold uppercase m-0">
+            Target Companies (Goal: 5)
+          </h3>
+          <span className="text-[0.85rem] text-slate-500 font-normal">{filledTargetCount} / 5 companies</span>
         </div>
 
-        <div className="flex flex-wrap gap-2 items-center">
-          {targets.map(target => (
-            <div
-              key={target}
-              className="inline-flex items-center gap-1.5 bg-[#eff6ff] border border-blue-200 text-blue-700 p-[0.35rem_0.75rem] rounded-md font-semibold text-[16px]"
-            >
-              <span>{target}</span>
-              <button
-                type="button"
-                aria-label={`Remove target company ${target}`}
-                onClick={() => deleteTarget(target)}
-                className="bg-transparent border-none text-blue-700 cursor-pointer flex items-center p-1 min-w-[28px] min-h-[28px] rounded-full hover:bg-blue-100 justify-center"
-                title={`Remove ${target}`}
-              >
-                <X size={15} />
-              </button>
-            </div>
-          ))}
+        <div className="table-responsive">
+          <table className="w-full border-collapse border border-[#0f172a] text-[16px]" aria-label="Targets Form Table">
+            <thead>
+              <tr className="bg-slate-100">
+                <th className="border border-[#0f172a] p-2 text-left w-[30px]">#</th>
+                <th className="border border-[#0f172a] p-2 text-left w-[170px]">Company Name</th>
+                <th className="border border-[#0f172a] p-2 text-left w-[140px]">Website</th>
+                <th className="border border-[#0f172a] p-2 text-left w-[170px]">Summary</th>
+                <th className="border border-[#0f172a] p-2 text-left w-[170px]">Contacts</th>
+                <th className="border border-[#0f172a] p-2 text-left">Notes</th>
+                <th className="border border-[#0f172a] p-2 text-center w-[44px]">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {targetSlots.map((t, i) => {
+                const nameStr = t ? (t.name !== undefined ? t.name : t) : '';
+                const hasData = typeof nameStr === 'string' && nameStr.trim().length > 0;
+                const isTargetDisabled = !hasData && i > effectiveEmptyTargetIdx;
+                const isStringTarget = typeof t === 'string';
 
-          <form onSubmit={handleAddTargetSubmit} className="inline-flex gap-1.5">
-            <input
-              type="text"
-              aria-label="Add new target company"
-              placeholder="+ Add Target Company"
-              className="p-[0.4rem_0.65rem] text-[16px] border border-slate-300 rounded-[4px] outline-none bg-white min-h-[44px] font-normal"
-              value={newTargetInput}
-              onChange={(e) => setNewTargetInput(e.target.value)}
-            />
-            <button type="submit" className={`${BTN_SM_PRIMARY} p-[0.4rem_0.75rem] text-[16px]`} aria-label="Submit new target company">
-              <Plus size={16} />
-              <span>Add</span>
-            </button>
-          </form>
+                return (
+                  <tr
+                    key={`target_slot_${i}`}
+                    className={`${hasData ? 'bg-white' : 'bg-[#fafafa]'} ${isTargetDisabled ? 'opacity-55 cursor-not-allowed' : 'opacity-100 cursor-default'}`}
+                    title={isTargetDisabled ? `Complete empty Target #${effectiveEmptyTargetIdx + 1} first` : ''}
+                  >
+                    <td className={`border border-[#0f172a] p-1.5 font-semibold text-center text-[16px] ${isTargetDisabled ? 'text-slate-400' : 'text-slate-500'}`}>{i + 1}</td>
+                    <td className="border border-[#0f172a] p-0.5">
+                      <input
+                        type="text"
+                        className={CELL_INPUT}
+                        disabled={isTargetDisabled}
+                        aria-label={`Target ${i + 1} company name`}
+                        placeholder=""
+                        value={nameStr}
+                        onChange={(e) => handleTargetChange(i, 'name', e.target.value)}
+                      />
+                    </td>
+                    <td className="border border-[#0f172a] p-0.5">
+                      <input
+                        type="text"
+                        className={CELL_INPUT}
+                        disabled={isTargetDisabled}
+                        aria-label={`Target ${i + 1} website`}
+                        placeholder=""
+                        value={isStringTarget ? '' : (t ? t.website : '')}
+                        onChange={(e) => handleTargetChange(i, 'website', e.target.value)}
+                      />
+                    </td>
+                    <td className="border border-[#0f172a] p-0.5">
+                      <input
+                        type="text"
+                        className={CELL_INPUT}
+                        disabled={isTargetDisabled}
+                        aria-label={`Target ${i + 1} summary`}
+                        placeholder=""
+                        value={isStringTarget ? '' : (t ? t.summary : '')}
+                        onChange={(e) => handleTargetChange(i, 'summary', e.target.value)}
+                      />
+                    </td>
+                    <td className="border border-[#0f172a] p-0.5">
+                      <input
+                        type="text"
+                        className={CELL_INPUT}
+                        disabled={isTargetDisabled}
+                        aria-label={`Target ${i + 1} contacts`}
+                        placeholder=""
+                        value={isStringTarget ? '' : (t ? t.contacts : '')}
+                        onChange={(e) => handleTargetChange(i, 'contacts', e.target.value)}
+                      />
+                    </td>
+                    <td className="border border-[#0f172a] p-0.5">
+                      <input
+                        type="text"
+                        className={CELL_INPUT}
+                        disabled={isTargetDisabled}
+                        aria-label={`Target ${i + 1} notes`}
+                        placeholder=""
+                        value={isStringTarget ? '' : (t ? t.notes : '')}
+                        onChange={(e) => handleTargetChange(i, 'notes', e.target.value)}
+                      />
+                    </td>
+                    <td className="border border-[#0f172a] p-1 text-center">
+                      {hasData && (
+                        <button
+                          type="button"
+                          aria-label={`Delete target ${nameStr}`}
+                          onClick={() => deleteTarget(isStringTarget ? t : t.id)}
+                          className="bg-transparent border-none text-red-500 cursor-pointer p-1 min-w-[36px] min-h-[36px] flex items-center justify-center rounded-sm hover:bg-red-50 mx-auto"
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
       </div>
 

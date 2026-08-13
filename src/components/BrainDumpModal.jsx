@@ -439,7 +439,7 @@ export default function BrainDumpModal({ isOpen, onClose }) {
                 id="brain-dump-input"
                 className={INPUT_FIELD}
                 rows={5}
-                placeholder="e.g. Met Rob Jex at church today for an informational chat about self reliance leadership. Also found Ancestry.com engineering job post and messaged Dave North on LinkedIn..."
+                placeholder="e.g. Met John Doe for an informational chat. Also found TechCorp engineering job post and messaged Jane Doe on LinkedIn..."
                 value={rawText}
                 onChange={(e) => setRawText(e.target.value)}
               />

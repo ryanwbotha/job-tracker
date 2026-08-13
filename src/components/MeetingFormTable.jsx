@@ -114,7 +114,7 @@ export default function MeetingFormTable() {
                 id="meeting-name-input"
                 type="text"
                 className={INPUT_FIELD}
-                placeholder="e.g. Rob Jex"
+                placeholder="e.g. John Doe"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
@@ -126,7 +126,7 @@ export default function MeetingFormTable() {
                 id="meeting-org-input"
                 type="text"
                 className={INPUT_FIELD}
-                placeholder="e.g. Adobe.com"
+                placeholder="e.g. TechCorp"
                 value={organization}
                 onChange={(e) => setOrganization(e.target.value)}
               />
@@ -137,7 +137,7 @@ export default function MeetingFormTable() {
                 id="meeting-emailphone-input"
                 type="text"
                 className={INPUT_FIELD}
-                placeholder="rob.jex@church.org"
+                placeholder="j.doe@techcorp.com"
                 value={emailPhone}
                 onChange={(e) => setEmailPhone(e.target.value)}
               />

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { TrackerProvider } from './context/TrackerContext';
 import Sidebar from './components/Sidebar';
 import TopToolbar from './components/TopToolbar';
@@ -17,6 +17,9 @@ import UndoToastNotification from './components/UndoToastNotification';
 import JobTrackerView from './components/JobTrackerView';
 import AtsMatcher from './components/AtsMatcher';
 import Settings from './components/Settings';
+import Login from './components/Login';
+import { auth } from './firebase';
+import { onAuthStateChanged } from 'firebase/auth';
 
 const VIEW_METADATA = {
   overview:   { title: 'Daily Overview Dashboard',                subtitle: 'Personalized strategy tips & 15-10-2 progress metrics' },
@@ -104,8 +107,27 @@ function AppContent() {
 }
 
 export default function App() {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setLoading(false);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  if (loading) {
+    return <div className="min-h-screen flex items-center justify-center bg-[var(--bg-app)] text-white">Loading...</div>;
+  }
+
+  if (!user) {
+    return <Login />;
+  }
+
   return (
-    <TrackerProvider>
+    <TrackerProvider user={user}>
       <AppContent />
     </TrackerProvider>
   );
