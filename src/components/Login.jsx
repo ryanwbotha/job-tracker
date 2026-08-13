@@ -109,7 +109,7 @@ export default function Login() {
             Track your job hunt <br/> like a pro.
           </h1>
           <p className="text-lg text-white max-w-md drop-shadow-md font-medium leading-relaxed">
-            Keep track of applications, interviews, and offers in one organized cave. Never lose a job rock again.
+            Keep track of applications, interviews, and offers in one organized workspace. Never lose track of an opportunity again.
           </p>
         </div>
       </div>
