@@ -1,7 +1,9 @@
 import React from 'react';
 import { useTracker } from '../context/TrackerContext';
-import { Share2, Sparkles, ChevronLeft, ChevronRight, CalendarDays } from 'lucide-react';
+import { ShareNetwork, Sparkle, CaretLeft, CaretRight } from '@phosphor-icons/react';
 import DatePickerPopover from './DatePickerPopover';
+import { Button } from './ui/button';
+import { Card } from './ui/card';
 
 export default function TopToolbar({ viewTitle, viewSubtitle, onOpenBrainDump, onOpenAccountability }) {
   const { selectedDate, setSelectedDate } = useTracker();
@@ -28,107 +30,99 @@ export default function TopToolbar({ viewTitle, viewSubtitle, onOpenBrainDump, o
     setSelectedDate(curr.toISOString().split('T')[0]);
   };
 
+  const getLocalDateStr = () => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  };
+
+  const todayStr = getLocalDateStr();
+
+  const handleSetToday = () => {
+    setSelectedDate(todayStr);
+  };
+
   const handleSetAll = () => {
-    setSelectedDate(selectedDate === 'ALL' ? new Date().toISOString().split('T')[0] : 'ALL');
+    setSelectedDate('ALL');
   };
 
   return (
-    <div
-      style={{
-        background: 'var(--bg-card)',
-        border: '1px solid var(--border)',
-        borderRadius: 'var(--radius-lg)',
-        boxShadow: 'var(--shadow-sm)',
-      }}
-      className="flex flex-wrap items-center justify-between gap-4 px-5 py-3.5 w-full"
-    >
+    <Card className="flex flex-wrap items-center justify-between gap-4 p-4 md:p-5 w-full">
       {/* Title block */}
       <div>
-        <h1
-          style={{ color: 'var(--text-primary)' }}
-          className="text-base font-semibold tracking-tight leading-tight"
-        >
+        <h1 className="text-base font-bold tracking-tight leading-tight text-foreground">
           {viewTitle}
         </h1>
-        <p style={{ color: 'var(--text-muted)' }} className="mt-1 text-xs">
+        <p className="mt-0.5 text-xs text-muted-foreground">
           {viewSubtitle}
         </p>
       </div>
 
       {/* Actions */}
       <div className="flex flex-wrap items-center gap-3">
+        {/* Date navigator and filters */}
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full sm:w-auto">
+          {/* Date picker button group */}
+          <div className="flex items-center justify-between sm:justify-start border border-border bg-card rounded-md h-9 w-full sm:w-auto shrink-0 p-0.5">
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              onClick={handlePrevDay}
+              title="Previous Day"
+              className="text-muted-foreground hover:text-foreground"
+            >
+              <CaretLeft size={14} />
+            </Button>
 
-        {/* Date navigator */}
-        <div
-          style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)' }}
-          className="flex items-center gap-0 h-10 min-h-[40px]"
-        >
-          <button
-            type="button"
-            onClick={handlePrevDay}
-            title="Previous Day"
-            style={{ color: 'var(--text-secondary)' }}
-            className="inline-flex items-center justify-center w-10 h-10 cursor-pointer border-none bg-transparent transition-colors hover:!text-[var(--text-primary)] hover:bg-[var(--bg-elevated)]"
-          >
-            <ChevronLeft size={15} />
-          </button>
+            <div className="flex flex-1 sm:flex-none justify-center items-center h-full px-1 border-x border-border">
+              <DatePickerPopover selectedDate={selectedDate} setSelectedDate={setSelectedDate} />
+            </div>
 
-          <div
-            style={{ borderLeft: '1px solid var(--border)', borderRight: '1px solid var(--border)' }}
-            className="flex items-center h-full"
-          >
-            <DatePickerPopover selectedDate={selectedDate} setSelectedDate={setSelectedDate} />
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              onClick={handleNextDay}
+              title="Next Day"
+              className="text-muted-foreground hover:text-foreground"
+            >
+              <CaretRight size={14} />
+            </Button>
           </div>
 
-          <button
-            type="button"
-            onClick={handleNextDay}
-            title="Next Day"
-            style={{ color: 'var(--text-secondary)' }}
-            className="inline-flex items-center justify-center w-10 h-10 cursor-pointer border-none bg-transparent transition-colors hover:!text-[var(--text-primary)]"
-          >
-            <ChevronRight size={15} />
-          </button>
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            {/* Today button */}
+            <Button
+              variant={selectedDate === todayStr ? 'default' : 'outline'}
+              size="sm"
+              onClick={handleSetToday}
+              title="Today"
+            >
+              Today
+            </Button>
 
-          <button
-            type="button"
-            onClick={handleSetAll}
-            title="Toggle All Dates"
-            style={selectedDate === 'ALL'
-              ? { background: '#3b82f6', color: '#fff', borderLeft: '1px solid var(--border)' }
-              : { background: 'transparent', color: 'var(--text-secondary)', borderLeft: '1px solid var(--border)' }
-            }
-            className="inline-flex items-center justify-center px-3.5 h-10 text-xs font-semibold cursor-pointer border-none transition-colors hover:!text-[var(--text-primary)]"
-          >
-            All
-          </button>
+            {/* Show All button */}
+            <Button
+              variant={selectedDate === 'ALL' ? 'default' : 'outline'}
+              size="sm"
+              onClick={handleSetAll}
+              title="Show All Dates"
+            >
+              Show All
+            </Button>
+          </div>
         </div>
 
         {/* Brain dump / activity sorter */}
-        <button
-          onClick={onOpenBrainDump}
-          style={{
-            background: 'transparent',
-            border: '1px solid var(--border)',
-            color: 'var(--text-primary)',
-            borderRadius: 'var(--radius-md)',
-          }}
-          className="btn btn-sm btn-ghost gap-2 min-h-[40px] px-4"
-        >
-          <Sparkles size={14} color="#8b5cf6" />
+        <Button variant="outline" size="sm" onClick={onOpenBrainDump} className="gap-2">
+          <Sparkle size={15} className="text-primary" weight="fill" />
           <span>Import Activity</span>
-        </button>
+        </Button>
 
         {/* Accountability share */}
-        <button
-          onClick={onOpenAccountability}
-          className="btn btn-sm btn-success min-h-[40px] px-4 gap-2"
-        >
-          <Share2 size={14} />
+        <Button variant="ghost" size="sm" onClick={onOpenAccountability} className="gap-2">
+          <ShareNetwork size={15} weight="bold" />
           <span>Share Update</span>
-        </button>
-
+        </Button>
       </div>
-    </div>
+    </Card>
   );
 }

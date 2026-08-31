@@ -1,6 +1,8 @@
 import React from 'react';
 import { useTracker } from '../context/TrackerContext';
 import { Compass, Users, Video } from 'lucide-react';
+import { Card } from './ui/card';
+import { Progress } from './ui/progress';
 
 function ProgressRing({ current, total, color }) {
   const radius = 24;
@@ -14,7 +16,7 @@ function ProgressRing({ current, total, color }) {
         {/* Track */}
         <circle
           cx="30" cy="30" r={radius}
-          stroke="var(--border)"
+          className="stroke-border"
           strokeWidth="3"
           fill="transparent"
         />
@@ -32,8 +34,7 @@ function ProgressRing({ current, total, color }) {
         />
       </svg>
       <span
-        style={{ color: 'var(--text-primary)' }}
-        className="absolute font-bold text-[1.05rem] leading-none"
+        className="absolute font-bold text-[1.05rem] leading-none text-foreground"
       >
         {current}
       </span>
@@ -52,8 +53,6 @@ export default function DailyProgressCard({ setActiveView }) {
       count: resources.length,
       total: 15,
       color: '#3b82f6',
-      accentBg: 'rgba(59,130,246,0.08)',
-      accentBorder: 'rgba(59,130,246,0.2)',
       iconBg: 'rgba(59,130,246,0.1)',
     },
     {
@@ -63,8 +62,6 @@ export default function DailyProgressCard({ setActiveView }) {
       count: contacts.length,
       total: 10,
       color: '#10b981',
-      accentBg: 'rgba(16,185,129,0.08)',
-      accentBorder: 'rgba(16,185,129,0.2)',
       iconBg: 'rgba(16,185,129,0.1)',
     },
     {
@@ -74,8 +71,6 @@ export default function DailyProgressCard({ setActiveView }) {
       count: meetings.length,
       total: 2,
       color: '#8b5cf6',
-      accentBg: 'rgba(139,92,246,0.08)',
-      accentBorder: 'rgba(139,92,246,0.2)',
       iconBg: 'rgba(139,92,246,0.1)',
     },
   ];
@@ -88,22 +83,14 @@ export default function DailyProgressCard({ setActiveView }) {
         const met = card.count >= card.total;
 
         return (
-          <div
+          <Card
             key={card.id}
             onClick={() => setActiveView && setActiveView(card.id)}
             role="button"
             tabIndex={0}
             aria-label={`${card.title} — ${card.count} of ${card.total}. Click to view.`}
             onKeyDown={e => { if ((e.key === 'Enter' || e.key === ' ') && setActiveView) { e.preventDefault(); setActiveView(card.id); } }}
-            style={{
-              background: 'var(--bg-card)',
-              border: `1px solid ${met ? card.color + '44' : 'var(--border)'}`,
-              borderRadius: 'var(--radius-lg)',
-              boxShadow: 'var(--shadow-sm)',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-            }}
-            className="flex items-center gap-3.5 p-4 px-4.5 hover:translate-y-[-2px] hover:!shadow-[var(--shadow-md)]"
+            className="flex items-center gap-3.5 p-4 px-4.5 cursor-pointer hover:translate-y-[-2px] transition-transform"
           >
             <ProgressRing current={card.count} total={card.total} color={card.color} />
 
@@ -118,36 +105,28 @@ export default function DailyProgressCard({ setActiveView }) {
               </div>
 
               <div className="flex items-baseline gap-1">
-                <span style={{ color: 'var(--text-primary)' }} className="text-2xl font-bold">
+                <span className="text-2xl font-bold text-foreground">
                   {card.count}
                 </span>
-                <span style={{ color: 'var(--text-muted)' }} className="text-sm font-medium">
+                <span className="text-sm font-medium text-muted-foreground">
                   / {card.total}
                 </span>
               </div>
 
               {/* Mini progress bar */}
-              <div
-                className="h-1 rounded-full overflow-hidden mt-0.5"
-                style={{ background: 'var(--border)' }}
-              >
-                <div
-                  style={{
-                    width: `${pct}%`,
-                    background: card.color,
-                    transition: 'width 0.5s ease',
-                    height: '100%',
-                    borderRadius: 'inherit',
-                  }}
-                />
-              </div>
-              <span style={{ color: 'var(--text-muted)' }} className="text-[11px] font-medium">
+              <Progress
+                value={pct}
+                max={100}
+                className="h-1 mt-0.5"
+              />
+              <span className="text-[11px] font-medium text-muted-foreground">
                 {pct}% {met ? '✓ Goal met!' : 'of daily goal'}
               </span>
             </div>
-          </div>
+          </Card>
         );
       })}
     </div>
   );
 }
+

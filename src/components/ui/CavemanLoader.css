@@ -1,0 +1,26 @@
+.caveman-loader-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background-color: var(--bg-app);
+}
+
+.caveman-image-container {
+  margin-bottom: 24px;
+}
+
+.caveman-text {
+  font-size: 1.25rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  color: #1e293b; /* Dark text */
+  text-align: center;
+}
+
+.caveman-dots {
+  display: inline-block;
+  width: 24px;
+  text-align: left;
+}

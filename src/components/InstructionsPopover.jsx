@@ -1,36 +1,37 @@
 import React, { useState } from 'react';
 import { HelpCircle, X } from 'lucide-react';
-
-// Tailwind CSS styling constants for v4 migration
-const BTN_SM_BLUE = "inline-flex items-center justify-center gap-1.5 rounded-full border border-accent-blue/20 bg-accent-blue/10 px-4 py-1.5 text-xs font-semibold text-accent-blue shadow-sm transition-colors hover:bg-accent-blue/20 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-accent-blue/10 cursor-pointer";
+import { Button } from './ui/button';
+import { Card } from './ui/card';
 
 export default function InstructionsPopover() {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
     <div className="relative inline-block">
-      <button
+      <Button
         type="button"
-        className={BTN_SM_BLUE}
+        variant="outline"
+        size="xs"
         onClick={() => setIsOpen(!isOpen)}
         aria-label="Toggle Form Instructions"
+        className="gap-1.5"
       >
         <HelpCircle size={15} />
         <span>Form Instructions</span>
-      </button>
+      </Button>
 
       {isOpen && (
-        <div
-          className="absolute top-[calc(100%+8px)] right-0 w-[340px] bg-bg-card border border-border-color rounded-md p-4 shadow-[0_10px_25px_-5px_rgba(0,0,0,0.15)] z-[100] text-[16px] leading-normal text-text-secondary animate-fadeIn"
+        <Card
+          className="absolute top-[calc(100%+8px)] right-0 w-[340px] p-4 z-50 text-xs leading-normal text-muted-foreground shadow-lg"
         >
-          <div className="flex items-center justify-between mb-2 border-b border-border-color pb-1.5">
-            <strong className="text-[16px] text-text-primary font-bold">15-10-2 Form Guidance</strong>
-            <button onClick={() => setIsOpen(false)} aria-label="Close Instructions" className="border-none cursor-pointer text-text-muted p-1.5 w-8 h-8 flex items-center justify-center rounded-lg hover:bg-bg-elevated hover:text-text-primary bg-transparent">
+          <div className="flex items-center justify-between mb-2 border-b border-border pb-1.5">
+            <strong className="text-xs text-foreground font-bold">15-10-2 Form Guidance</strong>
+            <Button variant="ghost" size="icon-xs" onClick={() => setIsOpen(false)} aria-label="Close Instructions">
               <X size={16} />
-            </button>
+            </Button>
           </div>
 
-          <ul className="pl-4.5 m-0 flex flex-col gap-1.5">
+          <ul className="pl-4 m-0 flex flex-col gap-1.5 list-disc">
             <li><strong>Contact name:</strong> Record the contact's full name.</li>
             <li><strong>Organization:</strong> Record company or organization name.</li>
             <li><strong>Email and phone:</strong> Record email address and cell/landline number.</li>
@@ -39,7 +40,7 @@ export default function InstructionsPopover() {
             <li><strong>Kind of meeting:</strong> Job interview or informational interview.</li>
             <li><strong>Follow-up date:</strong> Target date you will follow up with contact.</li>
           </ul>
-        </div>
+        </Card>
       )}
     </div>
   );

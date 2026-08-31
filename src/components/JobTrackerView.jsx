@@ -23,33 +23,38 @@ import {
   AlertTriangle
 } from 'lucide-react';
 import Linkedin from './LinkedinIcon';
+import { Sheet, SheetTrigger, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter, SheetClose } from "@/components/ui/sheet";
+import { ContactCombobox } from './ContactCombobox';
+import { Card } from './ui/card';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
+import { Textarea } from './ui/textarea';
+import { Badge } from './ui/badge';
+import { ToggleGroup, ToggleGroupItem } from './ui/toggle-group';
+import { Separator } from './ui/separator';
 
-// Tailwind CSS styling helpers for v4 migration
+// Helper CSS constants for compatibility
 const BTN_BASE = "inline-flex items-center justify-center gap-2 rounded-full border border-transparent text-sm font-semibold shadow-sm transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-4";
-const BTN_PRIMARY = `${BTN_BASE} border-indigo-600 bg-indigo-600 px-5 py-2.5 text-white hover:bg-indigo-700 focus-visible:ring-indigo-200`;
-const BTN_SECONDARY = `${BTN_BASE} border-border-color bg-bg-card px-5 py-2.5 text-text-primary hover:bg-bg-elevated focus-visible:ring-slate-200`;
-const BTN_EMERALD = `${BTN_BASE} border-accent-emerald bg-accent-emerald px-5 py-2.5 text-white hover:bg-emerald-700 focus-visible:ring-emerald-200`;
-const BTN_SM_SECONDARY = `inline-flex items-center justify-center gap-2 font-semibold text-[16px] min-h-[40px] px-3.5 py-1.5 rounded-sm border border-border-color cursor-pointer transition-colors active:opacity-85 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-blue bg-bg-card text-text-primary hover:bg-bg-elevated`;
-const BTN_SM_EMERALD = `inline-flex items-center justify-center gap-2 font-semibold text-[16px] min-h-[40px] px-3.5 py-1.5 rounded-sm border border-transparent cursor-pointer transition-colors active:opacity-85 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-blue bg-accent-emerald text-white hover:bg-emerald-700`;
+const BTN_PRIMARY = `${BTN_BASE} border-transparent bg-primary px-5 py-2.5 text-primary-foreground hover:bg-primary/90 focus-visible:ring-primary`;
+const BTN_SECONDARY = `${BTN_BASE} border-border bg-card px-5 py-2.5 text-foreground hover:bg-muted focus-visible:ring-slate-200`;
+const BTN_EMERALD = `${BTN_BASE} border-primary bg-primary px-5 py-2.5 text-primary-foreground hover:bg-primary/90 focus-visible:ring-primary`;
+const BTN_SM_SECONDARY = `inline-flex items-center justify-center gap-2 font-semibold text-sm min-h-[40px] px-3.5 py-1.5 rounded-sm border border-border cursor-pointer transition-colors active:opacity-85 bg-card text-foreground hover:bg-muted`;
+const BTN_SM_EMERALD = `inline-flex items-center justify-center gap-2 font-semibold text-sm min-h-[40px] px-3.5 py-1.5 rounded-sm border border-transparent cursor-pointer transition-colors active:opacity-85 bg-primary text-primary-foreground hover:bg-primary/90`;
+const BTN_SM_PRIMARY = `inline-flex items-center justify-center gap-2 font-semibold text-sm min-h-[40px] px-3.5 py-1.5 rounded-sm border border-transparent cursor-pointer transition-colors active:opacity-85 bg-primary text-primary-foreground hover:bg-primary/90`;
 
-const INPUT_FIELD = "w-full rounded-lg border border-border-color bg-bg-input px-3 py-2.5 text-sm text-text-primary placeholder-text-muted shadow-sm outline-none transition focus:border-accent-blue focus:ring-4 focus:ring-accent-blue/10";
+const INPUT_FIELD = "w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground shadow-sm outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/10";
 const BADGE_BASE = "inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-medium";
-const CLOSE_BTN = "inline-flex items-center justify-center rounded-full p-1.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-300 cursor-pointer border-none bg-transparent";
-
-
-
-
 
 function getMatchBadgeClass(score) {
-  if (score >= 80) return `${BADGE_BASE} bg-accent-emerald/8 text-accent-emerald`;
-  if (score >= 50) return `${BADGE_BASE} bg-accent-amber/8 text-amber-700`;
-  return `${BADGE_BASE} bg-accent-rose/8 text-accent-rose`;
+  if (score >= 80) return `${BADGE_BASE} bg-primary/10 text-primary`;
+  if (score >= 50) return `${BADGE_BASE} bg-primary/10 text-primary`;
+  return `${BADGE_BASE} bg-destructive/10 text-destructive`;
 }
 
 function getScoreColor(score) {
-  if (score >= 80) return 'var(--accent-emerald)';
-  if (score >= 50) return 'var(--accent-amber)';
-  return 'var(--accent-rose)';
+  if (score >= 80) return 'var(--primary)';
+  if (score >= 50) return 'var(--primary)';
+  return 'var(--destructive)';
 }
 
 export function checkLinkStatus(url) {
@@ -101,6 +106,7 @@ export default function JobTrackerView({ setActiveView }) {
   const [expandedJobs, setExpandedJobs] = useState([]); // array of expanded job IDs for list view
   
   // Quick Add Job states
+  const [showQuickAdd, setShowQuickAdd] = useState(false);
   const [quickCompany, setQuickCompany] = useState('');
   const [quickRole, setQuickRole] = useState('');
   const [quickLink, setQuickLink] = useState('');
@@ -376,22 +382,22 @@ Return a JSON response matching this structure exactly:
   // Status mapping colors for styles
   const getStatusColorClass = (status) => {
     switch (status) {
-      case 'Wishlist': return `${BADGE_BASE} bg-slate-300/22 text-text-secondary`;
-      case 'Applied': return `${BADGE_BASE} bg-accent-amber/8 text-amber-700`;
-      case 'Interviewing': return `${BADGE_BASE} bg-accent-purple/8 text-accent-purple`;
-      case 'Offer': return `${BADGE_BASE} bg-accent-emerald/8 text-accent-emerald`;
-      case 'Rejected': return `${BADGE_BASE} bg-accent-rose/8 text-accent-rose`;
-      default: return `${BADGE_BASE} bg-slate-300/22 text-text-secondary`;
+      case 'Wishlist': return `${BADGE_BASE} bg-secondary text-text-secondary`;
+      case 'Applied': return `${BADGE_BASE} bg-primary/10 text-primary`;
+      case 'Interviewing': return `${BADGE_BASE} bg-primary/10 text-primary`;
+      case 'Offer': return `${BADGE_BASE} bg-primary/10 text-primary`;
+      case 'Rejected': return `${BADGE_BASE} bg-destructive/10 text-destructive`;
+      default: return `${BADGE_BASE} bg-secondary text-text-secondary`;
     }
   };
 
   const getStatusColor = (status) => {
     switch (status) {
       case 'Wishlist': return '#cbd5e1';
-      case 'Applied': return 'var(--accent-amber)';
-      case 'Interviewing': return 'var(--accent-purple)';
-      case 'Offer': return 'var(--accent-emerald)';
-      case 'Rejected': return 'var(--accent-rose)';
+      case 'Applied': return 'var(--primary)';
+      case 'Interviewing': return 'var(--primary)';
+      case 'Offer': return 'var(--primary)';
+      case 'Rejected': return 'var(--destructive)';
       default: return '#cbd5e1';
     }
   };
@@ -431,6 +437,7 @@ Return a JSON response matching this structure exactly:
     setQuickRole('');
     setQuickLink('');
     setQuickNotes('');
+    setShowQuickAdd(false);
   };
 
   // Local parser fallback
@@ -801,60 +808,135 @@ ${importText}`;
       {/* Action Header Bar */}
       <div className="flex justify-between items-center flex-wrap gap-3.5">
         <div className="flex gap-1.5 flex-wrap items-center">
-          {['ALL', 'Wishlist', 'Applied', 'Interviewing', 'Offer', 'Rejected'].map(filter => (
-            <button
-              key={filter}
-              onClick={() => setSelectedStatusFilter(filter)}
-              className={`min-h-[38px] px-3.5 py-1.5 text-[0.825rem] rounded-full font-bold cursor-pointer transition-colors border ${
-                selectedStatusFilter === filter 
-                  ? 'bg-text-primary text-text-invert border-transparent' 
-                  : 'bg-bg-card text-text-secondary border-border-color hover:bg-bg-elevated'
-              }`}
-            >
-              {filter === 'Wishlist' ? 'Jobs' : filter}
-            </button>
-          ))}
+          {/* Status Filter Chips */}
+          <div className="flex gap-1.5 flex-wrap">
+            {[
+              { id: 'ALL', label: 'All Items' },
+              { id: 'Wishlist', label: 'Jobs' },
+              { id: 'Applied', label: 'Applied' },
+              { id: 'Interviewing', label: 'Interviewing' },
+              { id: 'Offer', label: 'Offer' },
+              { id: 'Rejected', label: 'Rejected' }
+            ].map(f => (
+              <Button
+                key={f.id}
+                variant={selectedStatusFilter === f.id ? "default" : "outline"}
+                size="xs"
+                onClick={() => setSelectedStatusFilter(f.id)}
+              >
+                {f.label}
+              </Button>
+            ))}
+          </div>
 
           {/* Vertical Divider */}
-          <div className="w-px h-6 bg-border-color mx-2" />
+          <Separator orientation="vertical" className="h-6 mx-1" />
 
           {/* Grid/List Layout Toggle */}
-          <div className="flex bg-black/3 p-0.5 rounded-lg border border-border-color items-center">
-            <button
+          <div className="flex bg-muted p-1 rounded-lg items-center gap-0.5">
+            <Button
+              variant="ghost"
+              size="icon-xs"
+              className={viewMode === 'grid' ? "bg-background text-foreground shadow-xs" : "text-muted-foreground hover:text-foreground"}
               onClick={() => setViewMode('grid')}
-              className={`border-none p-1.5 rounded-[6px] cursor-pointer flex items-center transition-all duration-150 ${
-                viewMode === 'grid' ? 'bg-bg-card text-accent-blue shadow-sm' : 'bg-transparent text-text-secondary'
-              }`}
               title="Grid View"
             >
               <Grid size={16} />
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon-xs"
+              className={viewMode === 'list' ? "bg-background text-foreground shadow-xs" : "text-muted-foreground hover:text-foreground"}
               onClick={() => setViewMode('list')}
-              className={`border-none p-1.5 rounded-[6px] cursor-pointer flex items-center transition-all duration-150 ${
-                viewMode === 'list' ? 'bg-bg-card text-accent-blue shadow-sm' : 'bg-transparent text-text-secondary'
-              }`}
               title="List View"
             >
               <List size={16} />
-            </button>
+            </Button>
           </div>
         </div>
 
-        <button 
-          onClick={() => setShowImport(!showImport)}
-          className={`${BTN_PRIMARY} flex items-center gap-1.5`}
-        >
-          <Sparkles size={16} />
-          <span>{showImport ? 'Close Paste Panel' : 'Paste AI Job List'}</span>
-        </button>
+        {/* Top Right Action Row */}
+        <div className="flex items-center gap-2.5 flex-wrap">
+          {/* Single Job Application Drawer Sheet */}
+          <Sheet open={showQuickAdd} onOpenChange={setShowQuickAdd}>
+            <SheetTrigger render={
+              <Button variant="outline" className="gap-2">
+                <PlusCircle size={16} />
+                <span>Add Single Job Application</span>
+              </Button>
+            } />
+            <SheetContent>
+              <div className="mx-auto w-full max-w-2xl px-4 pb-8">
+                <SheetHeader>
+                  <SheetTitle>Add Single Job Application</SheetTitle>
+                  <SheetDescription>Create a new job application manually.</SheetDescription>
+                </SheetHeader>
+                <form onSubmit={handleQuickSubmit} className="flex flex-col gap-4 px-4 mt-4">
+                  <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-3.5">
+                    <div>
+                      <label htmlFor="quick-company" className="text-[0.75rem] font-semibold text-muted-foreground block mb-1">Company *</label>
+                      <Input
+                        id="quick-company"
+                        type="text"
+                        placeholder="e.g. TechCorp"
+                        value={quickCompany}
+                        onChange={(e) => setQuickCompany(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="quick-role" className="text-[0.75rem] font-semibold text-muted-foreground block mb-1">Role / Title *</label>
+                      <Input
+                        id="quick-role"
+                        type="text"
+                        placeholder="e.g. Product Designer"
+                        value={quickRole}
+                        onChange={(e) => setQuickRole(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="quick-link" className="text-[0.75rem] font-semibold text-muted-foreground block mb-1">Posting Link</label>
+                      <Input
+                        id="quick-link"
+                        type="text"
+                        placeholder="e.g. careers.techcorp.com"
+                        value={quickLink}
+                        onChange={(e) => setQuickLink(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="flex justify-end gap-2 mt-2 pt-4 border-t border-border">
+                    <Button variant="outline" type="button" onClick={() => setShowQuickAdd(false)}>
+                      Cancel
+                    </Button>
+                    <Button type="submit" className="gap-2">
+                      <Plus size={16} />
+                      <span>Add Application</span>
+                    </Button>
+                  </div>
+                </form>
+              </div>
+            </SheetContent>
+          </Sheet>
+
+          {/* Paste AI Job List Button */}
+          <Button 
+            onClick={() => setShowImport(!showImport)}
+            className="gap-2"
+          >
+            <Sparkles size={16} />
+            <span>{showImport ? 'Close Paste Panel' : 'Paste AI Job List'}</span>
+          </Button>
+        </div>
       </div>
 
       {/* Expandable Paste Panel */}
       {showImport && (
-        <div className="bg-bg-card rounded-lg p-6 shadow-card transition-all duration-150 animate-slide-down-fade flex flex-col gap-4 border border-dashed border-accent-purple bg-[#8b5cf6]/2">
+        <div className="bg-bg-card rounded-lg p-6 shadow-card transition-all duration-150 animate-slide-down-fade flex flex-col gap-4 border border-dashed border-primary bg-primary/5">
           <div className="flex items-center gap-2">
-            <Sparkles size={20} color="var(--accent-purple)" />
+            <Sparkles size={20} className="text-primary" />
             <strong className="text-[1rem] font-bold text-text-primary">Paste AI Company & Job Openings List</strong>
           </div>
           
@@ -909,17 +991,17 @@ Product Designer - metacareers.com/jobs/1397212694826926"
                   
                   return (
                     <div key={idx} className={`bg-bg-card p-3.5 px-4 rounded-md flex flex-col gap-1.5 ${
-                      isImportable ? 'border border-border-color opacity-100' : 'border border-dashed border-accent-rose opacity-70'
+                      isImportable ? 'border border-border-color opacity-100' : 'border border-dashed border-destructive opacity-70'
                     }`}>
                       <div className="flex justify-between items-start gap-2">
                         <strong className="text-[0.9rem] text-text-primary font-bold">{job.role}</strong>
                         {!isImportable && (
-                          <span className={`${BADGE_BASE} bg-accent-rose/8 text-accent-rose text-[0.65rem] px-2 py-0.5 whitespace-nowrap font-semibold`}>
+                          <span className={`${BADGE_BASE} bg-destructive/10 text-destructive text-[0.65rem] px-2 py-0.5 whitespace-nowrap font-semibold`}>
                             {linkStatus === 'login_required' ? '🔒 Excluded: Login Portal' : '⚠️ Excluded: General Careers'}
                           </span>
                         )}
                         {isImportable && (
-                          <span className={`${BADGE_BASE} bg-accent-emerald/8 text-accent-emerald text-[0.65rem] px-2 py-0.5 whitespace-nowrap font-semibold`}>
+                          <span className={`${BADGE_BASE} bg-primary/10 text-primary text-[0.65rem] px-2 py-0.5 whitespace-nowrap font-semibold`}>
                             ✅ Importable
                           </span>
                         )}
@@ -928,7 +1010,7 @@ Product Designer - metacareers.com/jobs/1397212694826926"
                       {job.link && (
                         <span 
                           className={`text-[0.75rem] text-ellipsis overflow-hidden whitespace-nowrap ${
-                            isImportable ? 'text-accent-blue' : 'text-text-muted'
+                            isImportable ? 'text-primary' : 'text-text-muted'
                           }`} 
                           title={job.link}
                         >
@@ -945,9 +1027,9 @@ Product Designer - metacareers.com/jobs/1397212694826926"
       )}
 
       {!hasMasterResume && (
-        <div className="bg-amber-500/5 border border-accent-amber rounded-lg p-5 flex justify-between items-center flex-wrap gap-4 shadow-sm mb-2">
+        <div className="bg-primary/5 border border-primary rounded-lg p-5 flex justify-between items-center flex-wrap gap-4 shadow-sm mb-2">
           <div className="flex items-center gap-2.5">
-            <Sparkles size={20} color="var(--accent-amber)" />
+            <Sparkles size={20} className="text-primary" />
             <div>
               <strong className="text-[0.95rem] font-bold text-text-primary">Automatic ATS Matching Available</strong>
               <p className="text-[0.85rem] text-text-secondary mt-1">Add a Master Resume in Settings to automatically see keyword match scores on your job applications.</p>
@@ -955,7 +1037,7 @@ Product Designer - metacareers.com/jobs/1397212694826926"
           </div>
           <button 
             onClick={() => setActiveView && setActiveView('settings')}
-            className={`${BTN_SECONDARY} border border-accent-amber text-accent-amber bg-transparent text-[0.85rem] min-h-[36px] p-[0.35rem_1rem]`}
+            className={`${BTN_SECONDARY} border border-primary text-primary bg-transparent text-[0.85rem] min-h-[36px] p-[0.35rem_1rem]`}
           >
             Go to Settings
           </button>
@@ -964,7 +1046,7 @@ Product Designer - metacareers.com/jobs/1397212694826926"
 
       {/* Bulk Action Toolbar */}
       {selectedJobs.length > 0 && (
-        <div className="flex justify-between items-center bg-rose-500/5 border border-rose-500/15 p-3.5 px-4.5 rounded-lg animate-fadeIn">
+        <div className="flex justify-between items-center bg-destructive/5 border border-destructive/15 p-3.5 px-4.5 rounded-lg animate-fadeIn">
           <div className="flex items-center gap-3">
             <input 
               type="checkbox"
@@ -995,14 +1077,14 @@ Product Designer - metacareers.com/jobs/1397212694826926"
                   setSelectedJobs([]);
                 }
               }}
-              className="inline-flex items-center justify-center gap-2 font-semibold min-h-[34px] px-3.5 py-1.5 rounded-md border border-transparent cursor-pointer transition-colors active:opacity-85 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-blue bg-accent-rose text-white hover:bg-rose-700 text-xs"
+              className="inline-flex items-center justify-center gap-2 font-semibold min-h-[34px] px-3.5 py-1.5 rounded-md border border-transparent cursor-pointer transition-colors active:opacity-85 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary bg-destructive text-white hover:bg-destructive/90 text-xs"
             >
               <Trash2 size={14} />
               <span>Delete Selected</span>
             </button>
             <button
               onClick={() => setSelectedJobs([])}
-              className="inline-flex items-center justify-center gap-2 font-semibold min-h-[34px] px-3.5 py-1.5 rounded-md border border-border-color cursor-pointer transition-colors active:opacity-85 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-blue bg-bg-card text-text-primary hover:bg-bg-elevated text-xs"
+              className="inline-flex items-center justify-center gap-2 font-semibold min-h-[34px] px-3.5 py-1.5 rounded-md border border-border-color cursor-pointer transition-colors active:opacity-85 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary bg-bg-card text-text-primary hover:bg-bg-elevated text-xs"
             >
               <span>Cancel</span>
             </button>
@@ -1014,13 +1096,13 @@ Product Designer - metacareers.com/jobs/1397212694826926"
       <div className="flex gap-5 items-start relative w-full max-lg:flex-col max-lg:items-stretch">
         <div className="flex-1 min-w-0">
           {filteredJobs.length === 0 ? (
-        <div className="bg-bg-card rounded-lg shadow-card text-center p-[3.5rem_1.5rem] text-text-muted flex flex-col items-center gap-2.5">
-          <Briefcase className="text-text-muted opacity-50 w-12 h-12" />
-          <strong className="text-[1.1rem] mt-2 font-bold">No job applications recorded</strong>
-          <p className="text-[0.85rem] text-text-secondary">
+        <Card className="text-center p-12 text-muted-foreground flex flex-col items-center gap-2.5">
+          <Briefcase className="text-muted-foreground opacity-50 w-12 h-12" />
+          <strong className="text-base mt-2 font-bold text-foreground">No job applications recorded</strong>
+          <p className="text-xs text-muted-foreground">
             Paste a list from AI using button above, or add a single job using the Quick Add form below.
           </p>
-        </div>
+        </Card>
       ) : viewMode === 'grid' ? (
         <div className="grid grid-cols-[repeat(auto-fit,minmax(360px,1fr))] gap-5">
           {filteredJobs.map(job => {
@@ -1035,9 +1117,9 @@ Product Designer - metacareers.com/jobs/1397212694826926"
             const isActiveJob = selectedDescriptionJob && selectedDescriptionJob.id === job.id;
 
             return (
-              <div 
+              <Card 
                 key={job.id} 
-                className={`flex flex-col gap-3 p-5 relative rounded-lg cursor-pointer transition-all duration-150 hover:shadow-md ${isActiveJob ? 'border-2 border-accent-blue bg-accent-blue/3' : isSelected ? 'border border-accent-blue bg-bg-card-hover' : 'border border-border-color bg-bg-card hover:border-accent-blue'}`}
+                className={`flex flex-col gap-3 p-5 relative cursor-pointer transition-all hover:border-primary ${isActiveJob ? 'border-2 border-primary bg-accent/30' : isSelected ? 'border-primary bg-accent/20' : ''}`}
                 onClick={() => setSelectedDescriptionJob(job)}
               >
                 {/* Selection Checkbox */}
@@ -1058,51 +1140,51 @@ Product Designer - metacareers.com/jobs/1397212694826926"
 
                 {/* Role & Company Header */}
                 <div>
-                  <h4 className="text-[1.15rem] font-extrabold font-heading text-text-primary">{job.role}</h4>
-                  <div className="text-[0.85rem] text-text-secondary font-semibold mt-0.5">{job.company}</div>
+                  <h4 className="text-base font-bold text-foreground">{job.role}</h4>
+                  <div className="text-xs text-muted-foreground font-semibold mt-0.5">{job.company}</div>
                 </div>
 
                 {/* Location & Type & Match Score Badges */}
                 <div className="flex gap-1.5 flex-wrap items-center">
                   {job.location && (
-                    <span className={`${BADGE_BASE} bg-accent-blue/8 text-accent-blue text-[0.65rem]`}>
-                      <MapPin size={8} className="mr-[-1px]" />
+                    <Badge variant="secondary" className="gap-1">
+                      <MapPin size={10} />
                       {job.location}
-                    </span>
+                    </Badge>
                   )}
                   {job.type && (
-                    <span className={`${BADGE_BASE} bg-accent-emerald/8 text-accent-emerald text-[0.65rem]`}>
+                    <Badge variant="secondary">
                       {job.type}
-                    </span>
+                    </Badge>
                   )}
                   {hasMasterResume && !!(job.notesText || '').trim() && (
                     atsMatch ? (
-                      <span className={`${getMatchBadgeClass(atsMatch.match_percentage || atsMatch.alignment_score || 0)} text-[0.65rem] inline-flex items-center gap-1`}>
-                        <Sparkles size={8} />
+                      <Badge variant="default" className="gap-1">
+                        <Sparkles size={10} />
                         <span>Match: {atsMatch.match_percentage || atsMatch.alignment_score || 0}%</span>
-                      </span>
+                      </Badge>
                     ) : (
-                      <span className={`${BADGE_BASE} bg-slate-100 text-slate-500 text-[0.65rem] inline-flex items-center gap-1`}>
-                        <Sparkles size={8} />
+                      <Badge variant="outline" className="gap-1">
+                        <Sparkles size={10} />
                         <span>Not Scored</span>
-                      </span>
+                      </Badge>
                     )
                   )}
-                  <span className={`${getStatusColorClass(job.status || 'Wishlist')} text-[0.65rem]`}>
+                  <Badge variant={job.status === 'Rejected' ? 'destructive' : 'default'}>
                     {job.status || 'Wishlist'}
-                  </span>
+                  </Badge>
                   {job.linkStatus === 'login_required' && (
-                    <span className={`${BADGE_BASE} bg-accent-rose/8 text-accent-rose text-[0.65rem] font-semibold`}>
+                    <Badge variant="destructive">
                       🔑 Behind Login
-                    </span>
+                    </Badge>
                   )}
                   {job.linkStatus === 'generic_link' && (
-                    <span className={`${BADGE_BASE} bg-accent-amber/8 text-amber-700 text-[0.65rem] font-semibold`}>
+                    <Badge variant="outline">
                       ⚠️ Not Direct Link
-                    </span>
+                    </Badge>
                   )}
                 </div>
-              </div>
+              </Card>
             );
           })}
         </div>
@@ -1115,9 +1197,9 @@ Product Designer - metacareers.com/jobs/1397212694826926"
             const isActiveJob = selectedDescriptionJob && selectedDescriptionJob.id === job.id;
 
             return (
-              <div 
+              <Card 
                 key={job.id}
-                className={`flex items-center justify-between p-[0.85rem_1.25rem] rounded-lg cursor-pointer gap-4 flex-wrap transition-all duration-150 ${isActiveJob ? 'border-2 border-accent-blue bg-accent-blue/3' : isSelected ? 'border border-accent-blue bg-bg-card-hover' : 'border border-border-color bg-bg-card hover:border-accent-blue'}`}
+                className={`flex items-center justify-between p-4 cursor-pointer gap-4 flex-wrap transition-all hover:border-primary ${isActiveJob ? 'border-2 border-primary bg-accent/30' : isSelected ? 'border-primary bg-accent/20' : ''}`}
                 onClick={() => setSelectedDescriptionJob(job)}
               >
                 {/* Left Side: Checkbox, Status Dot, Company & Role */}
@@ -1138,66 +1220,62 @@ Product Designer - metacareers.com/jobs/1397212694826926"
                   
                   {/* Status Dot */}
                   <div 
-                    className="w-2 h-2 rounded-full shadow-sm shrink-0" 
-                    style={{
-                      background: getStatusColor(job.status || 'Wishlist'),
-                      boxShadow: `0 0 6px ${getStatusColor(job.status || 'Wishlist')}80`
-                    }} 
+                    className="w-2.5 h-2.5 rounded-full shrink-0 bg-primary"
                   />
 
                   <div>
-                    <strong className="text-[1rem] text-text-primary font-bold">{job.role}</strong>
-                    <div className="text-[0.8rem] text-text-secondary">{job.company}</div>
+                    <strong className="text-sm text-foreground font-bold">{job.role}</strong>
+                    <div className="text-xs text-muted-foreground">{job.company}</div>
                   </div>
                 </div>
 
                 {/* Right Side: Badges */}
-                <div className="flex items-center gap-2.5 flex-wrap">
+                <div className="flex items-center gap-2 flex-wrap">
                   {job.location && (
-                    <span className={`${BADGE_BASE} bg-accent-blue/8 text-accent-blue text-[0.65rem]`}>
-                      <MapPin size={8} className="mr-[-1px]" />
+                    <Badge variant="secondary" className="gap-1">
+                      <MapPin size={10} />
                       {job.location}
-                    </span>
+                    </Badge>
                   )}
                   {job.type && (
-                    <span className={`${BADGE_BASE} bg-accent-emerald/8 text-accent-emerald text-[0.65rem]`}>
+                    <Badge variant="secondary">
                       {job.type}
-                    </span>
+                    </Badge>
                   )}
                   {hasMasterResume && !!(job.notesText || '').trim() && (
-                    <span className={`${getMatchBadgeClass(atsMatch?.match_percentage || atsMatch?.alignment_score || 0)} text-[0.65rem]`}>
-                      <Sparkles size={8} />
+                    <Badge variant="default" className="gap-1">
+                      <Sparkles size={10} />
                       <span>Match: {atsMatch?.match_percentage || atsMatch?.alignment_score || 0}%</span>
-                    </span>
+                    </Badge>
                   )}
-                  <span className={`${getStatusColorClass(job.status || 'Wishlist')} text-[0.65rem]`}>
+                  <Badge variant={job.status === 'Rejected' ? 'destructive' : 'default'}>
                     {job.status || 'Wishlist'}
-                  </span>
+                  </Badge>
                   {job.linkStatus === 'login_required' && (
-                    <span className={`${BADGE_BASE} bg-accent-rose/8 text-accent-rose text-[0.65rem] font-semibold`}>
+                    <Badge variant="destructive">
                       🔑 Behind Login
-                    </span>
+                    </Badge>
                   )}
                   {job.linkStatus === 'generic_link' && (
-                    <span className={`${BADGE_BASE} bg-accent-amber/8 text-amber-700 text-[0.65rem] font-semibold`}>
+                    <Badge variant="outline">
                       ⚠️ Not Direct Link
-                    </span>
+                    </Badge>
                   )}
                 </div>
-              </div>
+              </Card>
             );
           })}
         </div>
       )}
       </div>
 
-      {/* Responsive Side Drawer Spacer to shift listings */}
+      {/* Responsive Side Sheet Spacer to shift listings */}
       {selectedDescriptionJob && (
         <div className="w-[400px] shrink-0 max-lg:hidden" />
       )}
       </div>
 
-      {/* Inline responsive Side Panel Drawer */}
+      {/* Inline responsive Side Panel Sheet */}
       {selectedDescriptionJob && (() => {
         const activeJob = jobApplications.find(j => j.id === selectedDescriptionJob.id);
         if (!activeJob) return null;
@@ -1209,7 +1287,7 @@ Product Designer - metacareers.com/jobs/1397212694826926"
         const currentStepIndex = steps.indexOf(activeJob.status || 'Wishlist') !== -1 ? steps.indexOf(activeJob.status || 'Wishlist') : 0;
 
         return (
-          <div className="w-[400px] shrink-0 bg-bg-card border border-border-color rounded-lg shadow-card flex flex-col fixed top-[100px] right-8 bottom-8 z-[100] overflow-hidden animate-slide-in-right max-lg:fixed max-lg:top-[60px] max-lg:right-0 max-lg:bottom-0 max-lg:left-0 max-lg:w-full max-lg:rounded-none max-lg:z-[9999]">
+          <Card className="w-[400px] shrink-0 flex flex-col fixed top-[100px] right-8 bottom-8 z-40 overflow-hidden max-lg:fixed max-lg:top-[60px] max-lg:right-0 max-lg:bottom-0 max-lg:left-0 max-lg:w-full max-lg:rounded-none max-lg:z-50">
             {/* Header */}
             <div className="p-5 border-b border-border-color flex items-center justify-between bg-bg-elevated gap-2">
               <div className="flex-1 min-w-0">
@@ -1228,14 +1306,14 @@ Product Designer - metacareers.com/jobs/1397212694826926"
                       setSelectedDescriptionJob(null);
                     }
                   }}
-                  className="bg-transparent border-none text-text-muted cursor-pointer p-1.5 rounded-full flex items-center justify-center hover:bg-red-50 hover:text-red-600"
+                  className="bg-transparent border-none text-text-muted cursor-pointer p-1.5 rounded-full flex items-center justify-center hover:bg-destructive/10 hover:text-destructive"
                   title="Delete Application"
                 >
-                  <Trash2 size={16} color="var(--accent-rose)" />
+                  <Trash2 size={16} className="text-destructive" />
                 </button>
                 <button 
                   onClick={() => setSelectedDescriptionJob(null)}
-                  className="bg-transparent border-none text-text-muted cursor-pointer p-1.5 rounded-full flex items-center justify-center hover:bg-slate-100 hover:text-text-primary transition-colors"
+                  className="bg-transparent border-none text-text-muted cursor-pointer p-1.5 rounded-full flex items-center justify-center hover:bg-secondary hover:text-text-primary transition-colors"
                 >
                   <X size={20} />
                 </button>
@@ -1303,7 +1381,7 @@ Product Designer - metacareers.com/jobs/1397212694826926"
               </div>
 
               {/* Metadata Editing Fields */}
-              <div className="flex flex-col gap-3.5 p-4 bg-slate-50 rounded-md border border-border-color">
+              <div className="flex flex-col gap-3.5 p-4 bg-bg-elevated rounded-md border border-border-color">
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="text-[0.7rem] font-bold text-text-muted block uppercase mb-1">Location</label>
@@ -1352,19 +1430,19 @@ Product Designer - metacareers.com/jobs/1397212694826926"
                         href={activeJob.link.startsWith('http') ? activeJob.link : `https://${activeJob.link}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center justify-center min-h-[32px] w-8 h-8 rounded-full border border-slate-200 bg-white text-slate-800 hover:bg-slate-50 transition-colors shadow-sm"
+                        className="flex items-center justify-center min-h-[32px] w-8 h-8 rounded-full border border-slate-200 bg-white text-slate-800 hover:bg-bg-elevated transition-colors shadow-sm"
                       >
                         <ExternalLink size={14} />
                       </a>
                     )}
                   </div>
                   {activeJob.linkStatus === 'login_required' && (
-                    <div className="text-[0.725rem] text-accent-rose flex items-center gap-1 mt-1 font-semibold">
+                    <div className="text-[0.725rem] text-destructive flex items-center gap-1 mt-1 font-semibold">
                       <span>🔑 Behind Login: Link requires session. Use public listing URL instead.</span>
                     </div>
                   )}
                   {activeJob.linkStatus === 'generic_link' && (
-                    <div className="text-[0.725rem] text-accent-amber flex items-center gap-1 mt-1 font-semibold">
+                    <div className="text-[0.725rem] text-primary flex items-center gap-1 mt-1 font-semibold">
                       <span>⚠️ Not Direct Link: URL is generic page. Scraper needs specific posting.</span>
                     </div>
                   )}
@@ -1378,7 +1456,7 @@ Product Designer - metacareers.com/jobs/1397212694826926"
                     <span className="text-[0.7rem] font-bold text-text-muted uppercase">ATS AI Matcher</span>
                     {activeJob.atsMatch && (
                       <button 
-                        className="bg-transparent border-none text-text-muted hover:text-accent-rose transition-colors cursor-pointer p-1"
+                        className="bg-transparent border-none text-text-muted hover:text-destructive transition-colors cursor-pointer p-1"
                         onClick={(e) => {
                           e.stopPropagation();
                           updateResource(activeJob.id, { atsMatch: null });
@@ -1390,24 +1468,24 @@ Product Designer - metacareers.com/jobs/1397212694826926"
                     )}
                   </div>
                   
-                  <div className="bg-slate-50 border border-border-color rounded-md p-3">
+                  <div className="bg-bg-elevated border border-border-color rounded-md p-3">
                     {/* Controls Row */}
                     <div className="flex flex-col gap-3 mb-4">
                       <div className="flex flex-wrap gap-1.5 border-b border-border-color pb-2">
                         <button
-                          className={`text-[0.75rem] px-2 py-1 rounded-sm transition-colors ${atsMatcherMode === 'atsMatch' ? 'bg-accent-blue text-white font-bold' : 'text-text-secondary hover:bg-slate-200'}`}
+                          className={`text-[0.75rem] px-2 py-1 rounded-sm transition-colors ${atsMatcherMode === 'atsMatch' ? 'bg-primary text-white font-bold' : 'text-text-secondary hover:bg-secondary'}`}
                           onClick={() => setAtsMatcherMode('atsMatch')}
                         >
                           ATS Match
                         </button>
                         <button
-                          className={`text-[0.75rem] px-2 py-1 rounded-sm transition-colors ${atsMatcherMode === 'professionalEvaluation' ? 'bg-accent-blue text-white font-bold' : 'text-text-secondary hover:bg-slate-200'}`}
+                          className={`text-[0.75rem] px-2 py-1 rounded-sm transition-colors ${atsMatcherMode === 'professionalEvaluation' ? 'bg-primary text-white font-bold' : 'text-text-secondary hover:bg-secondary'}`}
                           onClick={() => setAtsMatcherMode('professionalEvaluation')}
                         >
                           HR Eval
                         </button>
                         <button
-                          className={`text-[0.75rem] px-2 py-1 rounded-sm transition-colors ${atsMatcherMode === 'skillsImprovement' ? 'bg-accent-blue text-white font-bold' : 'text-text-secondary hover:bg-slate-200'}`}
+                          className={`text-[0.75rem] px-2 py-1 rounded-sm transition-colors ${atsMatcherMode === 'skillsImprovement' ? 'bg-primary text-white font-bold' : 'text-text-secondary hover:bg-secondary'}`}
                           onClick={() => setAtsMatcherMode('skillsImprovement')}
                         >
                           Skills Coach
@@ -1443,7 +1521,7 @@ Product Designer - metacareers.com/jobs/1397212694826926"
                         {/* Score Indicator */}
                         <div className="flex items-center gap-2.5 bg-white border border-border-color p-2.5 rounded-sm">
                           <div className="w-10 h-10 shrink-0 rounded-full border-[4px] flex items-center justify-center font-bold text-[0.85rem]"
-                               style={{ borderColor: activeJob.atsMatch.match_percentage >= 80 || activeJob.atsMatch.alignment_score >= 80 ? 'var(--accent-emerald)' : (activeJob.atsMatch.match_percentage >= 50 || activeJob.atsMatch.alignment_score >= 50 ? 'var(--accent-amber)' : 'var(--accent-rose)') }}>
+                               style={{ borderColor: activeJob.atsMatch.match_percentage >= 80 || activeJob.atsMatch.alignment_score >= 80 ? 'var(--primary)' : (activeJob.atsMatch.match_percentage >= 50 || activeJob.atsMatch.alignment_score >= 50 ? 'var(--primary)' : 'var(--destructive)') }}>
                             {activeJob.atsMatch.match_percentage || activeJob.atsMatch.alignment_score || 100}%
                           </div>
                           <div>
@@ -1458,7 +1536,7 @@ Product Designer - metacareers.com/jobs/1397212694826926"
 
                         {/* Expand full details button */}
                         <button
-                          className="text-[0.75rem] text-accent-blue font-bold text-center py-1.5 hover:underline"
+                          className="text-[0.75rem] text-primary font-bold text-center py-1.5 hover:underline"
                           onClick={() => setActiveBreakdownJob(activeJob)}
                         >
                           View Full Detailed Breakdown
@@ -1495,7 +1573,7 @@ Product Designer - metacareers.com/jobs/1397212694826926"
                 {activeJob.resume ? (
                   <div className="flex items-center justify-between bg-black/2 p-2 rounded-sm border border-border-color">
                     <div className="flex items-center gap-2 overflow-hidden flex-1">
-                      <FileText size={16} color="var(--accent-blue)" className="shrink-0" />
+                      <FileText size={16} className="text-primary shrink-0" />
                       <span 
                         onClick={() => {
                           const link = document.createElement('a');
@@ -1503,7 +1581,7 @@ Product Designer - metacareers.com/jobs/1397212694826926"
                           link.download = activeJob.resume.name;
                           link.click();
                         }}
-                        className="text-[0.8rem] text-accent-blue font-semibold cursor-pointer whitespace-nowrap overflow-hidden text-ellipsis"
+                        className="text-[0.8rem] text-primary font-semibold cursor-pointer whitespace-nowrap overflow-hidden text-ellipsis"
                         title="Download resume"
                       >
                         {activeJob.resume.name}
@@ -1515,9 +1593,9 @@ Product Designer - metacareers.com/jobs/1397212694826926"
                           updateResource(activeJob.id, { resume: null });
                         }
                       }}
-                      className="p-1 text-gray-400 hover:text-red-500 transition-colors"
+                      className="p-1 text-muted-foreground hover:text-red-500 transition-colors"
                     >
-                      <Trash2 size={14} className="transition-all duration-150 hover:text-accent-rose hover:scale-115" />
+                      <Trash2 size={14} className="transition-all duration-150 hover:text-destructive hover:scale-115" />
                     </button>
                   </div>
                 ) : (
@@ -1569,7 +1647,6 @@ Product Designer - metacareers.com/jobs/1397212694826926"
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-[0.7rem] font-bold text-text-muted uppercase">Contacts Contacted</span>
                   <button
-                    className={BTN_SM_SECONDARY}
                     onClick={() => setAddingContactJobId(addingContactJobId === activeJob.id ? null : activeJob.id)}
                     className={`${BTN_SM_SECONDARY} min-h-[28px] p-[0.15rem_0.45rem] text-[0.725rem]`}
                   >
@@ -1582,7 +1659,7 @@ Product Designer - metacareers.com/jobs/1397212694826926"
                 {addingContactJobId === activeJob.id && (
                   <form 
                     onSubmit={(e) => handleQuickAddContactSubmit(e, activeJob.id, activeJob)} 
-                    className="flex flex-col gap-1.5 bg-slate-50 p-2.5 rounded-sm mb-2 border border-border-color"
+                    className="flex flex-col gap-1.5 bg-bg-elevated p-2.5 rounded-sm mb-2 border border-border-color"
                   >
                     <input 
                       type="text" 
@@ -1599,7 +1676,7 @@ Product Designer - metacareers.com/jobs/1397212694826926"
                       value={newContactLinkedin} 
                       onChange={(e) => setNewContactLinkedin(e.target.value)} 
                     />
-                    <button type="submit" className={`${BTN_SM_EMERALD} self-end min-h-[28px] text-[0.725rem]`}>
+                    <button type="submit" className={`${BTN_SM_PRIMARY} self-end min-h-[28px] text-[0.725rem]`}>
                       Add & Link
                     </button>
                   </form>
@@ -1611,7 +1688,7 @@ Product Designer - metacareers.com/jobs/1397212694826926"
                     {linkedContacts.map(contact => (
                       <div 
                         key={contact.id} 
-                        className="flex items-center justify-between p-[0.4rem_0.6rem] bg-slate-50 rounded-sm border border-border-color"
+                        className="flex items-center justify-between p-[0.4rem_0.6rem] bg-bg-elevated rounded-sm border border-border-color"
                       >
                         <div className="flex items-center gap-1.5">
                           <strong className="text-[0.8rem] text-text-primary font-bold">{contact.name}</strong>
@@ -1623,7 +1700,7 @@ Product Designer - metacareers.com/jobs/1397212694826926"
                         </div>
                         <button
                           onClick={() => handleUnlinkContact(activeJob.id, contact.id, activeJob)}
-                          className="bg-transparent border-none text-text-muted cursor-pointer p-0.5 hover:text-accent-rose transition-colors"
+                          className="bg-transparent border-none text-text-muted cursor-pointer p-0.5 hover:text-destructive transition-colors"
                           title="Unlink contact"
                         >
                           <X size={12} />
@@ -1636,24 +1713,13 @@ Product Designer - metacareers.com/jobs/1397212694826926"
                 {/* Link existing contact select dropdown */}
                 {availableContacts.length > 0 && (
                   <div className="flex items-center gap-2 mt-1.5">
-                    <select
-                      onChange={(e) => {
-                        if (e.target.value) {
-                          handleLinkContact(activeJob.id, e.target.value, activeJob);
-                          e.target.value = '';
-                        }
+                    <ContactCombobox
+                      contacts={availableContacts}
+                      onSelect={(contactId) => {
+                        handleLinkContact(activeJob.id, contactId, activeJob);
                       }}
-                      className={INPUT_FIELD}
                       className="text-[0.725rem] p-[0.25rem_0.45rem] min-h-[30px]"
-                      defaultValue=""
-                    >
-                      <option value="" disabled>Link existing contact...</option>
-                      {availableContacts.map(c => (
-                        <option key={c.id} value={c.id}>
-                          {c.name} {c.organization ? `(${c.organization})` : ''}
-                        </option>
-                      ))}
-                    </select>
+                    />
                   </div>
                 )}
               </div>
@@ -1661,76 +1727,30 @@ Product Designer - metacareers.com/jobs/1397212694826926"
             </div>
             
             {/* Footer */}
-            <div className="p-[0.85rem_1.25rem] border-t border-border-color bg-slate-50 flex justify-end">
+            <div className="p-[0.85rem_1.25rem] border-t border-border-color bg-bg-elevated flex justify-end">
               <button className={BTN_SM_SECONDARY} onClick={() => setSelectedDescriptionJob(null)}>
                 Close Details
               </button>
             </div>
-          </div>
+          </Card>
         );
       })()}
 
-      {/* Manual Quick Add Form */}
-      <div className="bg-bg-card rounded-lg p-6 shadow-card border border-border-color">
-        <h4 className="text-[1rem] font-bold mb-3 flex items-center gap-1.5">
-          <PlusCircle size={16} color="var(--accent-blue)" />
-          <span>Add Single Job Application</span>
-        </h4>
-        <form onSubmit={handleQuickSubmit} className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-3.5 items-end">
-          <div>
-            <label htmlFor="quick-company" className="text-[0.75rem] font-semibold text-text-secondary block mb-1">Company *</label>
-            <input
-              id="quick-company"
-              type="text"
-              className={INPUT_FIELD}
-              placeholder="e.g. TechCorp"
-              value={quickCompany}
-              onChange={(e) => setQuickCompany(e.target.value)}
-              required
-            />
-          </div>
-          <div>
-            <label htmlFor="quick-role" className="text-[0.75rem] font-semibold text-text-secondary block mb-1">Role / Title *</label>
-            <input
-              id="quick-role"
-              type="text"
-              className={INPUT_FIELD}
-              placeholder="e.g. Product Designer"
-              value={quickRole}
-              onChange={(e) => setQuickRole(e.target.value)}
-              required
-            />
-          </div>
-          <div>
-            <label htmlFor="quick-link" className="text-[0.75rem] font-semibold text-text-secondary block mb-1">Posting Link</label>
-            <input
-              id="quick-link"
-              type="text"
-              className={INPUT_FIELD}
-              placeholder="e.g. careers.techcorp.com"
-              value={quickLink}
-              onChange={(e) => setQuickLink(e.target.value)}
-            />
-          </div>
-          <button type="submit" className={`${BTN_PRIMARY} min-h-[44px]`}>
-            Add Application
-          </button>
-        </form>
-      </div>
+
 
       {activeBreakdownJob && (() => {
         const breakdown = activeBreakdownJob.atsMatch;
         return (
-          <div className="fixed inset-0 bg-[#0f172a]/40 backdrop-blur-[4px] z-[100] flex items-center justify-center p-5 animate-fadeIn" onClick={() => setActiveBreakdownJob(null)}>
+          <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-[4px] z-[100] flex items-center justify-center p-5 animate-fadeIn" onClick={() => setActiveBreakdownJob(null)}>
             <div className="bg-bg-card border border-border-color rounded-xl w-full max-w-[600px] max-h-[90vh] overflow-y-auto p-6 shadow-[0_20px_25px_-5px_rgba(0,0,0,0.1),0_10px_10px_-5px_rgba(0,0,0,0.04)] flex flex-col gap-4.5 animate-fadeIn" onClick={(e) => e.stopPropagation()}>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
-                  <Sparkles color="var(--accent-blue)" size={22} />
+                  <Sparkles className="text-primary" size={22} />
                   <h2 className="text-[1.2rem] font-bold text-text-primary">ATS Match Breakdown</h2>
                 </div>
-                <button className={CLOSE_BTN} onClick={() => setActiveBreakdownJob(null)}>
+                <Button variant="ghost" size="icon-sm" onClick={() => setActiveBreakdownJob(null)}>
                   <X size={18} />
-                </button>
+                </Button>
               </div>
 
               <div className="flex flex-col gap-5 mt-2">
@@ -1747,7 +1767,7 @@ Product Designer - metacareers.com/jobs/1397212694826926"
                 ) : (
                   <>
                     {(breakdown.match_percentage !== undefined || breakdown.alignment_score !== undefined) && (
-                      <div className="bg-slate-50 border border-border-color rounded-md p-4 flex items-center justify-between">
+                      <div className="bg-bg-elevated border border-border-color rounded-md p-4 flex items-center justify-between">
                         <div>
                           <div className="text-[0.8rem] text-text-secondary font-semibold">
                             {breakdown.alignment_score !== undefined ? 'HR Alignment Score' : 'AI Match Score'}
@@ -1770,14 +1790,14 @@ Product Designer - metacareers.com/jobs/1397212694826926"
                       {/* ATS Match Mode fields */}
                       {breakdown.matching_skills && (
                         <div className="flex flex-col gap-2">
-                          <div className="flex items-center gap-1.5 text-accent-emerald">
+                          <div className="flex items-center gap-1.5 text-primary">
                             <CheckCircle2 size={18} />
                             <strong className="text-[0.95rem] font-bold text-text-primary">Matched Skills ({breakdown.matching_skills.length})</strong>
                           </div>
-                          <div className="flex flex-wrap gap-1.5 bg-[#fafdfb] border border-[#e6f6ec] rounded-md p-3 max-h-[150px] overflow-y-auto">
+                          <div className="flex flex-wrap gap-1.5 bg-primary/5 border border-primary/20 rounded-md p-3 max-h-[150px] overflow-y-auto">
                             {breakdown.matching_skills.length > 0 ? (
                               breakdown.matching_skills.map((word, i) => (
-                                <span key={i} className={`${BADGE_BASE} bg-accent-emerald/8 text-accent-emerald p-[0.2rem_0.45rem] text-[0.75rem] font-semibold`}>
+                                <span key={i} className={`${BADGE_BASE} bg-primary/10 text-primary p-[0.2rem_0.45rem] text-[0.75rem] font-semibold`}>
                                   {word}
                                 </span>
                               ))
@@ -1790,14 +1810,14 @@ Product Designer - metacareers.com/jobs/1397212694826926"
 
                       {breakdown.missing_keywords && (
                         <div className="flex flex-col gap-2">
-                          <div className="flex items-center gap-1.5 text-accent-rose">
+                          <div className="flex items-center gap-1.5 text-destructive">
                             <AlertTriangle size={18} />
                             <strong className="text-[0.95rem] font-bold text-text-primary">Missing Keywords ({breakdown.missing_keywords.length})</strong>
                           </div>
-                          <div className="flex flex-wrap gap-1.5 bg-[#fffbfa] border border-[#fdeee9] rounded-md p-3 max-h-[150px] overflow-y-auto">
+                          <div className="flex flex-wrap gap-1.5 bg-destructive/5 border border-destructive/20 rounded-md p-3 max-h-[150px] overflow-y-auto">
                             {breakdown.missing_keywords.length > 0 ? (
                               breakdown.missing_keywords.map((word, i) => (
-                                <span key={i} className={`${BADGE_BASE} bg-accent-rose/8 text-[#e11d48] p-[0.2rem_0.45rem] text-[0.75rem] font-semibold`}>
+                                <span key={i} className={`${BADGE_BASE} bg-destructive/10 text-destructive p-[0.2rem_0.45rem] text-[0.75rem] font-semibold`}>
                                   {word}
                                 </span>
                               ))
@@ -1811,7 +1831,7 @@ Product Designer - metacareers.com/jobs/1397212694826926"
                       {/* HR Eval Mode fields */}
                       {breakdown.strengths && (
                         <div className="flex flex-col gap-2">
-                          <div className="flex items-center gap-1.5 text-accent-emerald">
+                          <div className="flex items-center gap-1.5 text-primary">
                             <CheckCircle2 size={18} />
                             <strong className="text-[0.95rem] font-bold text-text-primary">Key Strengths ({breakdown.strengths.length})</strong>
                           </div>
@@ -1823,7 +1843,7 @@ Product Designer - metacareers.com/jobs/1397212694826926"
 
                       {breakdown.weaknesses && (
                         <div className="flex flex-col gap-2">
-                          <div className="flex items-center gap-1.5 text-accent-rose">
+                          <div className="flex items-center gap-1.5 text-destructive">
                             <AlertTriangle size={18} />
                             <strong className="text-[0.95rem] font-bold text-text-primary">Weaknesses & Gaps ({breakdown.weaknesses.length})</strong>
                           </div>
@@ -1836,11 +1856,11 @@ Product Designer - metacareers.com/jobs/1397212694826926"
                       {/* Skills Coach Mode fields */}
                       {breakdown.priority_skills_to_add && (
                         <div className="flex flex-col gap-2">
-                          <div className="flex items-center gap-1.5 text-accent-blue">
+                          <div className="flex items-center gap-1.5 text-primary">
                             <Sparkles size={18} />
                             <strong className="text-[0.95rem] font-bold text-text-primary">Priority Skills to Add</strong>
                           </div>
-                          <div className="flex flex-wrap gap-1.5 bg-slate-50 border border-border-color rounded-md p-3">
+                          <div className="flex flex-wrap gap-1.5 bg-bg-elevated border border-border-color rounded-md p-3">
                             {breakdown.priority_skills_to_add.map((word, i) => (
                               <span key={i} className={`${BADGE_BASE} bg-white border border-border-color text-text-primary p-[0.2rem_0.45rem] text-[0.75rem] font-semibold shadow-sm`}>
                                 {word}
@@ -1852,15 +1872,15 @@ Product Designer - metacareers.com/jobs/1397212694826926"
 
                       {breakdown.bullet_point_improvements && (
                         <div className="flex flex-col gap-2">
-                          <div className="flex items-center gap-1.5 text-accent-blue">
+                          <div className="flex items-center gap-1.5 text-primary">
                             <Sparkles size={18} />
                             <strong className="text-[0.95rem] font-bold text-text-primary">Resume Bullet Improvements</strong>
                           </div>
                           <div className="flex flex-col gap-3">
                             {breakdown.bullet_point_improvements.map((b, i) => (
-                              <div key={i} className="bg-slate-50 border border-border-color rounded-md p-3 text-[0.8rem]">
+                              <div key={i} className="bg-bg-elevated border border-border-color rounded-md p-3 text-[0.8rem]">
                                 <div className="text-text-secondary line-through mb-1.5">{b.original}</div>
-                                <div className="text-text-primary font-semibold text-accent-emerald">{b.improved}</div>
+                                <div className="text-text-primary font-semibold text-primary">{b.improved}</div>
                               </div>
                             ))}
                           </div>
@@ -1870,13 +1890,13 @@ Product Designer - metacareers.com/jobs/1397212694826926"
                       {/* Summaries (All modes) */}
                       {(breakdown.profile_summary || breakdown.evaluation_summary || breakdown.general_advice) && (
                         <div className="flex flex-col gap-2">
-                          <div className="flex items-center gap-1.5 text-accent-blue">
+                          <div className="flex items-center gap-1.5 text-primary">
                             <Sparkles size={18} />
                             <strong className="text-[0.95rem] font-bold text-text-primary">
                               {breakdown.profile_summary ? 'Profile Summary' : breakdown.evaluation_summary ? 'HR Evaluation' : 'General Coaching Advice'}
                             </strong>
                           </div>
-                          <div className="bg-[#f8fafc] border border-border-color rounded-md p-3 text-sm text-text-secondary leading-relaxed">
+                          <div className="bg-bg-elevated border border-border-color rounded-md p-3 text-sm text-text-secondary leading-relaxed">
                             {breakdown.profile_summary || breakdown.evaluation_summary || breakdown.general_advice}
                           </div>
                         </div>

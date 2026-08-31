@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { User, Key, CheckCircle2, AlertCircle, Save, Trash2, ShieldCheck, Sparkles, RefreshCw, Upload } from 'lucide-react';
+import { User, CheckCircle2, Save, Trash2, RefreshCw, Upload } from 'lucide-react';
+import { Card } from './ui/card';
+import { Input } from './ui/input';
+import { Textarea } from './ui/textarea';
+import { Button } from './ui/button';
 
 export default function Settings() {
   // Personal Info State
@@ -9,7 +13,6 @@ export default function Settings() {
   const [targetRoles, setTargetRoles] = useState('');
   const [summary, setSummary] = useState('');
   const [resumeText, setResumeText] = useState('');
-
 
   const [isUploading, setIsUploading] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
@@ -58,141 +61,130 @@ export default function Settings() {
     setUploadError(null);
 
     const fileType = file.name.split('.').pop().toLowerCase();
-    
+
     try {
-      if (fileType === 'txt') {
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          setResumeText(event.target.result);
-          setIsUploading(false);
-        };
-        reader.readAsText(file);
-      } else if (fileType === 'pdf') {
-        const text = await parsePdfBrowser(file);
-        setResumeText(text);
-        setIsUploading(false);
+      let extractedText = '';
+      if (fileType === 'pdf') {
+        extractedText = await parsePdfBrowser(file);
       } else {
-        throw new Error('Unsupported file format. Please upload a .txt or .pdf file.');
+        extractedText = await file.text();
       }
+
+      setResumeText(extractedText);
     } catch (err) {
-      console.error(err);
-      setUploadError(`File upload failed: ${err.message}`);
+      setUploadError(err.message || 'Failed to read resume file.');
+    } finally {
       setIsUploading(false);
     }
   };
 
-  // Load settings on mount
   useEffect(() => {
-    setName(localStorage.getItem('settings_name') || '');
-    setEmail(localStorage.getItem('settings_email') || '');
-    setPhone(localStorage.getItem('settings_phone') || '');
-    setTargetRoles(localStorage.getItem('settings_target_roles') || '');
-    setSummary(localStorage.getItem('settings_professional_summary') || '');
+    setName(localStorage.getItem('jst_user_name') || '');
+    setEmail(localStorage.getItem('jst_user_email') || '');
+    setPhone(localStorage.getItem('jst_user_phone') || '');
+    setTargetRoles(localStorage.getItem('jst_target_roles') || '');
+    setSummary(localStorage.getItem('jst_user_summary') || '');
     setResumeText(localStorage.getItem('ats_resume_text') || '');
-
   }, []);
 
   const handleSaveSettings = (e) => {
     e.preventDefault();
-    localStorage.setItem('settings_name', name.trim());
-    localStorage.setItem('settings_email', email.trim());
-    localStorage.setItem('settings_phone', phone.trim());
-    localStorage.setItem('settings_target_roles', targetRoles.trim());
-    localStorage.setItem('settings_professional_summary', summary.trim());
-    localStorage.setItem('ats_resume_text', resumeText.trim());
+
+    localStorage.setItem('jst_user_name', name);
+    localStorage.setItem('jst_user_email', email);
+    localStorage.setItem('jst_user_phone', phone);
+    localStorage.setItem('jst_target_roles', targetRoles);
+    localStorage.setItem('jst_user_summary', summary);
+    localStorage.setItem('ats_resume_text', resumeText);
 
     setSaveSuccess(true);
     setTimeout(() => setSaveSuccess(false), 3000);
   };
 
   const handleClearSettings = () => {
-    if (window.confirm('Are you sure you want to delete all personal settings?')) {
-      setName('');
-      setEmail('');
-      setPhone('');
-      setTargetRoles('');
-      setSummary('');
-      setResumeText('');
-      localStorage.removeItem('settings_name');
-      localStorage.removeItem('settings_email');
-      localStorage.removeItem('settings_phone');
-      localStorage.removeItem('settings_target_roles');
-      localStorage.removeItem('settings_professional_summary');
-      localStorage.removeItem('ats_resume_text');
-    }
+    if (!window.confirm('Are you sure you want to clear your saved profile settings?')) return;
+    
+    localStorage.removeItem('jst_user_name');
+    localStorage.removeItem('jst_user_email');
+    localStorage.removeItem('jst_user_phone');
+    localStorage.removeItem('jst_target_roles');
+    localStorage.removeItem('jst_user_summary');
+    localStorage.removeItem('ats_resume_text');
+
+    setName('');
+    setEmail('');
+    setPhone('');
+    setTargetRoles('');
+    setSummary('');
+    setResumeText('');
   };
 
   return (
-    <div className="flex flex-col gap-5 font-body">
-      
+    <div className="flex flex-col gap-5">
       <form onSubmit={handleSaveSettings} className="flex flex-col gap-5">
         
         {/* Row 1: Personal Profile */}
-        <div className="section-card p-6 md:p-8 flex flex-col gap-5">
-          <div className="flex items-center gap-2.5 border-b border-border-color pb-3">
-            <User size={20} color="var(--accent-blue)" />
-            <h3 className="text-[1.1rem] font-bold text-text-primary font-heading">Personal Job Seeker Profile</h3>
+        <Card className="p-6 md:p-8 flex flex-col gap-5">
+          <div className="flex items-center gap-2.5 border-b border-border pb-3">
+            <User size={20} className="text-primary" />
+            <h3 className="text-lg font-bold text-foreground">Personal Job Seeker Profile</h3>
           </div>
 
           <div className="grid grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-4">
             <div className="flex flex-col gap-1.5">
-              <label className="text-[0.85rem] font-semibold text-text-secondary">Full Name</label>
-              <input 
+              <label className="text-xs font-semibold text-muted-foreground">Full Name</label>
+              <Input 
                 type="text" 
                 value={name} 
                 onChange={(e) => setName(e.target.value)} 
                 placeholder="e.g. Jane Doe" 
-                className="bg-bg-input border border-border-color rounded-md px-3.5 py-2.5 text-text-primary font-body text-sm min-h-[44px] outline-none w-full hover:border-accent-blue focus:border-accent-blue focus:ring-4 focus:ring-accent-blue/10"
               />
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-[0.85rem] font-semibold text-text-secondary">Contact Email</label>
-              <input 
+              <label className="text-xs font-semibold text-muted-foreground">Contact Email</label>
+              <Input 
                 type="email" 
                 value={email} 
                 onChange={(e) => setEmail(e.target.value)} 
                 placeholder="e.g. ryan@example.com" 
-                className="bg-bg-input border border-border-color rounded-md px-3.5 py-2.5 text-text-primary font-body text-sm min-h-[44px] outline-none w-full hover:border-accent-blue focus:border-accent-blue focus:ring-4 focus:ring-accent-blue/10"
               />
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-[0.85rem] font-semibold text-text-secondary">Phone Number</label>
-              <input 
+              <label className="text-xs font-semibold text-muted-foreground">Phone Number</label>
+              <Input 
                 type="text" 
                 value={phone} 
                 onChange={(e) => setPhone(e.target.value)} 
                 placeholder="e.g. +1 (555) 019-2834" 
-                className="bg-bg-input border border-border-color rounded-md px-3.5 py-2.5 text-text-primary font-body text-sm min-h-[44px] outline-none w-full hover:border-accent-blue focus:border-accent-blue focus:ring-4 focus:ring-accent-blue/10"
               />
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-[0.85rem] font-semibold text-text-secondary">Target Roles / Job Titles</label>
-              <input 
+              <label className="text-xs font-semibold text-muted-foreground">Target Roles / Job Titles</label>
+              <Input 
                 type="text" 
                 value={targetRoles} 
                 onChange={(e) => setTargetRoles(e.target.value)} 
                 placeholder="e.g. React Developer, Mobile Designer" 
-                className="bg-bg-input border border-border-color rounded-md px-3.5 py-2.5 text-text-primary font-body text-sm min-h-[44px] outline-none w-full hover:border-accent-blue focus:border-accent-blue focus:ring-4 focus:ring-accent-blue/10"
               />
             </div>
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-[0.85rem] font-semibold text-text-secondary">Professional Pitch / Summary</label>
-            <textarea 
+            <label className="text-xs font-semibold text-muted-foreground">Professional Pitch / Summary</label>
+            <Textarea 
               value={summary} 
               onChange={(e) => setSummary(e.target.value)} 
               placeholder="Brief summary of your professional experience and core strengths..." 
-              className="bg-bg-input border border-border-color rounded-md px-3.5 py-2.5 text-text-primary font-body text-sm min-h-[100px] resize-y outline-none w-full hover:border-accent-blue focus:border-accent-blue focus:ring-4 focus:ring-accent-blue/10"
+              className="min-h-[100px]"
             />
           </div>
 
           <div className="flex flex-col gap-1.5 mt-3">
             <div className="flex justify-between items-center flex-wrap gap-2">
-              <label className="text-[0.85rem] font-semibold text-text-secondary">Master Resume (for ATS Auto-Matching)</label>
+              <label className="text-xs font-semibold text-muted-foreground">Master Resume (for ATS Auto-Matching)</label>
               
               <div className="flex items-center gap-2">
                 <input 
@@ -202,79 +194,81 @@ export default function Settings() {
                   className="hidden" 
                   id="settings-resume-upload" 
                 />
-                <label 
-                  htmlFor="settings-resume-upload" 
-                  className="inline-flex items-center justify-center gap-1 font-body font-semibold text-xs min-h-[30px] px-2.5 py-1 rounded-sm border border-border-color bg-bg-card text-text-primary hover:bg-bg-elevated cursor-pointer transition-all duration-150 active:opacity-85"
-                >
-                  {isUploading ? (
-                    <>
-                      <RefreshCw className="animate-spin" size={12} />
-                      <span>Parsing...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Upload size={12} />
-                      <span>Upload (.txt, .pdf)</span>
-                    </>
-                  )}
-                </label>
+                <Button variant="outline" size="sm" render={
+                  <label htmlFor="settings-resume-upload" className="cursor-pointer gap-1">
+                    {isUploading ? (
+                      <>
+                        <RefreshCw className="animate-spin" size={12} />
+                        <span>Parsing...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Upload size={12} />
+                        <span>Upload (.txt, .pdf)</span>
+                      </>
+                    )}
+                  </label>
+                } />
                 {resumeText && (
-                  <button 
+                  <Button 
                     type="button"
+                    variant="ghost"
+                    size="sm"
                     onClick={() => {
                       if (window.confirm('Are you sure you want to clear your master resume?')) {
                         setResumeText('');
                       }
                     }}
-                    className="bg-none border-none text-accent-rose cursor-pointer flex items-center gap-1 text-xs font-semibold"
+                    className="text-destructive hover:bg-destructive/10"
                   >
                     <Trash2 size={14} />
                     <span>Clear</span>
-                  </button>
+                  </Button>
                 )}
               </div>
             </div>
             
-            <textarea 
+            <Textarea 
               value={resumeText} 
               onChange={(e) => setResumeText(e.target.value)} 
               placeholder="Paste or upload your master resume content here. This resume is matched automatically against all your job applications!" 
-              className="bg-bg-input border border-border-color rounded-md px-3.5 py-2.5 text-text-primary font-body text-sm min-h-[150px] resize-y outline-none w-full hover:border-accent-blue focus:border-accent-blue focus:ring-4 focus:ring-accent-blue/10"
+              className="min-h-[150px]"
             />
             {uploadError && (
-              <span className="text-xs text-accent-rose font-medium">
+              <span className="text-xs text-destructive font-medium">
                 {uploadError}
               </span>
             )}
           </div>
-        </div>
+        </Card>
 
         {/* Action buttons */}
         <div className="flex justify-between items-center mt-2 flex-wrap gap-4">
-          <button 
+          <Button 
             type="button" 
+            variant="destructive"
             onClick={handleClearSettings} 
-            className="inline-flex items-center justify-center gap-1.5 font-body font-semibold text-base min-h-[44px] px-5 py-2.5 rounded-md border border-border-color bg-bg-card text-accent-rose hover:bg-bg-elevated cursor-pointer transition-all duration-150 active:opacity-85"
+            className="gap-2"
           >
             <Trash2 size={16} />
             <span>Reset All Settings</span>
-          </button>
+          </Button>
 
           <div className="flex gap-3 items-center">
             {saveSuccess && (
-              <span className="text-[0.85rem] text-accent-emerald font-semibold flex items-center gap-1.5">
+              <span className="text-xs text-primary font-semibold flex items-center gap-1.5">
                 <CheckCircle2 size={16} />
                 <span>Settings Saved Successfully!</span>
               </span>
             )}
             
-            <button 
+            <Button 
               type="submit" 
-              className="inline-flex items-center justify-center gap-1.5 font-body font-semibold text-base min-h-[44px] px-5 py-2.5 rounded-md border border-transparent bg-accent-blue text-white hover:bg-[#1d4ed8] cursor-pointer transition-all duration-150 active:opacity-85 min-w-[150px]"
+              className="gap-2 min-w-[150px]"
             >
               <Save size={16} />
               <span>Save Profile</span>
-            </button>
+            </Button>
           </div>
         </div>
 

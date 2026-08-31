@@ -1,6 +1,7 @@
 import React, { createContext, useState, useEffect } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../firebase';
+import CavemanLoader from '../components/ui/CavemanLoader';
 import {
   loadTrackerData,
   putContact,
@@ -469,7 +470,7 @@ export function TrackerProvider({ children }) {
 
   // Loading guard — don't render children until IndexedDB data is loaded
   if (isLoading || !data) {
-    return <div className="min-h-screen flex items-center justify-center bg-[var(--bg-app)] text-white">Ug is fetching data from the cave...</div>;
+    return <CavemanLoader />;
   }
 
   // Filter lists by selectedDate for daily views (or bypass if 'ALL')

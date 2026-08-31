@@ -3,30 +3,24 @@ import { useTracker } from '../context/TrackerContext';
 import { VoiceNoteRecorder } from '../utils/speechRecognizer';
 import { parseBrainDumpText } from '../utils/brainDumpParser';
 import { 
-  Mic, 
-  MicOff, 
-  Sparkles, 
-  X, 
+  Microphone, 
+  MicrophoneSlash, 
+  Sparkle, 
   Check, 
   ArrowRight, 
-  Upload, 
+  UploadSimple, 
   Key, 
   Eye, 
-  EyeOff, 
-  Loader2, 
+  EyeSlash, 
+  Spinner, 
   Image as ImageIcon, 
-  AlertCircle 
-} from 'lucide-react';
-
-// Tailwind CSS styling constants for v4 migration
-const BTN_BASE = "inline-flex items-center justify-center gap-2 rounded-full border border-transparent text-sm font-semibold shadow-sm transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-4";
-const BTN_PRIMARY = `${BTN_BASE} border-indigo-600 bg-indigo-600 px-5 py-2.5 text-white hover:bg-indigo-700 focus-visible:ring-indigo-200`;
-const BTN_SECONDARY = `${BTN_BASE} border-border-color bg-bg-card px-5 py-2.5 text-text-primary hover:bg-bg-elevated focus-visible:ring-slate-200`;
-const BTN_EMERALD = `${BTN_BASE} border-emerald-600 bg-emerald-600 px-5 py-2.5 text-white hover:bg-emerald-700 focus-visible:ring-emerald-200`;
-const BTN_PURPLE = `${BTN_BASE} border-violet-600 bg-violet-600 px-5 py-2.5 text-white hover:bg-violet-700 focus-visible:ring-violet-200`;
-
-const INPUT_FIELD = "w-full rounded-lg border border-border-color bg-bg-input px-3 py-2.5 text-sm text-text-primary placeholder-text-muted shadow-sm outline-none transition focus:border-accent-blue focus:ring-4 focus:ring-accent-blue/10";
-const CLOSE_BTN = "inline-flex items-center justify-center rounded-full p-1.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-300 cursor-pointer border-none bg-transparent";
+  WarningCircle 
+} from '@phosphor-icons/react';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
+import { Label } from './ui/label';
+import { Textarea } from './ui/textarea';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
 
 export default function BrainDumpModal({ isOpen, onClose }) {
   const { addResource, addContact, addMeeting, addTarget, setSelectedDate } = useTracker();
@@ -98,8 +92,6 @@ export default function BrainDumpModal({ isOpen, onClose }) {
     window.addEventListener('paste', handleGlobalPaste);
     return () => window.removeEventListener('paste', handleGlobalPaste);
   }, [isOpen]);
-
-  if (!isOpen) return null;
 
   // Voice recording toggle
   const toggleRecording = () => {
@@ -371,27 +363,25 @@ export default function BrainDumpModal({ isOpen, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-[#0f172a]/40 backdrop-blur-[4px] z-[100] flex items-center justify-center p-5 animate-fadeIn" onClick={onClose}>
-      <div className="bg-bg-card border border-border-color rounded-xl w-full max-w-[800px] max-h-[90vh] overflow-y-auto p-6 shadow-[0_20px_25px_-5px_rgba(0,0,0,0.1),0_10px_10px_-5px_rgba(0,0,0,0.04)] flex flex-col gap-4.5 animate-fadeIn" onClick={(e) => e.stopPropagation()}>
-        
-        {/* Modal Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <Sparkles color="var(--accent-purple)" size={22} />
-            <h2 className="text-[1.25rem] font-bold text-text-primary">AI Daily Journal Scraper (Brain Dump)</h2>
-          </div>
-          <button className={CLOSE_BTN} onClick={onClose} aria-label="Close modal">
-            <X size={18} />
-          </button>
-        </div>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-w-[800px] max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2.5 text-xl">
+            <Sparkle className="text-purple-500" size={24} weight="fill" />
+            AI Daily Journal Scraper (Brain Dump)
+          </DialogTitle>
+          <DialogDescription className="sr-only">
+            Import notes via text, voice, or photo
+          </DialogDescription>
+        </DialogHeader>
 
         {/* Tab Toggle Bar */}
-        <div className="flex border-b border-border-color mb-5 gap-1">
+        <div className="flex border-b mb-5 gap-1">
           <button
             type="button"
             onClick={() => { setActiveTab('text'); setParsedResult(null); setErrorMsg(''); }}
-            className={`py-2.5 px-5 text-[0.85rem] font-bold bg-transparent border-none border-b-3 cursor-pointer transition-all duration-150 ${
-              activeTab === 'text' ? 'border-accent-purple text-accent-purple' : 'border-transparent text-text-secondary'
+            className={`py-2.5 px-5 text-sm font-bold bg-transparent border-none border-b-2 cursor-pointer transition-colors ${
+              activeTab === 'text' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground'
             }`}
           >
             Voice & Text Dump
@@ -399,8 +389,8 @@ export default function BrainDumpModal({ isOpen, onClose }) {
           <button
             type="button"
             onClick={() => { setActiveTab('photo'); setParsedResult(null); setErrorMsg(''); }}
-            className={`py-2.5 px-5 text-[0.85rem] font-bold bg-transparent border-none border-b-3 cursor-pointer transition-all duration-150 ${
-              activeTab === 'photo' ? 'border-accent-purple text-accent-purple' : 'border-transparent text-text-secondary'
+            className={`py-2.5 px-5 text-sm font-bold bg-transparent border-none border-b-2 cursor-pointer transition-colors ${
+              activeTab === 'photo' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground'
             }`}
           >
             Physical Form Photo
@@ -410,34 +400,32 @@ export default function BrainDumpModal({ isOpen, onClose }) {
         {/* TAB 1: Voice & Text Sorter */}
         {activeTab === 'text' && (
           <div className="flex flex-col gap-4">
-            <p className="text-[0.825rem] text-text-secondary">
+            <p className="text-sm text-muted-foreground">
               Dump chaotic thoughts, unorganized daily updates, or speak voice notes out loud. The local parser automatically categorizes everything into your 15-10-2 tracker!
             </p>
 
             {/* Voice Recording Control */}
-            <div className="flex items-center gap-3.5 bg-slate-50 p-[0.75rem_1rem] rounded-md border border-border-color">
-              <button
-                type="button"
-                className={isRecording ? BTN_EMERALD : BTN_PRIMARY}
+            <div className="flex items-center gap-3.5 bg-secondary/50 p-3 rounded-md border">
+              <Button
+                variant={isRecording ? "destructive" : "default"}
                 onClick={toggleRecording}
               >
-                {isRecording ? <MicOff size={16} /> : <Mic size={16} />}
-                <span>{isRecording ? 'Stop Recording' : 'Record Voice Note'}</span>
-              </button>
+                {isRecording ? <MicrophoneSlash size={16} className="mr-2" /> : <Microphone size={16} className="mr-2" />}
+                {isRecording ? 'Stop Recording' : 'Record Voice Note'}
+              </Button>
 
-              <span className={`text-[0.8rem] font-medium ${isRecording ? 'text-emerald-700' : 'text-text-muted'}`}>
+              <span className={`text-sm font-medium ${isRecording ? 'text-destructive' : 'text-muted-foreground'}`}>
                 {speechStatus || 'Tap mic to speak notes, or type below.'}
               </span>
             </div>
 
             {/* Text Area Input */}
-            <div>
-              <label htmlFor="brain-dump-input" className="text-[0.75rem] text-text-secondary block mb-1.5 font-semibold">
+            <div className="space-y-1.5">
+              <Label htmlFor="brain-dump-input">
                 Raw Unorganized Notes / Voice Transcript
-              </label>
-              <textarea
+              </Label>
+              <Textarea
                 id="brain-dump-input"
-                className={INPUT_FIELD}
                 rows={5}
                 placeholder="e.g. Met John Doe for an informational chat. Also found TechCorp engineering job post and messaged Jane Doe on LinkedIn..."
                 value={rawText}
@@ -446,11 +434,11 @@ export default function BrainDumpModal({ isOpen, onClose }) {
             </div>
 
             <div className="flex justify-end gap-3">
-              <button type="button" className={BTN_SECONDARY} onClick={() => setRawText('')}>Clear Text</button>
-              <button type="button" className={BTN_PRIMARY} onClick={handleParseText}>
-                <Sparkles size={16} />
-                <span>Sort Chaos Locally</span>
-              </button>
+              <Button variant="outline" onClick={() => setRawText('')}>Clear Text</Button>
+              <Button onClick={handleParseText}>
+                <Sparkle size={16} className="mr-2" weight="fill" />
+                Sort Chaos Locally
+              </Button>
             </div>
           </div>
         )}
@@ -458,71 +446,70 @@ export default function BrainDumpModal({ isOpen, onClose }) {
         {/* TAB 2: Photo Form Import */}
         {activeTab === 'photo' && (
           <div className="flex flex-col gap-4">
-            <p className="text-[0.825rem] text-text-secondary">
+            <p className="text-sm text-muted-foreground">
               Take photo of printed Form PD10048654 daily tracker, copy it, and hit <strong>Cmd+V / Ctrl+V</strong> here to paste! Or drag and drop file below.
             </p>
 
             {/* Gemini API Key Block */}
             {!isEditingKey ? (
-              <div className="flex items-center justify-between bg-emerald-50 border border-emerald-200 text-emerald-800 p-[0.65rem_1rem] rounded-md text-[0.8rem] font-medium">
+              <div className="flex items-center justify-between bg-primary/10 border border-primary/20 text-primary p-3 rounded-md text-sm font-medium">
                 <div className="flex items-center gap-1.5">
-                  <Check size={15} className="text-emerald-800" />
+                  <Check size={16} weight="bold" />
                   <span>Gemini API Key configured and stored locally.</span>
                 </div>
-                <button 
-                  type="button" 
+                <Button 
+                  variant="link" 
                   onClick={() => setIsEditingKey(true)} 
-                  className="bg-transparent border-none text-blue-700 font-bold cursor-pointer p-0"
+                  className="text-blue-600 p-0 h-auto font-bold"
                 >
                   Change Key
-                </button>
+                </Button>
               </div>
             ) : (
-              <div className="bg-slate-50 p-[0.75rem_1rem] rounded-md border border-border-color">
-                <div className="flex items-center justify-between mb-1.5">
-                  <label htmlFor="gemini-key-input" className="text-[0.75rem] font-bold flex items-center gap-1.5 text-text-primary">
-                    <Key size={14} color="var(--accent-blue)" />
-                    <span>Gemini API Key (Local Setup)</span>
-                  </label>
+              <div className="bg-secondary/30 p-3 rounded-md border space-y-3">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="gemini-key-input" className="flex items-center gap-1.5 text-foreground font-bold">
+                    <Key size={14} className="text-blue-500" weight="fill" />
+                    Gemini API Key (Local Setup)
+                  </Label>
                   <div className="flex gap-3 items-center">
                     <a 
                       href="https://aistudio.google.com/" 
                       target="_blank" 
                       rel="noopener noreferrer" 
-                      className="text-[0.725rem] text-blue-700 font-semibold no-underline"
-                      title="Get free API Key from Google AI Studio"
+                      className="text-xs text-blue-600 font-semibold hover:underline"
                     >
                       Get Free Key ↗
                     </a>
                     {apiKey.trim() && (
-                      <button 
-                        type="button" 
+                      <Button 
+                        variant="link" 
                         onClick={() => setIsEditingKey(false)} 
-                        className="bg-transparent border-none text-emerald-800 font-bold cursor-pointer text-[0.725rem] p-0"
+                        className="text-emerald-700 font-bold p-0 h-auto text-xs"
                       >
                         Done
-                      </button>
+                      </Button>
                     )}
                   </div>
                 </div>
 
                 <div className="flex gap-2 relative">
-                  <input
+                  <Input
                     id="gemini-key-input"
                     type={showKey ? 'text' : 'password'}
                     placeholder="Paste your AI Studio API key here..."
-                    className="flex-1 p-[0.45rem_2.25rem_0.45rem_0.65rem] text-[0.8rem] border border-border-color rounded-sm outline-none bg-bg-input text-text-primary"
                     value={apiKey}
                     onChange={(e) => setApiKey(e.target.value)}
+                    className="pr-10"
                   />
-                  <button
-                    type="button"
+                  <Button
+                    variant="ghost"
+                    size="icon"
                     onClick={() => setShowKey(!showKey)}
-                    aria-label={showKey ? 'Hide API key' : 'Show API key'}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 bg-transparent border-none text-text-muted cursor-pointer p-0"
+                    className="absolute right-0 top-0 h-full text-muted-foreground hover:bg-transparent"
                   >
-                    {showKey ? <EyeOff size={15} /> : <Eye size={15} />}
-                  </button>
+                    {showKey ? <EyeSlash size={16} /> : <Eye size={16} />}
+                  </Button>
                 </div>
               </div>
             )}
@@ -532,8 +519,8 @@ export default function BrainDumpModal({ isOpen, onClose }) {
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
-              className={`border-2 rounded-lg p-[2rem_1.5rem] text-center cursor-pointer transition-all duration-200 relative ${
-                isDragging ? 'border-dashed border-accent-purple bg-bg-elevated' : 'border-dashed border-border-color bg-bg-card'
+              className={`border-2 rounded-lg p-8 text-center cursor-pointer transition-all duration-200 relative ${
+                isDragging ? 'border-dashed border-purple-500 bg-secondary' : 'border-dashed border-border bg-card'
               }`}
               onClick={() => document.getElementById('form-file-picker').click()}
             >
@@ -550,20 +537,20 @@ export default function BrainDumpModal({ isOpen, onClose }) {
                   <img 
                     src={imagePreviewUrl} 
                     alt="Pasted Form Preview" 
-                    className="max-h-[180px] max-w-full rounded-sm border border-border-color shadow-sm"
+                    className="max-h-[180px] max-w-full rounded-sm border shadow-sm"
                   />
-                  <span className="text-[0.725rem] text-text-secondary font-medium">
+                  <span className="text-xs text-muted-foreground font-medium">
                     {imageFile ? `${imageFile.name} loaded.` : 'Pasted photo loaded.'} Click to replace.
                   </span>
                 </div>
               ) : (
                 <div className="flex flex-col items-center gap-2.5">
-                  <div className="bg-[#f5f3ff] p-2.5 rounded-full text-accent-purple">
-                    <Upload size={24} />
+                  <div className="bg-secondary p-2.5 rounded-full text-foreground">
+                    <UploadSimple size={24} weight="bold" />
                   </div>
                   <div>
-                    <span className="text-[0.85rem] font-bold text-text-primary">Drag & drop form photo here</span>
-                    <span className="text-[0.8rem] text-text-muted block mt-1">
+                    <span className="text-sm font-bold text-foreground">Drag & drop form photo here</span>
+                    <span className="text-xs text-muted-foreground block mt-1">
                       or click to select photo, or copy image & hit <strong>Cmd+V / Ctrl+V</strong> anywhere!
                     </span>
                   </div>
@@ -572,13 +559,10 @@ export default function BrainDumpModal({ isOpen, onClose }) {
             </div>
 
             {/* Photo Sorter Controls */}
-            <div className="flex justify-between gap-3 flex-wrap">
+            <div className="flex justify-between gap-3 flex-wrap mt-2">
               <div>
                 {imagePreviewUrl && (
-                  <button 
-                    type="button" 
-                    className={BTN_SECONDARY} 
-                    onClick={() => {
+                  <Button variant="outline" onClick={() => {
                       setImagePreviewUrl('');
                       setImageFile(null);
                       setParsedResult(null);
@@ -586,38 +570,32 @@ export default function BrainDumpModal({ isOpen, onClose }) {
                     }}
                   >
                     Clear Photo
-                  </button>
+                  </Button>
                 )}
               </div>
               
               <div className="flex gap-3">
-                <button 
-                  type="button" 
-                  className={BTN_SECONDARY} 
-                  onClick={handleSimulatePhoto}
-                  disabled={isExtracting}
-                >
-                  <span>Simulate Demo Extraction</span>
-                </button>
+                <Button variant="secondary" onClick={handleSimulatePhoto} disabled={isExtracting}>
+                  Simulate Demo Extraction
+                </Button>
                 
-                <button 
-                  type="button" 
+                <Button 
                   onClick={handleExtractPhoto}
                   disabled={isExtracting || !imagePreviewUrl}
-                  className={`${BTN_PURPLE} flex items-center gap-1.5`}
+                  className="bg-primary hover:bg-primary/90 text-white"
                 >
                   {isExtracting ? (
                     <>
-                      <Loader2 size={15} className="animate-spin" />
-                      <span>Reading Photo...</span>
+                      <Spinner size={16} className="animate-spin mr-2" />
+                      Reading Photo...
                     </>
                   ) : (
                     <>
-                      <Sparkles size={15} />
-                      <span>Extract Data with AI</span>
+                      <Sparkle size={16} className="mr-2" weight="fill" />
+                      Extract Data with AI
                     </>
                   )}
-                </button>
+                </Button>
               </div>
             </div>
           </div>
@@ -625,23 +603,23 @@ export default function BrainDumpModal({ isOpen, onClose }) {
 
         {/* Error message */}
         {errorMsg && (
-          <div className="flex items-center gap-2 bg-red-50 border border-red-200 text-red-700 p-3 rounded-md text-[0.8rem] mt-4 font-semibold">
-            <AlertCircle size={16} />
+          <div className="flex items-center gap-2 bg-destructive/10 border border-destructive/20 text-destructive p-3 rounded-md text-sm mt-4 font-semibold">
+            <WarningCircle size={16} weight="fill" />
             <span>{errorMsg}</span>
           </div>
         )}
 
         {/* Unified Parsing Preview Panel */}
         {parsedResult && (
-          <div className="bg-slate-50 border border-border-color rounded-md p-5 flex flex-col gap-3.5 max-h-[320px] overflow-y-auto mt-[1.15rem]">
+          <div className="bg-secondary/30 border rounded-md p-5 flex flex-col gap-4 max-h-[320px] overflow-y-auto mt-4">
             
-            <div className="flex items-center justify-between border-b border-border-color pb-2">
-              <h4 className="text-[0.9rem] flex items-center gap-2 font-extrabold uppercase">
-                <Check color="#047857" size={16} />
-                <span>AI Sorter Results Preview</span>
+            <div className="flex items-center justify-between border-b pb-2">
+              <h4 className="text-sm flex items-center gap-2 font-extrabold uppercase">
+                <Check className="text-emerald-600" size={16} weight="bold" />
+                AI Sorter Results Preview
               </h4>
               {parsedResult.selectedDate && (
-                <span className="text-[0.75rem] font-bold text-text-muted">
+                <span className="text-xs font-bold text-muted-foreground">
                   Form Date: {parsedResult.selectedDate}
                 </span>
               )}
@@ -650,13 +628,13 @@ export default function BrainDumpModal({ isOpen, onClose }) {
             {/* Resources list */}
             {parsedResult.resources.length > 0 && (
               <div>
-                <h5 className="text-[0.75rem] font-extrabold text-blue-700 uppercase mb-1">
+                <h5 className="text-xs font-extrabold text-blue-600 uppercase mb-1.5">
                   Daily Resources ({parsedResult.resources.length})
                 </h5>
                 <div className="flex flex-col gap-1 pl-1.5">
                   {parsedResult.resources.map((r, i) => (
-                    <div key={`ext_r_${i}`} className="text-[0.775rem] text-text-primary">
-                      • {r.name} <span className="text-[0.7rem] text-text-muted">({r.category})</span>
+                    <div key={`ext_r_${i}`} className="text-sm text-foreground">
+                      • {r.name} <span className="text-xs text-muted-foreground">({r.category})</span>
                     </div>
                   ))}
                 </div>
@@ -666,15 +644,15 @@ export default function BrainDumpModal({ isOpen, onClose }) {
             {/* Contacts list */}
             {parsedResult.contacts.length > 0 && (
               <div>
-                <h5 className="text-[0.75rem] font-extrabold text-emerald-800 uppercase mb-1">
+                <h5 className="text-xs font-extrabold text-emerald-600 uppercase mb-1.5">
                   Contacts Made ({parsedResult.contacts.length})
                 </h5>
-                <div className="flex flex-col gap-1.5 pl-1.5">
+                <div className="flex flex-col gap-2 pl-1.5">
                   {parsedResult.contacts.map((c, i) => (
-                    <div key={`ext_c_${i}`} className="text-[0.775rem] border-b border-dashed border-slate-200 pb-1">
-                      <div className="font-bold text-text-primary">{c.name} ({c.organization || 'No Org'})</div>
-                      <div className="text-text-secondary text-[0.725rem]">{c.emailPhone || 'No contact details'} | {c.kindOfContact} | Follow-up: {c.followUpDate}</div>
-                      {c.comments && <div className="italic text-[0.7rem] text-text-muted">"{c.comments}"</div>}
+                    <div key={`ext_c_${i}`} className="text-sm border-b border-dashed border-border pb-2">
+                      <div className="font-bold text-foreground">{c.name} ({c.organization || 'No Org'})</div>
+                      <div className="text-muted-foreground text-xs mt-0.5">{c.emailPhone || 'No contact details'} | {c.kindOfContact} | Follow-up: {c.followUpDate}</div>
+                      {c.comments && <div className="italic text-xs text-muted-foreground mt-1">"{c.comments}"</div>}
                     </div>
                   ))}
                 </div>
@@ -684,15 +662,15 @@ export default function BrainDumpModal({ isOpen, onClose }) {
             {/* Meetings list */}
             {parsedResult.meetings.length > 0 && (
               <div>
-                <h5 className="text-[0.75rem] font-extrabold text-purple-700 uppercase mb-1">
+                <h5 className="text-xs font-extrabold text-purple-600 uppercase mb-1.5">
                   Meetings scheduled ({parsedResult.meetings.length})
                 </h5>
-                <div className="flex flex-col gap-1.5 pl-1.5">
+                <div className="flex flex-col gap-2 pl-1.5">
                   {parsedResult.meetings.map((m, i) => (
-                    <div key={`ext_m_${i}`} className="text-[0.775rem] border-b border-dashed border-slate-200 pb-1">
-                      <div className="font-bold text-text-primary">{m.name} ({m.organization || 'No Org'})</div>
-                      <div className="text-text-secondary text-[0.725rem]">{m.emailPhone || 'No contact details'} | {m.kindOfMeeting} | Follow-up: {m.followUpDate}</div>
-                      {m.comments && <div className="italic text-[0.7rem] text-text-muted">"{m.comments}"</div>}
+                    <div key={`ext_m_${i}`} className="text-sm border-b border-dashed border-border pb-2">
+                      <div className="font-bold text-foreground">{m.name} ({m.organization || 'No Org'})</div>
+                      <div className="text-muted-foreground text-xs mt-0.5">{m.emailPhone || 'No contact details'} | {m.kindOfMeeting} | Follow-up: {m.followUpDate}</div>
+                      {m.comments && <div className="italic text-xs text-muted-foreground mt-1">"{m.comments}"</div>}
                     </div>
                   ))}
                 </div>
@@ -702,12 +680,12 @@ export default function BrainDumpModal({ isOpen, onClose }) {
             {/* Targets list */}
             {parsedResult.targets.length > 0 && (
               <div>
-                <h5 className="text-[0.75rem] font-extrabold text-rose-700 uppercase mb-1">
+                <h5 className="text-xs font-extrabold text-rose-600 uppercase mb-1.5">
                   Target Companies Added ({parsedResult.targets.length})
                 </h5>
-                <div className="flex flex-wrap gap-1.5">
+                <div className="flex flex-wrap gap-2">
                   {parsedResult.targets.map((t, i) => (
-                    <span key={`ext_t_${i}`} className="text-[0.7rem] bg-rose-50 text-rose-700 border border-rose-200 rounded-sm p-[0.15rem_0.4rem] font-bold">
+                    <span key={`ext_t_${i}`} className="text-xs bg-destructive/10 text-destructive border border-destructive/20 rounded-md p-1.5 font-bold">
                       {t}
                     </span>
                   ))}
@@ -715,20 +693,18 @@ export default function BrainDumpModal({ isOpen, onClose }) {
               </div>
             )}
 
-            <div className="flex justify-end mt-2 border-t border-border-color pt-3">
-              <button 
-                type="button" 
+            <div className="flex justify-end mt-4 pt-4 border-t">
+              <Button 
                 onClick={handleApplyAll}
-                className={`${BTN_EMERALD} flex items-center gap-1.5`}
+                className="bg-primary hover:bg-primary/90 text-white"
               >
-                {applied ? <Check size={16} /> : <ArrowRight size={16} />}
-                <span>{applied ? 'Ugh! Items Added!' : 'Apply All to Activity Tracker'}</span>
-              </button>
+                {applied ? <Check size={16} className="mr-2" weight="bold" /> : <ArrowRight size={16} className="mr-2" weight="bold" />}
+                {applied ? 'Ugh! Items Added!' : 'Apply All to Activity Tracker'}
+              </Button>
             </div>
           </div>
         )}
-
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }

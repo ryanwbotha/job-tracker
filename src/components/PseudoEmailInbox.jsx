@@ -2,19 +2,11 @@ import React, { useState } from 'react';
 import { useTracker } from '../context/TrackerContext';
 import { Mail, Sparkles, Send, CheckCircle, ArrowRight, UserCheck } from 'lucide-react';
 import Linkedin from './LinkedinIcon';
-
-// Tailwind CSS styling constants for v4 migration
-const BTN_BASE = "inline-flex items-center justify-center gap-2 rounded-full border border-transparent text-sm font-semibold shadow-sm transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-4";
-const BTN_PRIMARY = `${BTN_BASE} border-indigo-600 bg-indigo-600 px-5 py-2.5 text-white hover:bg-indigo-700 focus-visible:ring-indigo-200`;
-const BTN_SECONDARY = `${BTN_BASE} border-border-color bg-bg-card px-5 py-2.5 text-text-primary hover:bg-bg-elevated focus-visible:ring-slate-200`;
-const BTN_EMERALD = `${BTN_BASE} border-accent-emerald bg-accent-emerald px-5 py-2.5 text-white hover:bg-emerald-700 focus-visible:ring-emerald-200`;
-const BTN_SM_PRIMARY = `inline-flex items-center justify-center gap-2 font-semibold text-[16px] min-h-[40px] px-3.5 py-1.5 rounded-sm border border-transparent cursor-pointer transition-colors active:opacity-85 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-blue bg-accent-blue text-white hover:bg-blue-700`;
-const BTN_SM_SECONDARY = `inline-flex items-center justify-center gap-2 font-semibold text-[16px] min-h-[40px] px-3.5 py-1.5 rounded-sm border border-border-color cursor-pointer transition-colors active:opacity-85 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-blue bg-bg-card text-text-primary hover:bg-bg-elevated`;
-
-const INPUT_FIELD = "w-full rounded-lg border border-border-color bg-bg-input px-3 py-2.5 text-sm text-text-primary placeholder-text-muted shadow-sm outline-none transition focus:border-accent-blue focus:ring-4 focus:ring-accent-blue/10";
-const BADGE_BASE = "inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-medium";
-const LINK_CLASS = "inline-flex items-center gap-1 text-sm text-accent-blue font-medium underline-offset-2 hover:underline hover:text-accent-blue/90";
-const EMAIL_BODY_BOX = "bg-bg-elevated border border-border-color rounded-md p-3.5 font-body text-[16px] leading-relaxed whitespace-pre-wrap text-text-primary";
+import { Card } from './ui/card';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
+import { Textarea } from './ui/textarea';
+import { Badge } from './ui/badge';
 
 export default function PseudoEmailInbox() {
   const { emails, processIncomingEmail } = useTracker();
@@ -58,200 +50,199 @@ We have an opening on our product engineering team. Check out my LinkedIn profil
 
 Best regards,
 Dave North
-Senior Engineering Manager | Ancestry.com`);
-    } else if (sampleType === 'alumni') {
-      setSenderHint('Leanne Cousin <leanne@usa-network.org>');
-      setSubjectHint('Referral to US Tech Manager');
-      setRawText(`From: Leanne Cousin <leanne@usa-network.org>
-Subject: Referral to US Tech Manager
+Senior Recruiter @ Ancestry`);
+    } else {
+      setSenderHint('Sarah Connor <s.connor@cyberdyne.io>');
+      setSubjectHint('Thanks for taking the time to chat today!');
+      setRawText(`From: Sarah Connor <s.connor@cyberdyne.io>
+Subject: Thanks for taking the time to chat today!
 
-Hey Ryan,
+Hi Ryan,
 
-I spoke with my contact at Qualtrics in Salt Lake. She is open to reviewing your résumé!
-Here is her LinkedIn: https://linkedin.com/in/alumni-qualtrics-lead
-Send her a thank-you note and mention my name. Follow up with me next Monday!
+Great speaking with you about the Senior Frontend Engineer role. I really enjoyed our conversation.
+Let's touch base again early next week to discuss the next steps with the hiring team.
 
 Best,
-Leanne`);
+Sarah`);
     }
-    setShowPasteForm(true);
   };
 
   return (
-    <div className="bg-bg-card rounded-lg p-6 shadow-card transition-all duration-150">
-      <div className="flex items-center justify-between mb-5 flex-wrap gap-3">
+    <div className="flex flex-col gap-5">
+      
+      {/* Top Banner */}
+      <Card className="p-6 md:p-8 flex justify-between items-center flex-wrap gap-4">
         <div className="flex items-center gap-3">
-          <Mail size={22} color="var(--accent-blue)" />
+          <Mail size={24} className="text-primary" />
           <div>
-            <h3 className="text-[1.1rem] font-bold text-text-primary">Email Interaction Analyzer</h3>
-            <p className="text-[0.8rem] text-text-secondary">
-              Forward Email Address: <code className="bg-[#eff6ff] p-[0.15rem_0.45rem] rounded-sm text-[#1d4ed8] font-semibold">forward-tracker@jobsearch.internal</code>
+            <h3 className="text-lg font-bold text-foreground">Email Interaction Analyzer</h3>
+            <p className="text-xs text-muted-foreground">
+              Paste email threads to automatically extract contact details, LinkedIn links, and auto-calculate follow-up dates
             </p>
           </div>
         </div>
 
-        <div className="flex gap-2">
-          <button className={BTN_SM_PRIMARY} onClick={() => setShowPasteForm(!showPasteForm)}>
-            <Sparkles size={15} />
-            <span>{showPasteForm ? 'View Inbox' : 'Analyze New Email'}</span>
-          </button>
-        </div>
-      </div>
+        <Button
+          onClick={() => setShowPasteForm(!showPasteForm)}
+          className="gap-2"
+        >
+          <Sparkles size={16} />
+          <span>{showPasteForm ? 'Close Analyzer' : 'Analyze New Email'}</span>
+        </Button>
+      </Card>
 
+      {/* Success Notification Banner */}
       {statusMsg && (
-        <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 p-[0.6rem_0.9rem] rounded-md mb-4 flex items-center gap-2 text-[0.85rem] font-semibold">
+        <div className="p-3.5 px-4 bg-primary/10 border border-primary/20 rounded-md text-primary font-semibold text-xs flex items-center gap-2">
           <CheckCircle size={16} />
           <span>{statusMsg}</span>
         </div>
       )}
 
-      {showPasteForm ? (
-        <form onSubmit={handleProcess} className="bg-slate-50 p-4.5 rounded-lg border border-border-color flex flex-col gap-3.5">
-          <div className="flex justify-between items-center">
-            <h4 className="text-[0.9rem] font-bold text-text-primary">Paste Email Thread from Network Contact</h4>
-            <div className="flex gap-1.5">
-              <button type="button" className={BTN_SM_SECONDARY} onClick={() => loadSampleEmail('recruiter')}>
-                Load Sample 1 (Recruiter)
-              </button>
-              <button type="button" className={BTN_SM_SECONDARY} onClick={() => loadSampleEmail('alumni')}>
-                Load Sample 2 (Alumni / Network)
-              </button>
+      {/* Email Analyzer Paste Form */}
+      {showPasteForm && (
+        <Card className="p-6 flex flex-col gap-4 border-primary">
+          <div className="flex justify-between items-center flex-wrap gap-2">
+            <h4 className="text-base font-bold text-foreground">Paste Incoming Email Raw Content</h4>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-muted-foreground font-semibold">Load Sample:</span>
+              <Button variant="outline" size="xs" onClick={() => loadSampleEmail('recruiter')}>Recruiter Reply</Button>
+              <Button variant="outline" size="xs" onClick={() => loadSampleEmail('interview')}>Follow-up Note</Button>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="text-[0.75rem] text-text-secondary font-semibold">From / Sender Hint</label>
-              <input
-                type="text"
-                className={INPUT_FIELD}
-                placeholder="e.g. John Doe <j.doe@techcorp.com>"
-                value={senderHint}
-                onChange={(e) => setSenderHint(e.target.value)}
-              />
-            </div>
-            <div>
-              <label className="text-[0.75rem] text-text-secondary font-semibold">Subject Line</label>
-              <input
-                type="text"
-                className={INPUT_FIELD}
-                placeholder="e.g. Re: Connection via Jane Doe"
-                value={subjectHint}
-                onChange={(e) => setSubjectHint(e.target.value)}
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="text-[0.75rem] text-text-secondary font-semibold">Full Email Content / Thread Body *</label>
-            <textarea
-              className={INPUT_FIELD}
-              rows={6}
-              placeholder="Paste email conversation text here..."
-              value={rawText}
-              onChange={(e) => setRawText(e.target.value)}
-              required
-            />
-          </div>
-
-          <div className="flex justify-end gap-3">
-            <button type="button" className={BTN_SECONDARY} onClick={() => setShowPasteForm(false)}>Cancel</button>
-            <button type="submit" className={BTN_EMERALD}>
-              <Sparkles size={15} />
-              <span>Run Interaction Analysis</span>
-            </button>
-          </div>
-        </form>
-      ) : (
-        <div className="grid grid-cols-[320px_1fr] max-[868px]:grid-cols-1 gap-4.5 min-h-[500px]">
-          {/* Email List Sidebar */}
-          <div className="bg-bg-card border border-border-color rounded-xl p-2.5 flex flex-col gap-1.5 max-h-[600px] overflow-y-auto">
-            <div className="text-[0.75rem] uppercase text-text-muted font-bold p-[0.25rem_0.5rem]">
-              Inbound Conversations ({emails.length})
-            </div>
-            {emails.map(email => (
-              <div
-                key={email.id}
-                className={`p-3 rounded-md border cursor-pointer transition-colors flex flex-col gap-1 ${email.id === selectedEmailId ? 'bg-accent-blue/10 border-accent-blue/20 hover:bg-accent-blue/15' : 'border-transparent bg-bg-elevated hover:bg-bg-input'}`}
-                onClick={() => setSelectedEmailId(email.id)}
-              >
-                <div className="font-semibold text-[16px] text-text-primary">{email.sender}</div>
-                <div className="text-[0.85rem] text-text-secondary overflow-hidden text-ellipsis whitespace-nowrap">{email.subject}</div>
-                <div className="text-[0.7rem] text-text-muted">{email.date}</div>
-              </div>
-            ))}
-          </div>
-
-          {/* Email Detail View & AI Extraction Result */}
-          {selectedEmail ? (
-            <div className="bg-bg-card border border-border-color rounded-xl p-5.5 flex flex-col gap-4.5">
+          <form onSubmit={handleProcess} className="flex flex-col gap-3.5">
+            <div className="grid grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-3">
               <div>
-                <h4 className="text-[1rem] font-bold text-text-primary mb-1">{selectedEmail.subject}</h4>
-                <div className="text-[0.8rem] text-text-secondary">
-                  From: <strong>{selectedEmail.sender}</strong> • {selectedEmail.date}
+                <label className="text-xs font-semibold text-muted-foreground mb-1 block">Sender (Optional)</label>
+                <Input
+                  type="text"
+                  placeholder="e.g. Dave North <d.north@ancestry.com>"
+                  value={senderHint}
+                  onChange={(e) => setSenderHint(e.target.value)}
+                />
+              </div>
+              <div>
+                <label className="text-xs font-semibold text-muted-foreground mb-1 block">Subject Line (Optional)</label>
+                <Input
+                  type="text"
+                  placeholder="e.g. Re: Connection via Tyler Jensen"
+                  value={subjectHint}
+                  onChange={(e) => setSubjectHint(e.target.value)}
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="text-xs font-semibold text-muted-foreground mb-1 block">Email Message Body *</label>
+              <Textarea
+                className="min-h-[120px]"
+                placeholder="Paste full raw email body text here..."
+                value={rawText}
+                onChange={(e) => setRawText(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="flex justify-end gap-3 mt-1">
+              <Button type="button" variant="outline" onClick={() => setShowPasteForm(false)}>Cancel</Button>
+              <Button type="submit" className="gap-2">
+                <Send size={15} />
+                <span>Process & Extract Contact</span>
+              </Button>
+            </div>
+          </form>
+        </Card>
+      )}
+
+      {/* Main Inbox Viewer Layout */}
+      <div className="grid grid-cols-[320px_1fr] max-md:grid-cols-1 gap-5 items-start">
+        {/* Left: Email List Sidebar */}
+        <div className="flex flex-col gap-2">
+          <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider px-1">Analyzed Inbox ({emails.length})</h4>
+          {emails.map(email => (
+            <Card
+              key={email.id}
+              onClick={() => setSelectedEmailId(email.id)}
+              className={`p-3 cursor-pointer transition-colors flex flex-col gap-1 ${email.id === selectedEmailId ? 'bg-primary/10 border-primary' : 'hover:bg-muted'}`}
+            >
+              <div className="flex justify-between items-center">
+                <strong className="text-xs font-bold text-foreground truncate">{email.senderName}</strong>
+                <span className="text-[10px] text-muted-foreground">{email.timestamp}</span>
+              </div>
+              <span className="text-xs text-muted-foreground font-semibold truncate">{email.subject}</span>
+              <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">{email.snippet}</p>
+            </Card>
+          ))}
+        </div>
+
+        {/* Right: Email Detail & Auto-Extracted Analysis */}
+        {selectedEmail && (
+          <Card className="p-6 flex flex-col gap-5">
+            {/* Subject & Sender */}
+            <div className="border-b border-border pb-4">
+              <h4 className="text-lg font-bold text-foreground mb-1">{selectedEmail.subject}</h4>
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <span className="font-semibold text-foreground">{selectedEmail.senderName}</span>
+                <span>&lt;{selectedEmail.senderEmail}&gt;</span>
+                <span>• {selectedEmail.timestamp}</span>
+              </div>
+            </div>
+
+            {/* AI Auto-Extraction Insights Widget */}
+            {selectedEmail.analysis && (
+              <div className="bg-muted/40 border border-border p-4 rounded-lg flex flex-col gap-3">
+                <div className="flex items-center gap-2">
+                  <Sparkles size={16} className="text-primary" />
+                  <span className="text-xs font-bold text-foreground uppercase tracking-wider">AI Contact & Task Extracted</span>
                 </div>
-              </div>
 
-              <div className={EMAIL_BODY_BOX}>
-                {selectedEmail.body}
-              </div>
-
-              {/* AI Analysis Panel */}
-              {selectedEmail.analysis && (
-                <div className="bg-slate-50 border border-border-color rounded-xl p-4.5 flex flex-col gap-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Sparkles size={16} color="var(--accent-purple)" />
-                      <strong className="text-[0.875rem] font-bold text-text-primary">Email Interaction Analysis Result</strong>
-                    </div>
-                    <span className={`${BADGE_BASE} ${selectedEmail.analysis.sentimentBadge === 'badge-emerald' ? 'bg-accent-emerald/8 text-accent-emerald' : selectedEmail.analysis.sentimentBadge === 'badge-rose' ? 'bg-accent-rose/8 text-accent-rose' : 'bg-accent-amber/8 text-amber-700'}`}>
-                      {selectedEmail.analysis.sentiment}
-                    </span>
+                <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-3 text-xs">
+                  <div>
+                    <span className="text-muted-foreground block">Extracted Contact:</span>
+                    <strong className="text-foreground font-bold">{selectedEmail.analysis.contactName}</strong>
+                    {selectedEmail.analysis.contactOrg && <span> ({selectedEmail.analysis.contactOrg})</span>}
                   </div>
 
-                  <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-2.5 text-[0.825rem]">
-                    <div>
-                      <span className="text-text-secondary">Extracted Contact:</span>{' '}
-                      <strong>{selectedEmail.analysis.contactName}</strong>
-                    </div>
-                    <div>
-                      <span className="text-text-secondary">Organization:</span>{' '}
-                      <strong>{selectedEmail.analysis.organization}</strong>
-                    </div>
-                    <div>
-                      <span className="text-text-secondary">Contact Type:</span>{' '}
-                      <span className={`${BADGE_BASE} bg-accent-emerald/8 text-accent-emerald`}>{selectedEmail.analysis.kindOfContact}</span>
-                    </div>
-                    <div>
-                      <span className="text-text-secondary">Auto Follow-up Date:</span>{' '}
-                      <strong className="text-[#b45309] font-bold">{selectedEmail.analysis.followUpDate}</strong>
-                    </div>
+                  <div>
+                    <span className="text-muted-foreground block">Sentiment / Urgency:</span>
+                    <Badge variant="secondary">
+                      {selectedEmail.analysis.sentiment}
+                    </Badge>
                   </div>
 
                   {selectedEmail.analysis.linkedinUrl && (
-                    <div className="mt-1">
-                      <a href={selectedEmail.analysis.linkedinUrl} target="_blank" rel="noopener noreferrer" className={LINK_CLASS}>
+                    <div>
+                      <span className="text-muted-foreground block">LinkedIn Detected:</span>
+                      <a href={selectedEmail.analysis.linkedinUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-primary hover:underline">
                         <Linkedin size={14} />
-                        <span>Extracted LinkedIn Profile ({selectedEmail.analysis.linkedinUrl})</span>
+                        <span>Profile Link</span>
                       </a>
                     </div>
                   )}
 
-                  <div className="bg-bg-elevated p-2.5 rounded-[6px] border border-border-color text-[0.8rem] text-text-secondary mt-1 flex items-start gap-1.5">
-                    <UserCheck size={14} className="mt-0.5 shrink-0" />
-                    <span>{selectedEmail.analysis.comments}</span>
+                  <div>
+                    <span className="text-muted-foreground block">Auto Follow-up Scheduled:</span>
+                    <Badge variant="secondary">{selectedEmail.analysis.kindOfContact}</Badge>
+                    <span className="ml-1 text-foreground font-bold">{selectedEmail.analysis.followUpDate}</span>
                   </div>
                 </div>
-              )}
+
+                {selectedEmail.analysis.actionSummary && (
+                  <div className="text-xs text-muted-foreground border-t border-border pt-2 mt-1">
+                    <strong className="text-foreground">Suggested Action:</strong> {selectedEmail.analysis.actionSummary}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Raw Email Message Content */}
+            <div className="bg-muted/30 border border-border rounded-md p-4 font-mono text-xs leading-relaxed whitespace-pre-wrap text-foreground">
+              {selectedEmail.body}
             </div>
-          ) : (
-            <div className="text-center py-10 px-5 text-text-muted flex flex-col items-center gap-2.5">
-              <Mail className="w-11 h-11 text-text-muted opacity-50" />
-              <p>No emails analyzed yet.</p>
-            </div>
-          )}
-        </div>
-      )}
+          </Card>
+        )}
+      </div>
     </div>
   );
 }
