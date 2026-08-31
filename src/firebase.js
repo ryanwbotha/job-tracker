@@ -21,7 +21,7 @@ export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const functions = getFunctions(app);
 
-if (import.meta.env.DEV) {
+if (import.meta.env.DEV && import.meta.env.VITE_USE_EMULATOR === 'true') {
   connectFunctionsEmulator(functions, "127.0.0.1", 5001);
 }
 

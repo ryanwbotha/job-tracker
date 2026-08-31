@@ -216,20 +216,33 @@ export default function AtsMatcher() {
       return;
     }
 
-    const effectiveKey = (apiKey || localStorage.getItem('GEMINI_API_KEY') || localStorage.getItem('ats_gemini_api_key') || import.meta.env.VITE_GEMINI_API_KEY || '').trim();
-
-    if (!effectiveKey) {
-      setError('Please enter your Gemini API Key using the "Configure Key" button above to run ATS match analysis.');
-      setShowKeyInput(true);
-      return;
-    }
-
     setLoading(true);
     setError(null);
 
+    const customKey = (apiKey || localStorage.getItem('GEMINI_API_KEY') || localStorage.getItem('ats_gemini_api_key') || import.meta.env.VITE_GEMINI_API_KEY || '').trim();
+
     try {
-      const prompt = getModePrompt(activeMode, resumeText, jobDescription);
-      const analysisResult = await callGeminiDirect(prompt, effectiveKey);
+      let analysisResult = null;
+
+      if (customKey) {
+        // Direct browser call if user provided a custom key
+        const prompt = getModePrompt(activeMode, resumeText, jobDescription);
+        analysisResult = await callGeminiDirect(prompt, customKey);
+      } else {
+        // Default to Cloud Function with backend secret GEMINI_API_KEY
+        const evaluateResume = httpsCallable(functions, 'evaluateResume');
+        const res = await evaluateResume({
+          resumeText,
+          jobDescription,
+          mode: activeMode
+        });
+
+        if (res.data && res.data.success) {
+          analysisResult = res.data.analysis;
+        } else {
+          throw new Error(res.data?.error || 'Failed to evaluate resume via Cloud Function.');
+        }
+      }
 
       if (analysisResult) {
         setResults(prev => ({
@@ -241,8 +254,7 @@ export default function AtsMatcher() {
       }
     } catch (err) {
       console.error('ATS Evaluation Error:', err);
-      setError(err.message || 'Error calling Gemini AI. Please verify your API key.');
-      setShowKeyInput(true);
+      setError(err.message || 'Error calling AI service. Check Firebase functions deployment and API key configuration.');
     } finally {
       setLoading(false);
     }

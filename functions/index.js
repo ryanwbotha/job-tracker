@@ -1,5 +1,29 @@
 const { onCall, HttpsError } = require("firebase-functions/v2/https");
+const { defineSecret } = require("firebase-functions/params");
 const logger = require("firebase-functions/logger");
+const fs = require("fs");
+const path = require("path");
+
+const geminiApiKey = defineSecret("GEMINI_API_KEY");
+
+function getLocalApiKey() {
+  if (process.env.GEMINI_API_KEY) {
+    return process.env.GEMINI_API_KEY;
+  }
+  try {
+    const envPath = path.resolve(__dirname, ".env");
+    if (fs.existsSync(envPath)) {
+      const content = fs.readFileSync(envPath, "utf-8");
+      const match = content.match(/GEMINI_API_KEY=["']?([^"'\r\n]+)["']?/);
+      if (match && match[1]) {
+        return match[1];
+      }
+    }
+  } catch (e) {
+    // Ignore error
+  }
+  return null;
+}
 
 function getPromptForMode(mode, resumeText, jobDescription) {
   if (mode === "professionalEvaluation") {
@@ -95,17 +119,26 @@ async function callGemini(prompt, apiKey) {
   throw lastError || new Error("Failed to get response from Gemini API");
 }
 
-exports.evaluateResume = onCall(async (request) => {
+exports.evaluateResume = onCall({ secrets: [geminiApiKey] }, async (request) => {
   const { resumeText, jobDescription, mode = "atsMatch", prompt: customPrompt } = request.data || {};
 
   if (!customPrompt && (!resumeText || !jobDescription)) {
     throw new HttpsError("invalid-argument", "Missing required parameters: resumeText and jobDescription.");
   }
 
-  const apiKey = process.env.GEMINI_API_KEY;
+  let apiKey = null;
+  try {
+    apiKey = geminiApiKey.value();
+  } catch (e) {
+    // Fallback if not running in cloud secret manager
+  }
   if (!apiKey) {
-    logger.error("GEMINI_API_KEY environment variable not set.");
-    throw new HttpsError("failed-precondition", "GEMINI_API_KEY environment variable not set on server.");
+    apiKey = getLocalApiKey();
+  }
+
+  if (!apiKey) {
+    logger.error("GEMINI_API_KEY secret not found in Secret Manager or local environment.");
+    throw new HttpsError("failed-precondition", "GEMINI_API_KEY secret not configured in Firebase Secret Manager.");
   }
 
   const prompt = customPrompt || getPromptForMode(mode, resumeText, jobDescription);
@@ -119,7 +152,7 @@ exports.evaluateResume = onCall(async (request) => {
   }
 });
 
-exports.generateAtsMatch = onCall(async (request) => {
+exports.generateAtsMatch = onCall({ secrets: [geminiApiKey] }, async (request) => {
   const { prompt, fileData, fileMimeType, resumeText, jobDescription, mode } = request.data || {};
   const effectivePrompt = prompt || getPromptForMode(mode || "atsMatch", resumeText || "", jobDescription || "");
 
@@ -127,9 +160,18 @@ exports.generateAtsMatch = onCall(async (request) => {
     throw new HttpsError("invalid-argument", "The function must be called with 'prompt' or 'resumeText' and 'jobDescription'.");
   }
 
-  const apiKey = process.env.GEMINI_API_KEY;
+  let apiKey = null;
+  try {
+    apiKey = geminiApiKey.value();
+  } catch (e) {
+    // Fallback
+  }
   if (!apiKey) {
-    throw new HttpsError("failed-precondition", "GEMINI_API_KEY environment variable not set.");
+    apiKey = getLocalApiKey();
+  }
+
+  if (!apiKey) {
+    throw new HttpsError("failed-precondition", "GEMINI_API_KEY environment secret not set.");
   }
 
   try {
