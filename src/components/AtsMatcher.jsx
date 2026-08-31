@@ -1,107 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Sparkles, FileText, CheckCircle2, AlertTriangle, Lightbulb, RefreshCw, Trash2, ArrowUpRight, Upload, X, Award, BookOpen, Key, Check, Eye, EyeOff } from 'lucide-react';
+import { Sparkles, FileText, CheckCircle2, AlertTriangle, Lightbulb, RefreshCw, Trash2, ArrowUpRight, Upload, X, Award, BookOpen } from 'lucide-react';
 import { httpsCallable } from 'firebase/functions';
 import { functions } from '../firebase';
 import { Card } from './ui/card';
 import { Button } from './ui/button';
 import { Textarea } from './ui/textarea';
-import { Input } from './ui/input';
-import { Label } from './ui/label';
 import { Badge } from './ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from './ui/dialog';
 import { Tabs, TabsList, TabsTrigger } from './ui/tabs';
-
-const getModePrompt = (mode, resumeText, jobDescription) => {
-  if (mode === 'professionalEvaluation') {
-    return (
-      "You are an experienced Technical Human Resource Manager specializing in software engineering, data science, tech leadership, and product roles. Your task is to review the provided resume against the job description.\n" +
-      "Please share your professional evaluation on whether the candidate's profile aligns with the role. Highlight the strengths and weaknesses of the applicant against the specified job requirements.\n\n" +
-      "Return a JSON response matching this structure exactly:\n" +
-      "{\n" +
-      '  "alignment_score": <number between 0 and 100>,\n' +
-      '  "strengths": [<list of candidate\'s key strengths for this role>],\n' +
-      '  "weaknesses": [<list of candidate\'s key weaknesses or alignment gaps for this role>],\n' +
-      '  "evaluation_summary": "<detailed HR evaluation statement, about 4-6 sentences, highlighting candidate\'s overall suitability>"\n' +
-      "}\n\n" +
-      `Resume:\n${resumeText}\n\n` +
-      `Job Description:\n${jobDescription}\n`
-    );
-  } else if (mode === 'skillsImprovement') {
-    return (
-      "You are an experienced Technical Recruiter and Career Coach specializing in tech roles. Your task is to review the provided resume against the job description.\n" +
-      "Please share your professional evaluation on how the candidate can improve their skills. Highlight specific areas of improvement and provide concrete, actionable recommendations on how to acquire these skills or represent them better.\n\n" +
-      "Return a JSON response matching this structure exactly:\n" +
-      "{\n" +
-      '  "priority_skills_to_add": [<list of key technical skills/tools the candidate lacks from the JD>],\n' +
-      '  "certifications_recommendations": [<list of recommended certifications, courses, or study areas>],\n' +
-      '  "bullet_point_improvements": [\n' +
-      "    {\n" +
-      '      "original": "<original text or concept from resume to improve>",\n' +
-      '      "improved": "<improved version incorporating keywords, action verbs, or impact metrics>"\n' +
-      "    }\n" +
-      "  ]\n" +
-      "}\n\n" +
-      `Resume:\n${resumeText}\n\n` +
-      `Job Description:\n${jobDescription}\n`
-    );
-  } else {
-    // Default to atsMatch
-    return (
-      "You are a skilled and very experienced ATS (Application Tracking System) parser and optimizer with a deep understanding of tech and professional roles. Your task is to evaluate the resume based on the given job description.\n" +
-      "You must consider the job market is very competitive and you should provide the best assistance for improving the resumes.\n" +
-      "Assign the percentage matching based on the job description and the missing keywords with high accuracy.\n\n" +
-      "Return a JSON response matching this structure exactly:\n" +
-      "{\n" +
-      '  "match_percentage": <number between 0 and 100>,\n' +
-      '  "matching_skills": [<list of technical skills and qualifications present in both>],\n' +
-      '  "missing_keywords": [<list of important technical skills/keywords from job description missing in resume>],\n' +
-      '  "profile_summary": "<brief professional analysis of the candidate\'s strengths and weaknesses in 3-4 sentences>"\n' +
-      "}\n\n" +
-      `Resume:\n${resumeText}\n\n` +
-      `Job Description:\n${jobDescription}\n`
-    );
-  }
-};
-
-const callGeminiDirect = async (prompt, apiKey) => {
-  const models = ['gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-pro', 'gemini-1.5-flash-latest'];
-  let lastErr = null;
-
-  for (const model of models) {
-    try {
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey.trim()}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: { responseMimeType: 'application/json' }
-          })
-        }
-      );
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        lastErr = new Error(errorData.error?.message || `Gemini API error (${response.status}) on model ${model}`);
-        continue;
-      }
-
-      const data = await response.json();
-      const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-      if (!text) {
-        lastErr = new Error(`Empty response from Gemini model ${model}`);
-        continue;
-      }
-
-      return JSON.parse(text);
-    } catch (e) {
-      lastErr = e;
-    }
-  }
-
-  throw lastErr || new Error('Failed to communicate with Gemini API');
-};
 
 export default function AtsMatcher() {
   const [resumeText, setResumeText] = useState('');
@@ -116,18 +22,6 @@ export default function AtsMatcher() {
   });
   const [isUploading, setIsUploading] = useState(false);
   const [showBreakdownModal, setShowBreakdownModal] = useState(false);
-
-  // Gemini API Key State
-  const [apiKey, setApiKey] = useState(() => localStorage.getItem('GEMINI_API_KEY') || localStorage.getItem('ats_gemini_api_key') || '');
-  const [showKeyInput, setShowKeyInput] = useState(false);
-  const [showKeyText, setShowKeyText] = useState(false);
-
-  useEffect(() => {
-    if (apiKey) {
-      localStorage.setItem('GEMINI_API_KEY', apiKey);
-      localStorage.setItem('ats_gemini_api_key', apiKey);
-    }
-  }, [apiKey]);
 
   // Helper to dynamically load PDF.js and extract text from files in the browser
   const parsePdfBrowser = async (file) => {
@@ -219,42 +113,26 @@ export default function AtsMatcher() {
     setLoading(true);
     setError(null);
 
-    const customKey = (apiKey || localStorage.getItem('GEMINI_API_KEY') || localStorage.getItem('ats_gemini_api_key') || import.meta.env.VITE_GEMINI_API_KEY || '').trim();
-
     try {
-      let analysisResult = null;
+      // Calls Cloud Function using the secret GEMINI_API_KEY configured on backend
+      const evaluateResume = httpsCallable(functions, 'evaluateResume');
+      const res = await evaluateResume({
+        resumeText,
+        jobDescription,
+        mode: activeMode
+      });
 
-      if (customKey) {
-        // Direct browser call if user provided a custom key
-        const prompt = getModePrompt(activeMode, resumeText, jobDescription);
-        analysisResult = await callGeminiDirect(prompt, customKey);
-      } else {
-        // Default to Cloud Function with backend secret GEMINI_API_KEY
-        const evaluateResume = httpsCallable(functions, 'evaluateResume');
-        const res = await evaluateResume({
-          resumeText,
-          jobDescription,
-          mode: activeMode
-        });
-
-        if (res.data && res.data.success) {
-          analysisResult = res.data.analysis;
-        } else {
-          throw new Error(res.data?.error || 'Failed to evaluate resume via Cloud Function.');
-        }
-      }
-
-      if (analysisResult) {
+      if (res.data && res.data.success) {
         setResults(prev => ({
           ...prev,
-          [activeMode]: analysisResult
+          [activeMode]: res.data.analysis
         }));
       } else {
-        setError('No evaluation results returned from AI service.');
+        throw new Error(res.data?.error || 'Failed to evaluate resume via Cloud Function.');
       }
     } catch (err) {
       console.error('ATS Evaluation Error:', err);
-      setError(err.message || 'Error calling AI service. Check Firebase functions deployment and API key configuration.');
+      setError(err.message || 'Error calling AI service. Please verify Cloud Functions deployment and secret configuration.');
     } finally {
       setLoading(false);
     }
@@ -270,7 +148,7 @@ export default function AtsMatcher() {
   return (
     <div className="flex flex-col gap-5">
       
-      {/* Top Banner & API Key Setup */}
+      {/* Top Banner */}
       <Card className="p-6 md:p-8 flex flex-col gap-3">
         <div className="flex items-center justify-between flex-wrap gap-4">
           <div className="flex items-center gap-2.5">
@@ -280,79 +158,7 @@ export default function AtsMatcher() {
               <p className="text-[0.85rem] text-text-secondary">Compare your resume to any job application instantly using Gemini AI</p>
             </div>
           </div>
-
-          <div className="flex items-center gap-2">
-            {apiKey.trim() ? (
-              <Badge variant="outline" className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20 py-1 px-2.5 gap-1.5 text-xs font-semibold">
-                <Check size={13} className="text-emerald-500" />
-                <span>Gemini Key Active</span>
-              </Badge>
-            ) : (
-              <Badge variant="outline" className="bg-amber-500/10 text-amber-600 border-amber-500/20 py-1 px-2.5 gap-1.5 text-xs font-semibold">
-                <Key size={13} className="text-amber-500" />
-                <span>API Key Recommended</span>
-              </Badge>
-            )}
-
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowKeyInput(prev => !prev)}
-              className="gap-1.5 text-xs h-8"
-            >
-              <Key size={13} />
-              <span>{showKeyInput ? 'Hide Key Settings' : 'Configure Key'}</span>
-            </Button>
-          </div>
         </div>
-
-        {/* Expandable Key Setup Input */}
-        {showKeyInput && (
-          <div className="mt-3 p-4 bg-muted/40 border border-border rounded-lg flex flex-col gap-3">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="gemini-key-input" className="text-xs font-bold text-foreground flex items-center gap-1.5">
-                <Key size={14} className="text-primary" />
-                Gemini API Key (Stored Locally in Browser)
-              </Label>
-              <a 
-                href="https://aistudio.google.com/" 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="text-xs text-primary hover:underline font-semibold flex items-center gap-0.5"
-              >
-                Get Free API Key ↗
-              </a>
-            </div>
-
-            <div className="flex gap-2 items-center">
-              <div className="relative flex-1">
-                <Input
-                  id="gemini-key-input"
-                  type={showKeyText ? "text" : "password"}
-                  placeholder="AIzaSy..."
-                  value={apiKey}
-                  onChange={(e) => setApiKey(e.target.value)}
-                  className="pr-10 text-xs font-mono"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowKeyText(prev => !prev)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                >
-                  {showKeyText ? <EyeOff size={14} /> : <Eye size={14} />}
-                </button>
-              </div>
-
-              <Button 
-                size="sm" 
-                onClick={() => setShowKeyInput(false)}
-                className="text-xs"
-              >
-                Save
-              </Button>
-            </div>
-          </div>
-        )}
       </Card>
 
       {/* Mode Selector Tab Bar */}
