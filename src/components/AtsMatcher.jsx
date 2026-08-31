@@ -64,7 +64,7 @@ const getModePrompt = (mode, resumeText, jobDescription) => {
 };
 
 const callGeminiDirect = async (prompt, apiKey) => {
-  const models = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash'];
+  const models = ['gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-pro', 'gemini-1.5-flash-latest'];
   let lastErr = null;
 
   for (const model of models) {
@@ -216,33 +216,20 @@ export default function AtsMatcher() {
       return;
     }
 
+    const effectiveKey = (apiKey || localStorage.getItem('GEMINI_API_KEY') || localStorage.getItem('ats_gemini_api_key') || import.meta.env.VITE_GEMINI_API_KEY || '').trim();
+
+    if (!effectiveKey) {
+      setError('Please enter your Gemini API Key using the "Configure Key" button above to run ATS match analysis.');
+      setShowKeyInput(true);
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
-    const effectiveKey = (apiKey || localStorage.getItem('GEMINI_API_KEY') || localStorage.getItem('ats_gemini_api_key') || import.meta.env.VITE_GEMINI_API_KEY || '').trim();
-
     try {
-      let analysisResult = null;
-
-      if (effectiveKey) {
-        // Direct client API call
-        const prompt = getModePrompt(activeMode, resumeText, jobDescription);
-        analysisResult = await callGeminiDirect(prompt, effectiveKey);
-      } else {
-        // Cloud Function fallback
-        const evaluateResume = httpsCallable(functions, 'evaluateResume');
-        const res = await evaluateResume({ 
-          resumeText, 
-          jobDescription,
-          mode: activeMode 
-        });
-
-        if (res.data && res.data.success) {
-          analysisResult = res.data.analysis;
-        } else {
-          throw new Error(res.data?.error || 'Failed to evaluate resume via Cloud Function.');
-        }
-      }
+      const prompt = getModePrompt(activeMode, resumeText, jobDescription);
+      const analysisResult = await callGeminiDirect(prompt, effectiveKey);
 
       if (analysisResult) {
         setResults(prev => ({
@@ -250,16 +237,12 @@ export default function AtsMatcher() {
           [activeMode]: analysisResult
         }));
       } else {
-        setError('No evaluation results returned.');
+        setError('No evaluation results returned from AI service.');
       }
     } catch (err) {
       console.error('ATS Evaluation Error:', err);
-      if (!effectiveKey) {
-        setError(`${err.message || 'Cloud function error'}. Please configure your Gemini API Key in the box above to run directly in browser.`);
-        setShowKeyInput(true);
-      } else {
-        setError(err.message || 'Error calling Gemini AI. Please check your API key.');
-      }
+      setError(err.message || 'Error calling Gemini AI. Please verify your API key.');
+      setShowKeyInput(true);
     } finally {
       setLoading(false);
     }
